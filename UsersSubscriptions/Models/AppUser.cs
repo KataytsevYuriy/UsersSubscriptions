@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace UsersSubscriptions.Models
 {
-    public class User : IdentityUser
+    public class AppUser : IdentityUser
     {
         public string Name { get; set; }
         public bool IsActive { get; set; }

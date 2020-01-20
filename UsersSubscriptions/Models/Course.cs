@@ -10,6 +10,12 @@ namespace UsersSubscriptions.Models
         public string Id { get; set; }
         public string Name { get; set; }
         public bool IsActive { get; set; }
-        public IEnumerable<string> TeachersId { get; set; }
+    }
+
+    public class CourseTaechers
+    {
+        public string Id { get; set; }
+        public string CourseId { get; set; }
+        public string UserId { get; set; }
     }
 }
