@@ -5,16 +5,27 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using UsersSubscriptions.Models;
+using UsersSubscriptions.Data;
 
 namespace UsersSubscriptions.Controllers
 {
     public class HomeController : Controller
     {
+        private ApplicationDbContext context;
+        public HomeController(ApplicationDbContext ctx)
+        {
+            context = ctx;
+        }
         public IActionResult Index()
         {
             return View();
         }
 
+        public IActionResult AdminCabinet()
+        {
+            IEnumerable<ViewUserModel> res = context.Users as IEnumerable<ViewUserModel>;
+            return View(context.Users);
+        }
         public IActionResult About()
         {
             ViewData["Message"] = "Your application description page.";
