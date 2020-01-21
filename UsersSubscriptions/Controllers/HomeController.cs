@@ -18,12 +18,16 @@ namespace UsersSubscriptions.Controllers
         }
         public IActionResult Index()
         {
+            var users = context.Users.ToList();
+            //var appUsers = context.AppUsers.ToList();
+            var contx = context;
+            var roles = context.Roles;
             return View();
         }
 
         public IActionResult AdminCabinet()
         {
-            IEnumerable<ViewUserModel> res = context.Users as IEnumerable<ViewUserModel>;
+           // IEnumerable<AppUser> res = context.Users as IEnumerable<AppUser>;
             return View(context.Users);
         }
         public IActionResult About()
