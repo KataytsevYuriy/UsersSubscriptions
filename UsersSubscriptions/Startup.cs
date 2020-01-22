@@ -12,6 +12,7 @@ using Microsoft.EntityFrameworkCore;
 using UsersSubscriptions.Data;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using UsersSubscriptions.Models;
 
 namespace UsersSubscriptions
 {
@@ -37,7 +38,7 @@ namespace UsersSubscriptions
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(
                     Configuration.GetConnectionString("DefaultConnection")));
-            services.AddDefaultIdentity<IdentityUser>()
+            services.AddDefaultIdentity<AppUser>()
                 .AddEntityFrameworkStores<ApplicationDbContext>();
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);

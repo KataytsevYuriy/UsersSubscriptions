@@ -2,9 +2,9 @@
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 
-namespace UsersSubscriptions.Data.Migrations
+namespace UsersSubscriptions.Migrations
 {
-    public partial class CreateIdentitySchema : Migration
+    public partial class start : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -26,7 +26,6 @@ namespace UsersSubscriptions.Data.Migrations
                 name: "AspNetUsers",
                 columns: table => new
                 {
-                    Id = table.Column<string>(nullable: false),
                     UserName = table.Column<string>(maxLength: 256, nullable: true),
                     NormalizedUserName = table.Column<string>(maxLength: 256, nullable: true),
                     Email = table.Column<string>(maxLength: 256, nullable: true),
@@ -40,11 +39,27 @@ namespace UsersSubscriptions.Data.Migrations
                     TwoFactorEnabled = table.Column<bool>(nullable: false),
                     LockoutEnd = table.Column<DateTimeOffset>(nullable: true),
                     LockoutEnabled = table.Column<bool>(nullable: false),
-                    AccessFailedCount = table.Column<int>(nullable: false)
+                    AccessFailedCount = table.Column<int>(nullable: false),
+                    Id = table.Column<string>(maxLength: 64, nullable: false),
+                    FullName = table.Column<string>(maxLength: 50, nullable: true),
+                    IsActive = table.Column<bool>(nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_AspNetUsers", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Courses",
+                columns: table => new
+                {
+                    Id = table.Column<string>(maxLength: 64, nullable: false),
+                    Name = table.Column<string>(maxLength: 50, nullable: true),
+                    IsActive = table.Column<bool>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Courses", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -153,6 +168,65 @@ namespace UsersSubscriptions.Data.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "CourseTaechers",
+                columns: table => new
+                {
+                    Id = table.Column<string>(maxLength: 64, nullable: false),
+                    CourseId = table.Column<string>(maxLength: 64, nullable: true),
+                    UserId = table.Column<string>(maxLength: 64, nullable: true),
+                    TeachersId = table.Column<string>(nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_CourseTaechers", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_CourseTaechers_Courses_CourseId",
+                        column: x => x.CourseId,
+                        principalTable: "Courses",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_CourseTaechers_AspNetUsers_TeachersId",
+                        column: x => x.TeachersId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Subscriptions",
+                columns: table => new
+                {
+                    Id = table.Column<string>(maxLength: 64, nullable: false),
+                    DayStart = table.Column<DateTime>(nullable: false),
+                    DayFinish = table.Column<DateTime>(nullable: false),
+                    CourseId = table.Column<string>(maxLength: 64, nullable: true),
+                    UserId = table.Column<string>(maxLength: 64, nullable: true),
+                    AppUserId = table.Column<string>(nullable: true),
+                    WasPayed = table.Column<bool>(nullable: false),
+                    CreatedbyTeacher = table.Column<string>(maxLength: 64, nullable: true),
+                    CreatedDatetime = table.Column<DateTime>(nullable: false),
+                    PyedToTeacher = table.Column<string>(maxLength: 64, nullable: true),
+                    PayedDtetime = table.Column<DateTime>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Subscriptions", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Subscriptions_AspNetUsers_AppUserId",
+                        column: x => x.AppUserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Subscriptions_Courses_CourseId",
+                        column: x => x.CourseId,
+                        principalTable: "Courses",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetRoleClaims_RoleId",
                 table: "AspNetRoleClaims",
@@ -191,6 +265,26 @@ namespace UsersSubscriptions.Data.Migrations
                 column: "NormalizedUserName",
                 unique: true,
                 filter: "[NormalizedUserName] IS NOT NULL");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_CourseTaechers_CourseId",
+                table: "CourseTaechers",
+                column: "CourseId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_CourseTaechers_TeachersId",
+                table: "CourseTaechers",
+                column: "TeachersId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Subscriptions_AppUserId",
+                table: "Subscriptions",
+                column: "AppUserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Subscriptions_CourseId",
+                table: "Subscriptions",
+                column: "CourseId");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
@@ -211,10 +305,19 @@ namespace UsersSubscriptions.Data.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
+                name: "CourseTaechers");
+
+            migrationBuilder.DropTable(
+                name: "Subscriptions");
+
+            migrationBuilder.DropTable(
                 name: "AspNetRoles");
 
             migrationBuilder.DropTable(
                 name: "AspNetUsers");
+
+            migrationBuilder.DropTable(
+                name: "Courses");
         }
     }
 }

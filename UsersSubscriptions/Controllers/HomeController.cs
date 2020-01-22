@@ -19,7 +19,6 @@ namespace UsersSubscriptions.Controllers
         public IActionResult Index()
         {
             var users = context.Users.ToList();
-            //var appUsers = context.AppUsers.ToList();
             var contx = context;
             var roles = context.Roles;
             return View();

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -7,15 +8,25 @@ namespace UsersSubscriptions.Models
 {
     public class Subscription
     {
+        [StringLength(64)]
         public string Id { get; set; }
         public DateTime DayStart { get; set; }
         public DateTime DayFinish { get; set; }
+
+        [StringLength(64)]
         public string CourseId { get; set; }
+        public Course Course { get; set; }
+
+        [StringLength(64)]
         public string UserId { get; set; }
+        public AppUser AppUser { get; set; }
+
         public bool WasPayed { get; set; }
-        public string CreatedByTeacherId { get; set; }
-        public DateTime CreatedDateTime { get; set; }
-        public string PayedToTeacherId { get; set; }
-        public DateTime PayedDateTime { get; set; }
+        [StringLength(64)]
+        public string CreatedbyTeacher { get; set; }
+        public DateTime CreatedDatetime { get; set; }
+        [StringLength(64)]
+        public string PyedToTeacher { get; set; }
+        public DateTime PayedDtetime { get; set; }
     }
 }
