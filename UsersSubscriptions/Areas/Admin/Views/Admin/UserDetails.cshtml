@@ -1,33 +1,34 @@
-﻿@model AdminDetailViewModel
+﻿@model UserDetailViewModel
 @{
     ViewData["Title"] = "Details";
     Layout = "_Layout";
 }
-<div class="bg-primary text-center "><h2>User's @Model.User.FullName Details</h2></div>
-@*<div asp-validation-summary="ModelOnly" class="text-danger"></div>*@
+<div class="bg-primary text-center "><h2>User's @Model.FullName Details</h2></div>
+<div asp-validation-summary="ModelOnly" class="text-danger"></div>
 <div>
     <form asp-action="UserDetails" method="post">
-        <input type="hidden" name="Id" value="Model.User.Id" />
+        <input type="hidden" name="Id" value="@Model.Id" />
         <div class="form-group">
-            <label asp-for="User.FullName"></label>
-            <input asp-for="User.FullName" value="@Model.User.FullName" />
+            <label asp-for="FullName"></label>
+            <input asp-for="FullName" value="@Model.FullName" />
 
         </div>
         <div class="form-group">
-            <label asp-for="User.UserName"></label>
-            <input asp-for="User.UserName" value="@Model.User.UserName" />
+            <label asp-for="UserName"></label>
+            <input asp-for="UserName" value="@Model.UserName" />
         </div>
         <div class="form-group">
-            <label asp-for="User.Email"></label>
-            <input asp-for="User.Email" value="@Model.User.Email" />
+            <label asp-for="Email"></label>
+            <input asp-for="Email" value="@Model.Email" />
         </div>
         <div class="form-group">
-            <label asp-for="User.PhoneNumber"></label>
-            <input asp-for="User.PhoneNumber" value="@Model.User.PhoneNumber" />
+            <label asp-for="PhoneNumber"></label>
+            <input asp-for="PhoneNumber" value="@Model.PhoneNumber" />
         </div>
         <div class="form-group">
-            <label asp-for="User.IsActive"></label>
-            <input type="checkbox" @*asp-for="User.IsActive"*@ value="@Model.User.IsActive"  @(Model.User.IsActive ? "checked=\"checked\"" : "") )/>
+            <label asp-for="IsActive"></label>
+            <input type="checkbox" id="IsActiveString"   
+                   @(Model.IsActive ? "checked=\"checked\"" : "")/>
         </div>
         <div class="form-group">
             <label asp-for="AllRoles"></label>
@@ -38,6 +39,7 @@
                             @role.Name<br />
             }
         </div>
+        <button type="submit" class="btn btn-primary">Save changes</button>
 </form>
     
 </div>

@@ -38,14 +38,10 @@ namespace UsersSubscriptions
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(
                     Configuration.GetConnectionString("DefaultConnection")));
-            //services.AddIdentity<AppUser, IdentityRole>()
-            //services.AddDefaultIdentity<AppUser>()
-
-            //    .AddEntityFrameworkStores<ApplicationDbContext>();
-            services.AddIdentity<AppUser,IdentityRole>()
-                .AddEntityFrameworkStores<ApplicationDbContext>()
-                .AddDefaultTokenProviders();
-
+            services.AddDefaultIdentity<AppUser>()
+                .AddRoles<IdentityRole>()
+                .AddEntityFrameworkStores<ApplicationDbContext>();
+           
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
         }
 

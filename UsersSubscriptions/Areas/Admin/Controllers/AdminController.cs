@@ -14,7 +14,7 @@ namespace UsersSubscriptions.Areas.Admin.Controllers
     [Area("Admin")]
     public class AdminController : Controller
     {
-        private ApplicationDbContext _context;
+        private readonly ApplicationDbContext _context;
         private UserManager<AppUser> _userManager;
         private RoleManager<IdentityRole> _roleManager;
         public AdminController(ApplicationDbContext context,
@@ -40,12 +40,44 @@ namespace UsersSubscriptions.Areas.Admin.Controllers
             {
                 var userRoles = await _userManager.GetRolesAsync(user);
                 var allRoles = _roleManager.Roles.ToList();
-                AdminDetailViewModel model = new AdminDetailViewModel(user, allRoles, userRoles);
+                UserDetailViewModel model = new UserDetailViewModel()
+                {
+                    Id = user.Id,
+                    FullName = user.FullName,
+                    UserName = user.UserName,
+                    Email = user.Email,
+                    PhoneNumber = user.PhoneNumber,
+                    IsActive = user.IsActive,
+                    AllRoles = allRoles,
+                    UserRoles = userRoles
+                };
                 return  View(model);
             }
             return View(nameof(Index));
         }
-
+        [HttpPost]
+        public async Task<IActionResult> UserDetails(UserDetailViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                AppUser user = await _userManager.FindByIdAsync(model.Id);
+                if (user != null)
+                {
+                    user.FullName = model.FullName;
+                    user.UserName = model.UserName;
+                    user.Email = model.Email;
+                    user.PhoneNumber = model.PhoneNumber;
+                    //user.IsActive = model.IsActive;
+                    var res = await _userManager.UpdateAsync(user);
+                    var userRoles = await _userManager.GetRolesAsync(user);
+                    var addedRoles = model.UserRoles.Except(userRoles);
+                    var removedRoles = userRoles.Except(model.UserRoles);
+                    await _userManager.AddToRolesAsync(user, addedRoles);
+                    await _userManager.RemoveFromRolesAsync(user, removedRoles);
+                }
+            }
+            return RedirectToAction(nameof(Index));
+        }
         // GET: Admin/Create
         public ActionResult Create()
         {
