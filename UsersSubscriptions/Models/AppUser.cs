@@ -10,7 +10,7 @@ namespace UsersSubscriptions.Models
     public class AppUser : IdentityUser
     {
         [StringLength(64)]
-        public string Id { get; set; }
+        public override string Id { get; set; }
         [StringLength(50)]
         public string FullName { get; set; }
         public bool IsActive { get; set; }

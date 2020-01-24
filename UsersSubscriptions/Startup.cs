@@ -38,8 +38,13 @@ namespace UsersSubscriptions
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(
                     Configuration.GetConnectionString("DefaultConnection")));
-            services.AddDefaultIdentity<AppUser>()
-                .AddEntityFrameworkStores<ApplicationDbContext>();
+            //services.AddIdentity<AppUser, IdentityRole>()
+            //services.AddDefaultIdentity<AppUser>()
+
+            //    .AddEntityFrameworkStores<ApplicationDbContext>();
+            services.AddIdentity<AppUser,IdentityRole>()
+                .AddEntityFrameworkStores<ApplicationDbContext>()
+                .AddDefaultTokenProviders();
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
         }
@@ -66,6 +71,10 @@ namespace UsersSubscriptions
 
             app.UseMvc(routes =>
             {
+                routes.MapRoute(
+                 name: "areas",
+                 template: "{area:exists}/{controller=Home}/{action=Index}/{id?}");
+
                 routes.MapRoute(
                     name: "default",
                     template: "{controller=Home}/{action=Index}/{id?}");
