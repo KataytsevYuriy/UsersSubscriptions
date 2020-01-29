@@ -15,7 +15,6 @@ namespace UsersSubscriptions.Data
         {}
         public DbSet<Subscription> Subscriptions { get; set; }
         public DbSet<Course> Courses { get; set; }
-        public DbSet<CourseTaechers> CourseTaechers { get; set; }
 
     }
 }

@@ -1,7 +1,7 @@
 ﻿@model IEnumerable<AppUser>
 @{
     ViewData["Title"] = "Users";
-    Layout = "_Layout";
+    Layout = "_AdminLayout";
 }
 
 <div class="bg-primary text-center"><h3>Users</h3></div>
@@ -18,7 +18,8 @@
                 <td>@usr.PhoneNumber</td>
                 <td>@(usr.IsActive==true ? "Active" : "No")</td>
                 <td>
-                    <a asp-action="UserDetails" asp-route-id="@usr.Id" class="btn btn-default">Details</a> 
+                    <a asp-action="UserDetails" asp-route-Id="@usr.Id" class="btn btn-default">Details</a> 
+                    <a asp-action="UserDeleting" asp-route-Id="@usr.Id" class="btn btn-danger">Delete User</a>
                 </td>
             </tr>
         }

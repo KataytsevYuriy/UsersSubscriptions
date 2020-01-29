@@ -1,0 +1,12 @@
+﻿@{
+    Layout = "_Layout";
+}
+<div>
+    <a asp-action="Index" class="btn btn-info"> Users </a>
+    <a asp-action="Roles" class="btn btn-info"> Roles </a>
+    <a asp-action="Courses" class="btn btn-info" > Courses </a>
+    <a asp-action="Subscriptions" class="btn btn-info"> Subscriptions </a>
+</div>
+<div>
+    @RenderBody()
+</div>

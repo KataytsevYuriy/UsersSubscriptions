@@ -10,8 +10,8 @@ using UsersSubscriptions.Data;
 namespace UsersSubscriptions.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20200122072125_start")]
-    partial class start
+    [Migration("20200129082914_start1")]
+    partial class start1
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -198,6 +198,8 @@ namespace UsersSubscriptions.Migrations
                         .ValueGeneratedOnAdd()
                         .HasMaxLength(64);
 
+                    b.Property<string>("Discription");
+
                     b.Property<bool>("IsActive");
 
                     b.Property<string>("Name")
@@ -208,27 +210,25 @@ namespace UsersSubscriptions.Migrations
                     b.ToTable("Courses");
                 });
 
-            modelBuilder.Entity("UsersSubscriptions.Models.CourseTaechers", b =>
+            modelBuilder.Entity("UsersSubscriptions.Models.CourseAppUser", b =>
                 {
                     b.Property<string>("Id")
                         .ValueGeneratedOnAdd()
                         .HasMaxLength(64);
 
-                    b.Property<string>("CourseId")
+                    b.Property<string>("AppUserId")
                         .HasMaxLength(64);
 
-                    b.Property<string>("TeachersId");
-
-                    b.Property<string>("UserId")
+                    b.Property<string>("CourseId")
                         .HasMaxLength(64);
 
                     b.HasKey("Id");
 
+                    b.HasIndex("AppUserId");
+
                     b.HasIndex("CourseId");
 
-                    b.HasIndex("TeachersId");
-
-                    b.ToTable("CourseTaechers");
+                    b.ToTable("CourseAppUser");
                 });
 
             modelBuilder.Entity("UsersSubscriptions.Models.Subscription", b =>
@@ -315,15 +315,15 @@ namespace UsersSubscriptions.Migrations
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
-            modelBuilder.Entity("UsersSubscriptions.Models.CourseTaechers", b =>
+            modelBuilder.Entity("UsersSubscriptions.Models.CourseAppUser", b =>
                 {
-                    b.HasOne("UsersSubscriptions.Models.Course", "Course")
-                        .WithMany()
-                        .HasForeignKey("CourseId");
+                    b.HasOne("UsersSubscriptions.Models.AppUser", "AppUser")
+                        .WithMany("CourseAppUser")
+                        .HasForeignKey("AppUserId");
 
-                    b.HasOne("UsersSubscriptions.Models.AppUser", "Teachers")
-                        .WithMany()
-                        .HasForeignKey("TeachersId");
+                    b.HasOne("UsersSubscriptions.Models.Course", "Course")
+                        .WithMany("CourseAppUsers")
+                        .HasForeignKey("CourseId");
                 });
 
             modelBuilder.Entity("UsersSubscriptions.Models.Subscription", b =>

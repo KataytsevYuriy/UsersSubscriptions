@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace UsersSubscriptions.Migrations
 {
-    public partial class start : Migration
+    public partial class start1 : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -55,7 +55,8 @@ namespace UsersSubscriptions.Migrations
                 {
                     Id = table.Column<string>(maxLength: 64, nullable: false),
                     Name = table.Column<string>(maxLength: 50, nullable: true),
-                    IsActive = table.Column<bool>(nullable: false)
+                    IsActive = table.Column<bool>(nullable: false),
+                    Discription = table.Column<string>(nullable: true)
                 },
                 constraints: table =>
                 {
@@ -169,27 +170,26 @@ namespace UsersSubscriptions.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "CourseTaechers",
+                name: "CourseAppUser",
                 columns: table => new
                 {
                     Id = table.Column<string>(maxLength: 64, nullable: false),
                     CourseId = table.Column<string>(maxLength: 64, nullable: true),
-                    UserId = table.Column<string>(maxLength: 64, nullable: true),
-                    TeachersId = table.Column<string>(nullable: true)
+                    AppUserId = table.Column<string>(maxLength: 64, nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_CourseTaechers", x => x.Id);
+                    table.PrimaryKey("PK_CourseAppUser", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_CourseTaechers_Courses_CourseId",
-                        column: x => x.CourseId,
-                        principalTable: "Courses",
+                        name: "FK_CourseAppUser_AspNetUsers_AppUserId",
+                        column: x => x.AppUserId,
+                        principalTable: "AspNetUsers",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_CourseTaechers_AspNetUsers_TeachersId",
-                        column: x => x.TeachersId,
-                        principalTable: "AspNetUsers",
+                        name: "FK_CourseAppUser_Courses_CourseId",
+                        column: x => x.CourseId,
+                        principalTable: "Courses",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                 });
@@ -267,14 +267,14 @@ namespace UsersSubscriptions.Migrations
                 filter: "[NormalizedUserName] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
-                name: "IX_CourseTaechers_CourseId",
-                table: "CourseTaechers",
-                column: "CourseId");
+                name: "IX_CourseAppUser_AppUserId",
+                table: "CourseAppUser",
+                column: "AppUserId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_CourseTaechers_TeachersId",
-                table: "CourseTaechers",
-                column: "TeachersId");
+                name: "IX_CourseAppUser_CourseId",
+                table: "CourseAppUser",
+                column: "CourseId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Subscriptions_AppUserId",
@@ -305,7 +305,7 @@ namespace UsersSubscriptions.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
-                name: "CourseTaechers");
+                name: "CourseAppUser");
 
             migrationBuilder.DropTable(
                 name: "Subscriptions");

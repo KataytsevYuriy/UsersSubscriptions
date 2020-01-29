@@ -40,14 +40,15 @@ namespace UsersSubscriptions.Areas.Admin.Controllers
             {
                 var userRoles = await _userManager.GetRolesAsync(user);
                 var allRoles = _roleManager.Roles.ToList();
-                UserDetailViewModel model = new UserDetailViewModel()
+                UserViewModel model = new UserViewModel()
                 {
                     Id = user.Id,
                     FullName = user.FullName,
                     UserName = user.UserName,
                     Email = user.Email,
                     PhoneNumber = user.PhoneNumber,
-                    IsActive = user.IsActive,
+                    //IsActive = $"IsActive:{user.IsActive}",
+                    IsActive = user.IsActive? "checked=\"checked\"" : "",
                     AllRoles = allRoles,
                     UserRoles = userRoles
                 };
@@ -56,7 +57,7 @@ namespace UsersSubscriptions.Areas.Admin.Controllers
             return View(nameof(Index));
         }
         [HttpPost]
-        public async Task<IActionResult> UserDetails(UserDetailViewModel model)
+        public async Task<IActionResult> UserDetails(UserViewModel model)
         {
             if (ModelState.IsValid)
             {
@@ -67,7 +68,7 @@ namespace UsersSubscriptions.Areas.Admin.Controllers
                     user.UserName = model.UserName;
                     user.Email = model.Email;
                     user.PhoneNumber = model.PhoneNumber;
-                    //user.IsActive = model.IsActive;
+                    user.IsActive = model.IsActive == null ? false : true;
                     var res = await _userManager.UpdateAsync(user);
                     var userRoles = await _userManager.GetRolesAsync(user);
                     var addedRoles = model.UserRoles.Except(userRoles);
@@ -78,87 +79,156 @@ namespace UsersSubscriptions.Areas.Admin.Controllers
             }
             return RedirectToAction(nameof(Index));
         }
-        // GET: Admin/Create
-        public ActionResult Create()
+
+        public async Task<IActionResult> UserDeleting (string id)
         {
-            return View();
+            AppUser user = await _userManager.FindByIdAsync(id);
+            if (user != null)
+            {
+                var userRoles = await _userManager.GetRolesAsync(user);
+                UserViewModel model = new UserViewModel()
+                {
+                    Id = user.Id,
+                    FullName = user.FullName,
+                    UserName = user.UserName,
+                    Email = user.Email,
+                    PhoneNumber = user.PhoneNumber,
+                    IsActive = $"{user.IsActive}",
+                    UserRoles = userRoles
+                };
+                return View(model);
+            }
+            return View(nameof(Index));
         }
+
+        [HttpPost]
+        public async Task<IActionResult> UserDeleting (UserViewModel model)
+        {
+            AppUser deletingUser = await _userManager.FindByIdAsync(model.Id);
+            if (deletingUser != null)
+            {
+                var userRoles = await _userManager.GetRolesAsync(deletingUser);
+                if (userRoles != null)
+                {
+                    await _userManager.RemoveFromRolesAsync(deletingUser, userRoles);
+                }
+                await _userManager.DeleteAsync(deletingUser);
+            }
+            return RedirectToAction(nameof(Index));
+        }
+       
 
         // Roles
         public IActionResult Roles()
         {
-            //IdentityRole roleAdmin = new IdentityRole { Name = "Teacher", NormalizedName = "Teacher" };
-            //await _context.Roles.AddAsync(roleAdmin);
-            //await _context.SaveChangesAsync();
-
-            //IEnumerable<IdentityRole> roles = await _context.Roles;
-            //_userManager.rol
-            //IEnumerable<IdentityRole> roles = _context.Roles as IEnumerable<IdentityRole>;
-            //List<IdentityRole> roles = _context.Roles.ToList();
+           
             var roles = _roleManager.Roles.ToList();
             return View(roles);
         }
-        // POST: Admin/Create
-        //[HttpPost]
-        //[ValidateAntiForgeryToken]
-        //public ActionResult Create(IFormCollection collection)
-        //{
-        //    try
-        //    {
-        //        // TODO: Add insert logic here
 
-        //        return RedirectToAction(nameof(Index));
-        //    }
-        //    catch
-        //    {
-        //        return View();
-        //    }
-        //}
 
-        //// GET: Admin/Edit/5
-        //public ActionResult Edit(int id)
-        //{
-        //    return View();
-        //}
+        public IActionResult CreateRole() => View();
 
-        //// POST: Admin/Edit/5
-        //[HttpPost]
-        //[ValidateAntiForgeryToken]
-        //public ActionResult Edit(int id, IFormCollection collection)
-        //{
-        //    try
-        //    {
-        //        // TODO: Add update logic here
+        [HttpPost]
+        public async Task<IActionResult> CreateRole (IdentityRole model)
+        {
+            if (ModelState.IsValid && !string.IsNullOrEmpty(model.Name))
+            {
+                IdentityRole role = await _roleManager.FindByNameAsync(model.Name);
+                if (role == null)
+                {
+                    role = new IdentityRole { Name = model.Name };
+                    await _roleManager.CreateAsync(role);
+                }
+            }
+            return RedirectToAction(nameof(Roles));
+        }
+        
+        public async Task<IActionResult> RoleDetails(string id)
+        {
+            IdentityRole role = await _roleManager.FindByIdAsync(id);
+            RoleViewModel model = new RoleViewModel { Name = role.Name, Id=role.Id };
+            if (role != null)
+            {
+                //IList<AppUser> users = await _userManager.GetUsersInRoleAsync(role.Name);
+                var users = await _userManager.GetUsersInRoleAsync(role.Name);
+                if (users.Count() != 0)
+                {
+                    model.users = users;
+                }
+                return View(model);
+            }
+            return RedirectToAction(nameof(Roles));
+        }
 
-        //        return RedirectToAction(nameof(Index));
-        //    }
-        //    catch
-        //    {
-        //        return View();
-        //    }
-        //}
+        [HttpPost]
+        public async Task<IActionResult> ChangeRole(RoleViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                IdentityRole role = await _roleManager.FindByIdAsync(model.Id);
+                if (role != null && !(role.Name.Equals(model.Name)))
+                {
+                    role.Name = model.Name;
+                    await _roleManager.UpdateAsync(role);
+                }
+            }
+            return RedirectToAction(nameof(Roles));
+        }
 
-        //// GET: Admin/Delete/5
-        //public ActionResult Delete(int id)
-        //{
-        //    return View();
-        //}
+        public async Task<IActionResult> RoleDeleting (string id)
+        {
+            IdentityRole role = await _roleManager.FindByIdAsync(id);
+            if (role != null)
+            {
+                RoleViewModel model = new RoleViewModel { Id = role.Id, Name = role.Name };
+                IList<AppUser> users = await _userManager.GetUsersInRoleAsync(role.Name);
+                if (users.Count() != 0) model.users = users;
+                return View(model);
+            }
+            return RedirectToAction(nameof(Roles));
+        }
+        [HttpPost]
+        public async Task<IActionResult> RoleDeleting (RoleViewModel model)
+        {
+            IdentityRole role = await _roleManager.FindByIdAsync(model.Id);
+            if (role != null)
+            {
+                await _roleManager.DeleteAsync(role);
+            }
+            return RedirectToAction(nameof(Roles));
+        }
 
-        //// POST: Admin/Delete/5
-        //[HttpPost]
-        //[ValidateAntiForgeryToken]
-        //public ActionResult Delete(int id, IFormCollection collection)
-        //{
-        //    try
-        //    {
-        //        // TODO: Add delete logic here
+        //Courses
+        public async Task<IActionResult> Courses()
+        {
+            //List<AppUser> user = new List<AppUser>{
+            //   // await _userManager.FindByNameAsync("admin@mail.net"),
+            //    await _userManager.FindByNameAsync("TEST@MAIL.COM"),
 
-        //        return RedirectToAction(nameof(Index));
-        //    }
-        //    catch
-        //    {
-        //        return View();
-        //    }
-        //}
+            //};
+            //Course course = new Course { Name = "Test1", IsActive = true, Teachers = user };
+            //await _context.Courses.AddAsync(course);
+            //await _context.SaveChangesAsync();
+
+
+            //List<Course> c = await _context.Courses.ToList();
+            //await _context.Courses.Remove();
+
+
+            //IEnumerable<CourseViewModel> model;
+            //List<Course> courses = _context.Courses.ToList();
+            //IList<AppUser> allTeachers = await _userManager.GetUsersInRoleAsync("Teacher");
+            //ViewBag.AllTeachers = allTeachers;
+            //if (courses.Count() > 0)
+            //{
+            //    foreach(Course course in courses)
+            //    {
+            //        var teachers = _context.Users.Where(u=>u.Id)
+            //    }
+            //}
+            return RedirectToAction(nameof(Index));
+        }
+
     }
 }

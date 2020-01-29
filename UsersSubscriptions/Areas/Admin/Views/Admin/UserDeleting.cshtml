@@ -1,0 +1,27 @@
+﻿@model UserViewModel
+@{
+    ViewData["Title"] = "UserDalete";
+    Layout = "_Layout";
+}
+<div class="bg-danger text-center"><h2>Confirm Deleting User @Model.UserName @Model.FullName</h2></div>
+<div>
+    <table class="table table-bordered table-striped">
+        <tr><th>FullName</th><td>@Model.FullName</td></tr>
+        <tr><th>UserName</th><td>@Model.UserName</td></tr>
+        <tr><th>Email</th><td>@Model.Email</td></tr>
+        <tr><th>PhoneNumber</th><td>@Model.PhoneNumber</td></tr>
+        <tr><th>IsActive</th><td>@Model.IsActive</td></tr>
+        <tr><th>Roles</th>
+        <td>
+            @foreach (string role in Model.UserRoles)
+            {
+                @role <br>
+            }
+            </td></tr>
+    </table>
+    <a asp-action="Index" class="btn btn-primary">To List Users</a>
+    <form asp-action="UserDeleting" method="post">
+        <input type="hidden" name="Id" value="@Model.Id" />
+        <button type="submit" class="btn btn-danger">Delete</button>
+    </form>
+</div>

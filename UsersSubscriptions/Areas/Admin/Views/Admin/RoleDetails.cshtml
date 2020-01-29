@@ -1,0 +1,29 @@
+﻿@model RoleViewModel
+@{
+    ViewData["Title"] = "RoleDetails";
+    Layout = "_AdminLayout";
+}
+<div>
+    <form asp-action="ChangeRole" method="post">
+        <div class="form-group">
+            <input type="hidden" asp-for="Id" />
+            <label asp-for="Name"></label>
+            <input asp-for="Name" />
+        </div>
+        <button type="submit" class="btn btn-default">Save chenges</button>
+    </form>
+    @if (Model.users.Count() > 0)
+    {
+    <div>
+        <h4> Users:</h4><br>
+                        <p>
+                            
+                            @foreach (var user in Model.users)
+                            {
+                                @user.FullName @user.Email <br />
+                            }
+                            </p>
+</div>
+    }
+</div>
+<a asp-action="Roles" class="btn btn-primary">Back to Roles</a>
