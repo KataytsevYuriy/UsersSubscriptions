@@ -15,11 +15,9 @@ namespace UsersSubscriptions.Models
         [StringLength(50)]
         public string Name { get; set; }
         public bool IsActive { get; set; }
-        public string Discription { get; set; }
+        public string Description { get; set; }
 
-        //[StringLength(64)]
-        //public string UserId { get; set; }
-        //public AppUser Teachers { get; set; }
+        public IEnumerable<Subscription> Subscriptions { get; set; }
         public IEnumerable<CourseAppUser> CourseAppUsers { get; set; }
 
     }

@@ -1,6 +1,5 @@
-﻿@model UserViewModel
+﻿@model AppUser
 @{
-    ViewData["Title"] = "UserDalete";
     Layout = "_Layout";
 }
 <div class="bg-danger text-center"><h2>Confirm Deleting User @Model.UserName @Model.FullName</h2></div>
@@ -12,15 +11,15 @@
         <tr><th>PhoneNumber</th><td>@Model.PhoneNumber</td></tr>
         <tr><th>IsActive</th><td>@Model.IsActive</td></tr>
         <tr><th>Roles</th>
-        <td>
-            @foreach (string role in Model.UserRoles)
+            <td>
+                @foreach (string role in ViewBag.userRoles)
             {
-                @role <br>
+                @role  <br>
             }
             </td></tr>
     </table>
     <a asp-action="Index" class="btn btn-primary">To List Users</a>
-    <form asp-action="UserDeleting" method="post">
+    <form asp-action="DeleteUser" method="post">
         <input type="hidden" name="Id" value="@Model.Id" />
         <button type="submit" class="btn btn-danger">Delete</button>
     </form>

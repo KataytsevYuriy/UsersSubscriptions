@@ -1,0 +1,23 @@
+﻿@model AppUser
+@{
+    Layout = "_StudentLayout";
+}
+
+<div class="bg-primary text-center text-info"><h3> Hello @Model.FullName</h3></div>
+@if (Model.IsActive)
+{
+<div class="text-info"> Your name : @Model.FullName</div>
+<div class="text-info"> Your Email : @Model.Email</div>
+@if (string.IsNullOrEmpty(Model.PhoneNumber))
+{
+    <div class="text-danger"> Please add your phone</div>
+}
+else
+{
+    <div class="text-info"> Your Phone : @Model.PhoneNumber</div>
+
+}
+} else
+{
+    <div class="bg-danger text-center"> <h2>Your accaunt is blocked. Please contact the admin.</h2></div>
+}

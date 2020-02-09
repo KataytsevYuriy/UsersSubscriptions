@@ -1,22 +1,21 @@
-﻿@model RoleViewModel
+﻿@model IdentityRole
 @{
-    ViewData["Title"] = "RoleDeleting";
     Layout = "_AdminLayout";
 }
 <div class="bg-danger text-center"><h3>You are deletimg Role - @Model.Name </h3></div>
-@if (Model.users.Count > 0)
+@if (ViewBag.roleUsers.Count > 0)
 {
     <h2 class="text-danger"> Role @Model.Name has users:</h2>
-    @foreach (var user in Model.users)
+    @foreach (AppUser user in ViewBag.roleUsers)
     {
-    <p> @user.FullName   @user.UserName</p> <br />
+    <p><a asp-controller="User" asp-action="UserDetails" asp-route-id="@user.Id">User: @user.FullName   Email: @user.Email</a></p> <br />
     }
     <h2> Please, remove this(these) users from Role</h2>
 }
 else {
-    <form asp-action="RoleDeleting" method="post">
+    <form asp-action="DeleteRole" method="post">
         <input type="hidden" name="Id" value="@Model.Id" />
         <button type="submit" class="btn btn-danger">Delete</button>
     </form>
 }
-<a asp-action="Roles" class="btn btn-primary">Back to Roles</a>
+<a asp-action="Index" class="btn btn-primary">Back to Roles</a>

@@ -1,6 +1,5 @@
 ﻿@model IEnumerable<IdentityRole>
 @{
-    ViewData["Title"] = "Roles";
     Layout = "_AdminLayout";
 }
 
@@ -15,7 +14,7 @@
                 <td>@role.Name</td>
                 <td>
                     <a asp-action="RoleDetails" asp-route-id="@role.Id" class="btn btn-primary">Details</a>
-                    <a asp-action="RoleDeleting" asp-route-id="@role.Id" class="btn btn-danger">Delete a Role</a>
+                    <a asp-action="DeleteRole" asp-route-id="@role.Id" class="btn btn-danger">Delete a Role</a>
                 </td>
             </tr>
         }

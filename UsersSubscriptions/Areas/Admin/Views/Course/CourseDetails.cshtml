@@ -1,0 +1,35 @@
+﻿@model Course
+@{
+    Layout = "_AdminLayout";
+}
+<div class="bg-primary text-center"><h3>Course @Model.Name  Details</h3></div>
+
+<div>
+    <form asp-action="ChangeCourse" method="post">
+        <div class="form-group">
+            <input type="hidden" asp-for="Id" />
+            <div class=" form-group">
+                <label asp-for="Name"></label>
+                <input asp-for="Name" class="form-control" />
+            </div>
+            <div class=" form-group">
+                <label asp-for="IsActive"></label>
+                <input asp-for="IsActive" class="form-control" />
+            </div>
+            <div class=" form-group">
+                <label asp-for="Description"></label>
+                <input asp-for="Description" class="form-control" />
+            </div>
+            <div class="form-control">
+                <label>Teachers:</label>
+                @foreach (var teacher in Model.CourseAppUsers)
+                {
+                    <p>  @teacher.AppUser.FullName </p>
+                }
+            </div>
+        </div>
+        <button type="submit" class="btn btn-default">Save chenges</button>
+    </form>
+    <a asp-action="EditCourseTeachers" asp-route-Id="@Model.Id" class=" btn btn-primary">Edit Teachers</a>
+    <a asp-action="Index" class="btn btn-primary">Back to Courses List</a>
+</div>

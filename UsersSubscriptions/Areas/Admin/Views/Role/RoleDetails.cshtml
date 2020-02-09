@@ -1,6 +1,5 @@
-﻿@model RoleViewModel
+﻿@model IdentityRole
 @{
-    ViewData["Title"] = "RoleDetails";
     Layout = "_AdminLayout";
 }
 <div>
@@ -12,18 +11,15 @@
         </div>
         <button type="submit" class="btn btn-default">Save chenges</button>
     </form>
-    @if (Model.users.Count() > 0)
-    {
     <div>
         <h4> Users:</h4><br>
                         <p>
                             
-                            @foreach (var user in Model.users)
+                            @foreach (AppUser user in ViewBag.roleUsers)
                             {
-                                @user.FullName @user.Email <br />
+                            <a asp-action="UserDetails" asp-route-id="@user.Id">User: @user.FullName   Email: @user.Email</a><br />
                             }
                             </p>
 </div>
-    }
 </div>
-<a asp-action="Roles" class="btn btn-primary">Back to Roles</a>
+<a asp-action="Index" class="btn btn-primary">Back to Roles</a>

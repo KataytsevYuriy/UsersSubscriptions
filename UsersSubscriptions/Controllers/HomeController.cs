@@ -24,11 +24,11 @@ namespace UsersSubscriptions.Controllers
             return View();
         }
 
-        public IActionResult AdminCabinet()
-        {
-           // IEnumerable<AppUser> res = context.Users as IEnumerable<AppUser>;
-            return View(context.Users);
-        }
+        //public IActionResult AdminCabinet()
+        //{
+        //   // IEnumerable<AppUser> res = context.Users as IEnumerable<AppUser>;
+        //    return View(context.Users);
+        //}
         public IActionResult About()
         {
             ViewData["Message"] = "Your application description page.";

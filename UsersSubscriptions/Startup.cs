@@ -13,6 +13,7 @@ using UsersSubscriptions.Data;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using UsersSubscriptions.Models;
+using UsersSubscriptions.Areas.Admin.Models;
 
 namespace UsersSubscriptions
 {
@@ -41,7 +42,8 @@ namespace UsersSubscriptions
             services.AddDefaultIdentity<AppUser>()
                 .AddRoles<IdentityRole>()
                 .AddEntityFrameworkStores<ApplicationDbContext>();
-           
+            services.AddTransient<IAdminDataRepository, AdminRepository>();
+            services.AddTransient<IUserRepository, UserRepository>();
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
         }
 

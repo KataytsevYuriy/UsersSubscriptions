@@ -22,11 +22,15 @@ namespace UsersSubscriptions.Models
         public AppUser AppUser { get; set; }
 
         public bool WasPayed { get; set; }
+
         [StringLength(64)]
-        public string CreatedbyTeacher { get; set; }
+        public SubscriptionCreatedby CreatedbyTeacher { get; set; }
         public DateTime CreatedDatetime { get; set; }
+
         [StringLength(64)]
-        public string PyedToTeacher { get; set; }
+        public SubscriptionPayedTo PyedToTeacher { get; set; }
         public DateTime PayedDtetime { get; set; }
     }
+
+   
 }
