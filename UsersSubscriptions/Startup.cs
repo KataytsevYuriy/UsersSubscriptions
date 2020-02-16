@@ -14,6 +14,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using UsersSubscriptions.Models;
 using UsersSubscriptions.Areas.Admin.Models;
+using UsersSubscriptions.Areas.Teacher.Models;
 
 namespace UsersSubscriptions
 {
@@ -44,6 +45,7 @@ namespace UsersSubscriptions
                 .AddEntityFrameworkStores<ApplicationDbContext>();
             services.AddTransient<IAdminDataRepository, AdminRepository>();
             services.AddTransient<IUserRepository, UserRepository>();
+            services.AddTransient<ITeacherRepository, TeacherRepository>();
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
         }
 

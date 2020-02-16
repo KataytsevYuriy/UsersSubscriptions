@@ -15,15 +15,17 @@ namespace UsersSubscriptions.Areas.Admin.Models
         [StringLength(50)]
         public string Name { get; set; }
         public bool IsActive { get; set; }
-        public string Discription { get; set; }
-
+        public string Description { get; set; }
+        //public Course Course { get; set; }
         public IList<AppUser> AllTeachers { get; set; }
         public IList<AppUser> Teachers { get; set; }
+        public List<string> NewTeachers { get; set; }
 
         public CourseViewModel()
         {
             AllTeachers = new List<AppUser>();
             Teachers = new List<AppUser>();
+            NewTeachers = new List<string>();
         }
     }
 }

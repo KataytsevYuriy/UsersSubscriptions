@@ -34,7 +34,13 @@ namespace UsersSubscriptions.Areas.Admin.Models
             return await _userManager.FindByIdAsync(id);
         }
 
-        
+       //public async Task<IEnumerable<AppUser>> GetTeachersInCourse(string courseId)
+       // {
+       //     var teachersId = _context.Set<CourseAppUser>.
+       //     return await _context.Users.Include(cour => cour.CourseAppUsers).ThenInclude(usr => usr.Course).Where(c=>c.CourseAppUsers.each)
+       //         Select(p => p.CourseAppUsers.Appuser);
+       // }
+
 
         public async Task UpdateUserAsync(AppUser user, IList<string> newUserRoles)
         {
@@ -133,14 +139,11 @@ namespace UsersSubscriptions.Areas.Admin.Models
 
         public async Task UpdateCourseAsync(Course course)
         {
-            Course dbCourse = await _context.Courses.FindAsync(course.Id);
-            //How to Add teachet to course
-            //Course dbCourse = await _context.Courses.Include(c=>c.CourseAppUsers).FirstAsync(d=>d.Id==course.Id);
+            Course dbCourse = await GetCourse(course.Id);
             dbCourse.Name = course.Name;
             dbCourse.IsActive = course.IsActive;
             dbCourse.Description = course.Description;
-            //IList<AppUser> appUsers = await GetRoleUsersAsync("Teacher");
-            //dbCourse.CourseAppUsers = appUsers.Select(cApp => new CourseAppUser { AppUserId = cApp.Id, CourseId = dbCourse.Id }).ToList();
+            dbCourse.CourseAppUsers = course.CourseAppUsers;
             await _context.SaveChangesAsync();
         }
          public async Task DeleteCourse (string Id)

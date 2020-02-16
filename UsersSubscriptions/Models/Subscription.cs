@@ -24,7 +24,8 @@ namespace UsersSubscriptions.Models
         public bool WasPayed { get; set; }
 
         [StringLength(64)]
-        public SubscriptionCreatedby CreatedbyTeacher { get; set; }
+        public SubscriptionCreatedby ConfirmedByTeacher { get; set; }
+        public DateTime ConfirmedDatetime { get; set; }
         public DateTime CreatedDatetime { get; set; }
 
         [StringLength(64)]

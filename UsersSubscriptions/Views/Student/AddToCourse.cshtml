@@ -1,0 +1,15 @@
+﻿@model Subscription
+@{
+    Layout = "_StudentLayout";
+}
+<div class="bg-primary text-info text-center"><h2>Add to Course @ViewBag.course.Name</h2></div>
+<form asp-action="AddToCourse" method="post">
+    <p> Course name: @ViewBag.course.Name</p>
+    <input type="hidden" name="CourseId" value="@ViewBag.course.Id" />
+    <div class="form-group">
+        <label asp-for="DayStart"></label>
+        <input type="date" name="DayStart" />
+    </div>
+    <button type="submit" class="btn btn-primary">Add to Course</button>
+</form>
+<a asp-action="UserCourses" class="btn btn-info">Back</a>

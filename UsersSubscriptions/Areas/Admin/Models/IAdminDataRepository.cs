@@ -13,7 +13,8 @@ namespace UsersSubscriptions.Areas.Admin.Models
         IEnumerable<AppUser> GetAllUsers();
         Task<AppUser> GetUserAsync(string id);
         Task<IList<string>> GetUserRolesAsync(string id);
-        Task UpdateUserAsync(AppUser user,IList<string> userRoles);
+        //Task<IEnumerable<AppUser>> GetTeachersInCourse(string courseId);
+        Task UpdateUserAsync(AppUser user, IList<string> newUserRoles);
         Task DeleteUseAsyncr(string id);
         //Roles
         List<IdentityRole> GetAllRoles();

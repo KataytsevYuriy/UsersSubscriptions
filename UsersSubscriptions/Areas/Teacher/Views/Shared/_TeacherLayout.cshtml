@@ -1,0 +1,18 @@
+﻿@{
+    Layout = "_Layout";
+}
+<div>
+    <a asp-controller="Teacher" asp-action="Index" class="@GetClassForButton("Index")"> About </a>
+    @*<a asp-controller="Student" asp-action="Index" class="@GetClassForButton("Index")"> Info </a>*@
+    @*<a asp-controller="Student" asp-action="UserCourses" class="@GetClassForButton("UserCourses")"> Current User's Courses </a>*@
+    @*<a asp-controller="Student" asp-action="AllCourses" class="@GetClassForButton("AllCourses")"> AllCourses </a>*@
+</div>
+<div>
+    @RenderBody()
+</div>
+@functions{
+    string GetClassForButton(string action)
+    {
+        return "btn " + (ViewContext.RouteData.Values["action"] as string == action ? "btn-primary" : "btn-info");
+    }
+}

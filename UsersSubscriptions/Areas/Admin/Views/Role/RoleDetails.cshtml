@@ -17,7 +17,9 @@
                             
                             @foreach (AppUser user in ViewBag.roleUsers)
                             {
-                            <a asp-action="UserDetails" asp-route-id="@user.Id">User: @user.FullName   Email: @user.Email</a><br />
+                            <a asp-controller="User" asp-action="UserDetails" asp-route-id="@user.Id">
+                                 User: @user.FullName   Email: @user.Email
+                             </a><br />
                             }
                             </p>
 </div>

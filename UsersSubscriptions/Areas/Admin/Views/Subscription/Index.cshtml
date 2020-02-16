@@ -14,8 +14,8 @@
                 <td>@subs.AppUser.FullName <br /> @subs.AppUser.UserName</td>
                 <td>@subs.Course.Name</td>
                 <td>@subs.DayStart <br> @subs.DayFinish</td>
-                <td>@subs.CreatedbyTeacher.AppUser.FullName <br /> @subs.CreatedDatetime</td>
-                <td>@subs.PyedToTeacher.AppUser.FullName <br /> @subs.PayedDtetime</td>
+                <td>@subs.ConfirmedByTeacher?.AppUser.FullName <br /> @subs.CreatedDatetime</td>
+                <td>@subs.PyedToTeacher?.AppUser.FullName <br /> @subs.PayedDtetime</td>
                 <td>
                     <a asp-action="UserDetails" asp-route-Id="@subs.Id" class="btn btn-default">Details</a> 
                     <a asp-action="DeleteUser" asp-route-Id="@subs.Id" class="btn btn-danger">Delete User</a>
