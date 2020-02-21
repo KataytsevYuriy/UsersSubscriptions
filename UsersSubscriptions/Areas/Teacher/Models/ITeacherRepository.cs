@@ -10,6 +10,6 @@ namespace UsersSubscriptions.Areas.Teacher.Models
     public interface ITeacherRepository
     {
         Task<AppUser> GetCurrentUserAsync(HttpContext context);
-
+        Task<IEnumerable<Course>> GetTeacherCoursesAsync(AppUser teacher);
     }
 }

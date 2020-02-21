@@ -1,0 +1,25 @@
+﻿@model IEnumerable<Course>
+@{
+    Layout = "_TeacherLayout";
+}
+
+<div class="bg-primary text-center text-info"><h3> Your Courses</h3></div>
+<table class="table table-bordered table-striped">
+    <tr><th>Name</th><th>Description</th><th>Teachers</th><th>
+        @foreach(Course course in Model)
+        {
+            <tr>
+                <td>@course.Name</td>
+                <td>@course.Description</td>
+                <td>
+                    @foreach (var teacher in course.CourseAppUsers)
+                    {
+                        <span> @teacher.AppUser.FullName  </span> <br>
+                    }
+                </td>
+                <td>
+                    <a asp-action="CourseInfo" class="btn btn-primary">Info</a>
+                </td>
+            </tr>
+        }
+</table>

@@ -23,7 +23,7 @@ namespace UsersSubscriptions.Areas.Teacher.Controllers
         public async Task<IActionResult> TeacherCourses()
         {
             AppUser currentUser = await repository.GetCurrentUserAsync(HttpContext);
-            return View();
+            return View(await repository.GetTeacherCoursesAsync(currentUser));
         }
     }
 }

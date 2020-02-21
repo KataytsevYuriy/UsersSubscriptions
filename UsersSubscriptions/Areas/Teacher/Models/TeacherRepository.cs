@@ -30,10 +30,11 @@ namespace UsersSubscriptions.Areas.Teacher.Models
             return currentUser;
         }
 
-        //public async Task<IEnumerable<Course>> GetTeacherCoursesAsync(AppUser teacher)
-        //{
-        //    IEnumerable<Course> courses = _context.Courses.Include(ca => ca.CourseAppUsers).ThenInclude(us => us.AppUser);
-        //    var c = _context.Users.Include(ac => ac.CourseAppUsers).First(us=>us.Id==teacher.Id);
-        //}
+        public async Task<IEnumerable<Course>> GetTeacherCoursesAsync(AppUser teacher)
+        {
+            IEnumerable<Course> courses = await _context.Courses.Include(cu => cu.CourseAppUsers).ThenInclude(te=>te.AppUser)
+                    .Where(cap => cap.CourseAppUsers.Any(dd => dd.AppUserId == teacher.Id)).ToListAsync();
+            return courses;
+        }
     }
 }
