@@ -132,6 +132,28 @@ namespace UsersSubscriptions.Areas.Admin.Models
             return _context.Courses.Include(p => p.CourseAppUsers).ThenInclude(usr => usr.AppUser).ToList();
         }
 
+        public async Task CreateCourseAsync (CourseViewModel model)
+        {
+            Course course = await _context.Courses.FindAsync(model.Name);
+            if (course == null)
+            {
+                course = new Course();
+                course.Name = model.Name;
+                course.Description = model.Description;
+                course.IsActive = model.IsActive;
+                await _context.Courses.AddAsync(course);
+                await _context.SaveChangesAsync();
+                Course newCourse = await _context.Courses.FirstAsync(cour => cour.Name.Equals(model.Name));
+                newCourse.CourseAppUsers = model.NewTeachers.Select(teachId => new CourseAppUser
+                {
+                    AppUserId = teachId,
+                    CourseId = newCourse.Id
+                }).ToList();
+                 _context.Courses.Update(newCourse);
+                await _context.SaveChangesAsync();
+            }
+        }
+
         public async Task<Course> GetCourse(string id)
         {
              return await _context.Courses.Include(p => p.CourseAppUsers).ThenInclude(u => u.AppUser).FirstAsync(i => i.Id == id);

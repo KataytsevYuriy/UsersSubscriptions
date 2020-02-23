@@ -23,10 +23,22 @@ namespace UsersSubscriptions.Areas.Admin.Controllers
             return View(repository.GetAllCourses());
         }
 
-        //public async Task<IActionResult> CourseDetails(string id)
-        //{
-        //    return View(await repository.GetCourse(id));
-        //}
+        public async Task<IActionResult> CreateCourse()
+        {
+            CourseViewModel model = new CourseViewModel
+            {
+                AllTeachers = await repository.GetRoleUsersAsync(UsersConstants.teacher)
+            };
+            return View(model);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> CreateCourse (CourseViewModel course)
+        {
+            await repository.CreateCourseAsync(course);
+            return RedirectToAction(nameof(Index));
+        }
+
         public async Task<IActionResult> CourseDetails(string id)
         {
             Course course = await repository.GetCourse(id);

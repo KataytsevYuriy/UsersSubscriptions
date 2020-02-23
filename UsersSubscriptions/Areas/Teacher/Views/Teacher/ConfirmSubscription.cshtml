@@ -1,0 +1,29 @@
+﻿@model Subscription
+@{
+    Layout = "_TeacherLayout";
+}
+
+<div class="bg-primary text-center text-info"><h3>Confirming a Subscription</h3></div>
+<div>Course: <span>@Model.Course.Name</span></div>
+<div>User: @Model.AppUser.FullName</div>
+<div>Month: @Model.DayStart.ToString("MMMM:yyyy")</div>
+<form action="@(Model.ConfirmedByTeacher==null?"ConfirmSubscription":"ConfirmPayedSubscription")" method="post">
+    <input type="hidden" asp-for="Id" />
+    @if (Model.ConfirmedByTeacher == null)
+    {
+        <button type="submit" class="btn btn-primary">Confirm a Subscription</button>
+    }
+    else
+    {
+        <div> Confirmed: @Model.ConfirmedByTeacher.AppUser.FullName  @Model.ConfirmedDatetime.ToString("dd:MMMM:yyyy")</div>
+        @*<input type="hidden" asp-for="ConfirmedByTeacher.AppUserId" />*@
+        @if (Model.PyedToTeacher!=null)
+        {
+            <div>Payed to: @Model.PyedToTeacher.AppUser.FullName  @Model.PayedDatetime.ToString("dd:MMMM:yyyy")</div>
+        }
+        else
+        {
+            <button type="submit" class="btn btn-primary">Confirm payed a Subscription</button>
+        }
+    }
+</form>

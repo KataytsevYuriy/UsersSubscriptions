@@ -24,6 +24,7 @@ namespace UsersSubscriptions.Areas.Teacher.Models
             _userManager = userMng;
             _roleManager = roleMng;
         }
+       
         public async Task<AppUser> GetCurrentUserAsync(HttpContext context)
         {
             AppUser currentUser = await _userManager.GetUserAsync(context.User);
@@ -32,9 +33,71 @@ namespace UsersSubscriptions.Areas.Teacher.Models
 
         public async Task<IEnumerable<Course>> GetTeacherCoursesAsync(AppUser teacher)
         {
-            IEnumerable<Course> courses = await _context.Courses.Include(cu => cu.CourseAppUsers).ThenInclude(te=>te.AppUser)
+            IEnumerable<Course> courses = await _context.Courses
+                .Include(sub=>sub.Subscriptions)
+                .Include(cu => cu.Subscriptions).ThenInclude(cus => cus.ConfirmedByTeacher)
+                .Include(cu => cu.Subscriptions).ThenInclude(cus => cus.PyedToTeacher)
+                .Include(cu => cu.CourseAppUsers).ThenInclude(te=>te.AppUser)
                     .Where(cap => cap.CourseAppUsers.Any(dd => dd.AppUserId == teacher.Id)).ToListAsync();
             return courses;
         }
+
+        public async Task<Course> GetCoursInfoAsync(string id)
+        {
+            Course course = await _context.Courses
+                .Include(cu => cu.Subscriptions).ThenInclude(cus => cus.AppUser)
+                .Include(cu => cu.Subscriptions).ThenInclude(cus => cus.ConfirmedByTeacher).ThenInclude(cus => cus.AppUser)
+                .Include(cu => cu.Subscriptions).ThenInclude(cus => cus.PyedToTeacher).ThenInclude(cus => cus.AppUser)
+                .Include(teach=>teach.CourseAppUsers).ThenInclude(teachUs=>teachUs.AppUser)
+                .FirstAsync(cour => cour.Id == id);
+            return course;
+        }
+
+        public async Task<Subscription> GetSubscriptionAsync(string id)
+        {
+            Subscription subscription = await _context.Subscriptions
+                            .Include(co => co.Course)
+                            .Include(user=>user.AppUser)
+                            .Include(pay => pay.PyedToTeacher).ThenInclude(user => user.AppUser)
+                            .Include(conf => conf.ConfirmedByTeacher).ThenInclude(user => user.AppUser)
+                            .FirstAsync(subs => subs.Id == id);
+            return (subscription);
+        }
+
+        public async Task ConfirmSubscriptionAsync(AppUser teacher, string id)
+        {
+            Subscription subscription = await _context.Subscriptions
+                            .Include(teach => teach.ConfirmedByTeacher)
+                            .FirstAsync(subsId => subsId.Id == id);
+            if (subscription.ConfirmedByTeacher == null)
+            {
+                subscription.ConfirmedByTeacher = new SubscriptionCreatedby
+                {
+                    SubscriptionId = subscription.Id,
+                    AppUserId = teacher.Id
+                };
+                subscription.ConfirmedDatetime = DateTime.Now;
+                await _context.SaveChangesAsync();
+            }
+        }
+        public async Task ConfirmPayedSubscriptionAsync(AppUser teacher, string id)
+        {
+            Subscription subscription = await _context.Subscriptions
+                            .Include(teach => teach.ConfirmedByTeacher)
+                            .Include(payed=>payed.PyedToTeacher)
+                            .FirstAsync(subsId => subsId.Id == id);
+            if (subscription.ConfirmedByTeacher != null && subscription.PyedToTeacher==null)
+            {
+                subscription.PyedToTeacher = new SubscriptionPayedTo
+                {
+                    SubscriptionId = subscription.Id,
+                    AppUserId = teacher.Id
+                };
+                subscription.PayedDatetime = DateTime.Now;
+                subscription.WasPayed = true;
+                await _context.SaveChangesAsync();
+            }
+        }
+
     }
 }

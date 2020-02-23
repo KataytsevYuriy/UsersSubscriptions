@@ -25,6 +25,7 @@ namespace UsersSubscriptions.Areas.Admin.Models
         Task DeleteRoleAsync(string id);
         //Courses
         IEnumerable<Course> GetAllCourses();
+        Task CreateCourseAsync(CourseViewModel model);
         Task<Course> GetCourse(string id);
         Task UpdateCourseAsync(Course course);
         Task DeleteCourse(string Id);

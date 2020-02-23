@@ -1,0 +1,57 @@
+﻿@model Course
+@{
+    Layout = "_TeacherLayout";
+}
+
+<div class="bg-primary text-info text-center"><h3>Info Course @Model.Name</h3></div>
+<p> Name: @Model.Name</p>
+<p>Decsription: @Model.Description</p>
+<p>Course is active: @(Model.IsActive==true? "Active":"NO")</p>
+<p>Teachers: 
+    @foreach(CourseAppUser courseAppUser in Model.CourseAppUsers)
+    {
+        <span>@courseAppUser.AppUser.FullName</span>
+    }
+    </p>
+<p>Subscriptions:</p>
+<table class="table table-bordered table-striped">
+    <tr><th>Student Name</th><th>Student Email</th><th>Month</th><th>Confirmed</th><th>Payed</th><th></th></tr>
+    @foreach(Subscription subscription in Model.Subscriptions)
+    {
+        <tr>
+            <td>@subscription.AppUser.FullName</td>
+            <td>@subscription.AppUser.Email</td>
+            <td>@subscription.DayStart.ToString("MMMM:yyyy") </td>
+            <td>@if (subscription.ConfirmedByTeacher == null)
+            {
+                    <span class="text-danger">NO</span>
+            }
+            else
+            {
+                @subscription.ConfirmedByTeacher.AppUser.FullName 
+                @string.Format(" {0:dd-MMMM-yyyy}", subscription.ConfirmedDatetime)
+            }
+            </td>
+            <td>
+                @if(subscription.WasPayed)
+                { 
+                    @subscription.PyedToTeacher.AppUser.FullName
+                    @string.Format(" {0:dd-MMMM-yyyy}",subscription.PayedDatetime)
+                } else
+                {
+                    <span class="text-danger">NO</span>
+                }
+            </td>
+            <td>
+                @if (subscription.ConfirmedByTeacher == null)
+                {
+                    <a asp-action="ConfirmSubscription" asp-route-Id="@subscription.Id">Confirm Subscription</a>
+                }
+                else if (!subscription.WasPayed)
+                {
+                    <a asp-action="ConfirmSubscription" asp-route-Id="@subscription.Id">Confirm Payed of Subscription</a>
+                }
+            </td>
+        </tr>
+    }
+</table>

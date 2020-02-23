@@ -30,7 +30,7 @@ namespace UsersSubscriptions.Models
 
         [StringLength(64)]
         public SubscriptionPayedTo PyedToTeacher { get; set; }
-        public DateTime PayedDtetime { get; set; }
+        public DateTime PayedDatetime { get; set; }
     }
 
    

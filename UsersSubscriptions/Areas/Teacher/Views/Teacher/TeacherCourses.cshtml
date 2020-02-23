@@ -5,21 +5,31 @@
 
 <div class="bg-primary text-center text-info"><h3> Your Courses</h3></div>
 <table class="table table-bordered table-striped">
-    <tr><th>Name</th><th>Description</th><th>Teachers</th><th>
-        @foreach(Course course in Model)
+    <tr><th>Name</th><th>Teachers</th><th>Active</th><th>Unconfirmed</th><th></th></tr>
+        @foreach (Course course in Model)
         {
-            <tr>
-                <td>@course.Name</td>
-                <td>@course.Description</td>
-                <td>
-                    @foreach (var teacher in course.CourseAppUsers)
-                    {
-                        <span> @teacher.AppUser.FullName  </span> <br>
-                    }
-                </td>
-                <td>
-                    <a asp-action="CourseInfo" class="btn btn-primary">Info</a>
-                </td>
-            </tr>
+    <tr>
+        <td>@course.Name</td>
+        <td>
+            @foreach (var teacher in course.CourseAppUsers)
+            {
+                <span> @teacher.AppUser.FullName  </span> <br>
+            }
+        </td>
+        <td> @(course.IsActive == true ? "YES" : "NO")</td>
+        @{int unconfStudents = course.Subscriptions.Select(sub => sub.ConfirmedByTeacher == null).ToList().Count();}
+        <td>
+            @if(unconfStudents > 0)
+            {
+                <span class="text-danger">@unconfStudents Subscription(s)</span>
+            } else
+            {
+                <span>All Confirmed</span>
+            }
+        </td>
+        <td>
+            <a asp-action="CourseInfo" asp-route-Id="@course.Id" class="btn btn-primary">Info</a>
+        </td>
+    </tr>
         }
 </table>
