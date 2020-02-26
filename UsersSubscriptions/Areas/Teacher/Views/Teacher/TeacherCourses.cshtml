@@ -17,14 +17,14 @@
             }
         </td>
         <td> @(course.IsActive == true ? "YES" : "NO")</td>
-        @{int unconfStudents = course.Subscriptions.Select(sub => sub.ConfirmedByTeacher == null).ToList().Count();}
+        @{int unconfSubscriptions = course.Subscriptions.Where(sub => sub.ConfirmedByTeacher == null).ToList().Count();}
         <td>
-            @if(unconfStudents > 0)
+            @if(unconfSubscriptions > 0)
             {
-                <span class="text-danger">@unconfStudents Subscription(s)</span>
+                <span class="text-danger">@unconfSubscriptions Subscription(s)</span>
             } else
             {
-                <span>All Confirmed</span>
+                <span>There is no Unconfirmed</span>
             }
         </td>
         <td>

@@ -6,21 +6,28 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using UsersSubscriptions.Models;
 using UsersSubscriptions.Data;
+using Microsoft.AspNetCore.Identity;
 
 namespace UsersSubscriptions.Controllers
 {
     public class HomeController : Controller
     {
-        private ApplicationDbContext context;
-        public HomeController(ApplicationDbContext ctx)
+        private ApplicationDbContext _context;
+        private UserManager<AppUser> _userManager;
+        private RoleManager<IdentityRole> _roleManager;
+        public HomeController(ApplicationDbContext ctx,
+                                UserManager<AppUser> manager,
+                                RoleManager<IdentityRole> roleManager)
         {
-            context = ctx;
+            _userManager = manager;
+            _roleManager = roleManager;
+            _context = ctx;
         }
         public IActionResult Index()
         {
-            var users = context.Users.ToList();
-            var contx = context;
-            var roles = context.Roles;
+            var users = _context.Users.ToList();
+            var contx = _context;
+            var roles = _context.Roles;
             return View();
         }
 
@@ -34,6 +41,15 @@ namespace UsersSubscriptions.Controllers
             ViewData["Message"] = "Your application description page.";
 
             return View();
+        }
+
+        public async Task<IActionResult> CreateRoles()
+        {
+            await SeedData.CreateRolesAsync(_roleManager);
+            await SeedData.CreateUsersAsync(_userManager);
+            await SeedData.CreateCoursesAsync(_context, _userManager);
+            await SeedData.CreateSubscriptionsAsync(_context, _userManager);
+            return RedirectToAction(nameof(Index));
         }
 
         public IActionResult Contact()

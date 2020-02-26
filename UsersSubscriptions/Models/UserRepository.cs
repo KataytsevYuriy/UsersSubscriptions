@@ -45,7 +45,7 @@ namespace UsersSubscriptions.Models
         {
             AppUser user = _context.Users.Include(s => s.Subscriptions).
                                     ThenInclude(c => c.Course).ThenInclude(cu=>cu.CourseAppUsers)
-                                    .ThenInclude(au=>au.AppUser).First(i => i.Id == id);
+                                    .ThenInclude(au=>au.AppUser).FirstOrDefault(i => i.Id == id);
             return (user);
         }
 

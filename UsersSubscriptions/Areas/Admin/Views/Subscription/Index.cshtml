@@ -13,9 +13,27 @@
             <tr>
                 <td>@subs.AppUser.FullName <br /> @subs.AppUser.UserName</td>
                 <td>@subs.Course.Name</td>
-                <td>@subs.DayStart <br> @subs.DayFinish</td>
-                <td>@subs.ConfirmedByTeacher?.AppUser.FullName <br /> @subs.CreatedDatetime</td>
-                <td>@subs.PyedToTeacher?.AppUser.FullName <br /> @subs.PayedDatetime</td>
+                <td>@subs.DayStart.ToString("dd:MMMM:yyyy") </td>
+                <td>@if (subs.ConfirmedByTeacher == null)
+                {
+                    <span class="text-danger">No confirmed subscription</span>
+                }
+                else
+                {
+                    @subs.ConfirmedByTeacher?.AppUser.FullName
+                        <br /> @subs.ConfirmedDatetime.ToString("dd:MMMM:yyyy")
+                }
+                </td>
+                <td>
+                    @if (subs.PyedToTeacher == null)
+                    {
+                        <span class="text-danger">No payed subscription</span>
+                    }
+                    else
+                    {
+                    @subs.PyedToTeacher?.AppUser.FullName <br /> @subs.PayedDatetime.ToString("dd:MMMM:yyyy")
+                    }
+                </td>
                 <td>
                     @*<a asp-action="UserDetails" asp-route-Id="@subs.Id" class="btn btn-default">Details</a> 
                     <a asp-action="DeleteUser" asp-route-Id="@subs.Id" class="btn btn-danger" >Delete Subscription</a>*@

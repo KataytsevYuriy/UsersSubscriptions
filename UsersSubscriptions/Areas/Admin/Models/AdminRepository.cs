@@ -111,6 +111,7 @@ namespace UsersSubscriptions.Areas.Admin.Models
             {
                 role.Name = model.Name;
                 await _roleManager.UpdateAsync(role);
+                await _roleManager.UpdateAsync(role);
             }
         }
 
@@ -143,7 +144,8 @@ namespace UsersSubscriptions.Areas.Admin.Models
                 course.IsActive = model.IsActive;
                 await _context.Courses.AddAsync(course);
                 await _context.SaveChangesAsync();
-                Course newCourse = await _context.Courses.FirstAsync(cour => cour.Name.Equals(model.Name));
+                Course newCourse = await _context.Courses
+                    .FirstOrDefaultAsync(cour => cour.Name.Equals(model.Name));
                 newCourse.CourseAppUsers = model.NewTeachers.Select(teachId => new CourseAppUser
                 {
                     AppUserId = teachId,
@@ -156,7 +158,8 @@ namespace UsersSubscriptions.Areas.Admin.Models
 
         public async Task<Course> GetCourse(string id)
         {
-             return await _context.Courses.Include(p => p.CourseAppUsers).ThenInclude(u => u.AppUser).FirstAsync(i => i.Id == id);
+            return await _context.Courses.Include(p => p.CourseAppUsers).ThenInclude(u => u.AppUser)
+                .FirstOrDefaultAsync(i => i.Id == id);
         }
 
         public async Task UpdateCourseAsync(Course course)
@@ -170,7 +173,9 @@ namespace UsersSubscriptions.Areas.Admin.Models
         }
          public async Task DeleteCourse (string Id)
         {
-            Course course = _context.Courses.Include(sub => sub.Subscriptions).Include(teach=>teach.CourseAppUsers).First(co => co.Id == Id);
+            Course course = _context.Courses
+                .Include(sub => sub.Subscriptions).Include(teach=>teach.CourseAppUsers)
+                .FirstOrDefault(co => co.Id == Id);
             if (course.Subscriptions.Count() == 0)
             {
                 course.CourseAppUsers = null;

@@ -49,7 +49,7 @@ namespace UsersSubscriptions.Areas.Teacher.Models
                 .Include(cu => cu.Subscriptions).ThenInclude(cus => cus.ConfirmedByTeacher).ThenInclude(cus => cus.AppUser)
                 .Include(cu => cu.Subscriptions).ThenInclude(cus => cus.PyedToTeacher).ThenInclude(cus => cus.AppUser)
                 .Include(teach=>teach.CourseAppUsers).ThenInclude(teachUs=>teachUs.AppUser)
-                .FirstAsync(cour => cour.Id == id);
+                .FirstOrDefaultAsync(cour => cour.Id == id);
             return course;
         }
 
@@ -60,7 +60,7 @@ namespace UsersSubscriptions.Areas.Teacher.Models
                             .Include(user=>user.AppUser)
                             .Include(pay => pay.PyedToTeacher).ThenInclude(user => user.AppUser)
                             .Include(conf => conf.ConfirmedByTeacher).ThenInclude(user => user.AppUser)
-                            .FirstAsync(subs => subs.Id == id);
+                            .FirstOrDefaultAsync(subs => subs.Id == id);
             return (subscription);
         }
 
@@ -68,7 +68,7 @@ namespace UsersSubscriptions.Areas.Teacher.Models
         {
             Subscription subscription = await _context.Subscriptions
                             .Include(teach => teach.ConfirmedByTeacher)
-                            .FirstAsync(subsId => subsId.Id == id);
+                            .FirstOrDefaultAsync(subsId => subsId.Id == id);
             if (subscription.ConfirmedByTeacher == null)
             {
                 subscription.ConfirmedByTeacher = new SubscriptionCreatedby
@@ -85,7 +85,7 @@ namespace UsersSubscriptions.Areas.Teacher.Models
             Subscription subscription = await _context.Subscriptions
                             .Include(teach => teach.ConfirmedByTeacher)
                             .Include(payed=>payed.PyedToTeacher)
-                            .FirstAsync(subsId => subsId.Id == id);
+                            .FirstOrDefaultAsync(subsId => subsId.Id == id);
             if (subscription.ConfirmedByTeacher != null && subscription.PyedToTeacher==null)
             {
                 subscription.PyedToTeacher = new SubscriptionPayedTo
