@@ -25,12 +25,15 @@ namespace UsersSubscriptions.Controllers
         }
         public IActionResult Index()
         {
-            var users = _context.Users.ToList();
-            var contx = _context;
-            var roles = _context.Roles;
             return View();
         }
 
+        [HttpPost]
+        public IActionResult Send(DateTime month)
+        {
+            DateTime dateTime = month;
+            return RedirectToAction(nameof(Index));
+        }
         //public IActionResult AdminCabinet()
         //{
         //   // IEnumerable<AppUser> res = context.Users as IEnumerable<AppUser>;

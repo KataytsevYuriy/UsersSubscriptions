@@ -13,5 +13,7 @@ namespace UsersSubscriptions.Models
         Task<Course> GetCourse(string id);
         AppUser GetUserCourses(string id);
         Task CreateSubscription(Subscription subscription);
+        Task<Subscription> GetSubscriptionAsync(string id);
+        Task DeleteSubscription(string id);
     }
 }

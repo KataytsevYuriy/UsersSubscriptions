@@ -12,6 +12,6 @@ namespace UsersSubscriptions.Common
         public const string teacher = "Teacher";
 
         //QRCode
-        public const int qrCodeImageSize = 20;
+        public const int qrCodeImageSize = 10;
     }
 }

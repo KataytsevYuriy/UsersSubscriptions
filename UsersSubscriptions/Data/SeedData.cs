@@ -116,20 +116,7 @@ namespace UsersSubscriptions.Data
                     await _context.AddAsync(newCourse);
                     await _context.SaveChangesAsync();
                     Course curCourse = _context.Courses.Include(p => p.CourseAppUsers)
-                            .First(cour => cour.Name == newCourse.Name);
-                    //foreach (string id in teachers)
-                    //{
-                    //    AppUser user = await _userManager.FindByNameAsync(id + "@mail.com");
-                    //    if (user != null)
-                    //    {
-                    //        curCourse.CourseAppUsers.Append(new CourseAppUser
-                    //        {
-                    //            AppUserId = user.Id,
-                    //            CourseId = curCourse.Id
-                    //        });
-                    //    }
-                    //}
-
+                            .FirstOrDefault(cour => cour.Name == newCourse.Name);
                     curCourse.CourseAppUsers = teachersId.Select(teachId => new CourseAppUser
                     {
                         AppUserId = teachId,

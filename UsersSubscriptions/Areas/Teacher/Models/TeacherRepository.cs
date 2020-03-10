@@ -99,5 +99,18 @@ namespace UsersSubscriptions.Areas.Teacher.Models
             }
         }
 
+        public async Task RemoveSubscriptionAsync(string id)
+        {
+            Subscription subscription =
+                await _context.Subscriptions
+                .Include(subs=>subs.ConfirmedByTeacher)
+                .Include(subsc=>subsc.PyedToTeacher)
+                .FirstOrDefaultAsync(subs => subs.Id == id);
+            if (subscription != null)
+            {
+                _context.Subscriptions.Remove(subscription);
+                await _context.SaveChangesAsync();
+            }
+        }
     }
 }

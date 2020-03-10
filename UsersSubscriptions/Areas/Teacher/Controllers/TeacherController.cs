@@ -53,13 +53,21 @@ namespace UsersSubscriptions.Areas.Teacher.Controllers
             return View(await repository.GetSubscriptionAsync(subsc.Id));
         }
 
-        //[HttpPost]
-        //public async Task<IActionResult> ConfirmPayedSubscription(Subscription subsc)
-        //{
-        //    AppUser currentUser = await repository.GetCurrentUserAsync(HttpContext);
-        //    await repository.ConfirmPayedSubscriptionAsync(currentUser, subsc.Id);
-        //    return RedirectToAction(nameof(ConfirmSubscription), subsc.Id);
-        //}
+        public IActionResult ScanQrCode()
+        {
+            return View();
+        }
 
+         public async Task<IActionResult> RemoveSubscription(string Id)
+        {
+            return View(await repository.GetSubscriptionAsync(Id));
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> RemoveSubscription(Subscription subscription)
+        {
+            await repository.RemoveSubscriptionAsync(subscription.Id);
+            return RedirectToAction(nameof(CourseInfo),new { Id=subscription.CourseId});
+        }
     }
 }

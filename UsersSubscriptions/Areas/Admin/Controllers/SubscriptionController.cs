@@ -18,5 +18,18 @@ namespace UsersSubscriptions.Areas.Admin.Controllers
         {
             return View(repository.GetAllSubscriptions());
         }
+
+        public async Task<IActionResult> RemoveSubscription(string Id)
+        {
+            return View(await repository.GetSubscription(Id));
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> RemoveSubscription(Subscription subscription)
+        {
+            await repository.RemoveSubscriptionAsync(subscription.Id);
+            return RedirectToAction(nameof(Index));
+        }
+
     }
 }

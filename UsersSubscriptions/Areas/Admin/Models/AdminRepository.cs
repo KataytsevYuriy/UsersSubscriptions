@@ -189,7 +189,36 @@ namespace UsersSubscriptions.Areas.Admin.Models
         public IEnumerable<Subscription> GetAllSubscriptions()
         {
             return _context.Subscriptions.Include(cour => cour.Course)
+                                        .Include(confirm=>confirm.ConfirmedByTeacher)
+                                        .Include(payed=>payed.PyedToTeacher)
                                         .Include(user=>user.AppUser).ToList();
+        }
+
+        public async Task RemoveSubscriptionAsync(string id)
+        {
+            Subscription subscription = await _context.Subscriptions
+                                                .Include(pay => pay.PyedToTeacher)
+                                                .Include(confirm => confirm.ConfirmedByTeacher)
+                                                .FirstOrDefaultAsync(subs => subs.Id == id);
+            if (subscription != null)
+            {
+                _context.Subscriptions.Remove(subscription);
+                await _context.SaveChangesAsync();
+            } else
+            {
+                //Not found Exception
+            }
+        }
+
+        public async Task<Subscription> GetSubscription(string id)
+        {
+            Subscription subscription = await _context.Subscriptions
+                            .Include(usr=>usr.AppUser)
+                            .Include(pay => pay.PyedToTeacher).ThenInclude(use => use.AppUser)
+                            .Include(confirm => confirm.ConfirmedByTeacher).ThenInclude(use=>use.AppUser)
+                            .Include(cour=>cour.Course)
+                            .FirstOrDefaultAsync(subs => subs.Id == id);
+            return subscription;
         }
     }
 }

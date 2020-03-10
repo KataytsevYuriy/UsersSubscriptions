@@ -21,3 +21,10 @@ else
 {
     <div class="bg-danger text-center"> <h2>Your accaunt is blocked. Please contact the admin.</h2></div>
 }
+<div>
+    @*@if(ViewBag.Image.Count()>0)
+    {*@ 
+    <img src="@String.Format("data:image/png;base64,{0}", Convert.ToBase64String(ViewBag.Image))" />
+    <img src="@String.Format("data:image/png;base64,{0}", Convert.ToBase64String(ViewBag.LoadedQrFile))" />
+     @*}*@
+</div>

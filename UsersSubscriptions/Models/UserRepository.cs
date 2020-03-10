@@ -43,18 +43,66 @@ namespace UsersSubscriptions.Models
 
         public AppUser GetUserCourses(string id)
         {
-            AppUser user = _context.Users.Include(s => s.Subscriptions).
-                                    ThenInclude(c => c.Course).ThenInclude(cu=>cu.CourseAppUsers)
-                                    .ThenInclude(au=>au.AppUser).FirstOrDefault(i => i.Id == id);
+            AppUser user = _context.Users.Include(s => s.Subscriptions)
+                                    .ThenInclude(c => c.Course).ThenInclude(cu=>cu.CourseAppUsers)
+                                    .ThenInclude(au=>au.AppUser)
+                                .Include(sub=>sub.Subscriptions).ThenInclude(conf=>conf.ConfirmedByTeacher)
+                                    .FirstOrDefault(i => i.Id == id);
             return (user);
         }
 
         public async Task CreateSubscription(Subscription subscription)
         {
-            await _context.Subscriptions.AddAsync(subscription);
-            await _context.SaveChangesAsync();
+            if ((subscription.DayStart.Year == DateTime.Now.Year
+                        && subscription.DayStart.Month >= DateTime.Now.Month)
+                 || (subscription.DayStart.Year > DateTime.Now.Year))
+            {
+                if (!IsSubscriptionExist(subscription))
+                {
+                    await _context.Subscriptions.AddAsync(subscription);
+                    await _context.SaveChangesAsync();
+                } else
+                {
+                    // exception Subscription to this month is alreday exist
+                }
+            } else
+            {
+                //exception Date out of range
+            }
         }
 
-        
+        private bool IsSubscriptionExist(Subscription subscription)
+        {
+            if (_context.Subscriptions.Where(dbSubscription =>
+
+                  dbSubscription.CourseId == subscription.CourseId &&
+                  dbSubscription.DayStart.Year == subscription.DayStart.Year &&
+                  dbSubscription.DayStart.Month == subscription.DayStart.Month)
+                  .Count()==0)
+            {
+                return false;
+            }
+            return true;
+        }
+
+        public async Task<Subscription> GetSubscriptionAsync(string id)
+        {
+            return await _context.Subscriptions.Include(subs => subs.Course)
+                .FirstOrDefaultAsync(subs => subs.Id == id);
+        }
+
+        public async Task DeleteSubscription(string id)
+        {
+            Subscription subscription = await _context.Subscriptions
+                    .FirstOrDefaultAsync(subs => subs.Id == id);
+           if( subscription != null)
+            {
+                _context.Subscriptions.Remove(subscription);
+                await _context.SaveChangesAsync();
+            } else
+            {
+                //Subscription not Found
+            }
+        }
     }
 }

@@ -31,5 +31,7 @@ namespace UsersSubscriptions.Areas.Admin.Models
         Task DeleteCourse(string Id);
         //Subscriptions
         IEnumerable<Subscription> GetAllSubscriptions();
+        Task RemoveSubscriptionAsync(string id);
+        Task<Subscription> GetSubscription(string id);
     }
 }

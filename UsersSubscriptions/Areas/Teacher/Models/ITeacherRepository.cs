@@ -15,5 +15,6 @@ namespace UsersSubscriptions.Areas.Teacher.Models
         Task<Subscription> GetSubscriptionAsync(string id);
         Task ConfirmSubscriptionAsync(AppUser teacher, string id);
         Task ConfirmPayedSubscriptionAsync(AppUser teacher, string id);
+        Task RemoveSubscriptionAsync(string id);
     }
 }

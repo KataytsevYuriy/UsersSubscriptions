@@ -1,0 +1,20 @@
+﻿@model Subscription
+@{
+    Layout = "_TeacherLayout";
+}
+
+<div class="bg-danger text-center"><h3>Remove Subscription</h3></div>
+<div>
+    Remove Subscription from Course:<span>@Model.Course.Name</span>
+    <br />
+    Date: <span>@Model.DayStart.ToString("MMMM/yyyy")</span>
+    <br />
+    Student: <span>@Model.AppUser.FullName </span> <span> @Model.AppUser.UserName</span>
+</div>
+<br />
+<form asp-action="RemoveSubscription" method="post">
+    <input type="hidden" name="Id" value="@Model.Id" />
+    <input type="hidden" name="CourseId" value="@Model.CourseId" />
+     <button type="submit" class="btn btn-danger">Delete</button>
+</form>
+<a asp-action="GetCoursInfoAsync" asp-route-id="@Model.CourseId" class="btn btn-default">Back</a>
