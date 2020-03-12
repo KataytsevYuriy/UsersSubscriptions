@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -24,14 +26,22 @@ namespace UsersSubscriptions.Models
         public bool WasPayed { get; set; }
 
         [StringLength(64)]
-        public SubscriptionCreatedby ConfirmedByTeacher { get; set; }
+        public string ConfirmedById { get; set; }
+        public AppUser ConfirmedBy { get; set; }
         public DateTime ConfirmedDatetime { get; set; }
         public DateTime CreatedDatetime { get; set; }
 
         [StringLength(64)]
-        public SubscriptionPayedTo PyedToTeacher { get; set; }
+        public string PayedToId { get; set; }
+        public AppUser PayedTo { get; set; }
         public DateTime PayedDatetime { get; set; }
     }
 
-   
+    //public class SubscriptionConfiguration : IEntityTypeConfiguration<Subscription>
+    //{
+    //    public void Configure(EntityTypeBuilder<Subscription> builder)
+    //    {
+    //        builder.HasOne(s => s.PayedTo).WithMany(s => s.Subscriptions).OnDelete(DeleteBehavior.SetNull);
+    //    }
+    //}
 }

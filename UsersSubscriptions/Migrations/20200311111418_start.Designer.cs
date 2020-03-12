@@ -10,14 +10,14 @@ using UsersSubscriptions.Data;
 namespace UsersSubscriptions.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20200214202236_addConfirmSubscriptionDate")]
-    partial class addConfirmSubscriptionDate
+    [Migration("20200311111418_start")]
+    partial class start
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "2.1.14-servicing-32113")
+                .HasAnnotation("ProductVersion", "2.1.11-servicing-32099")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
@@ -239,6 +239,9 @@ namespace UsersSubscriptions.Migrations
 
                     b.Property<string>("AppUserId");
 
+                    b.Property<string>("ConfirmedById")
+                        .HasMaxLength(64);
+
                     b.Property<DateTime>("ConfirmedDatetime");
 
                     b.Property<string>("CourseId")
@@ -250,7 +253,10 @@ namespace UsersSubscriptions.Migrations
 
                     b.Property<DateTime>("DayStart");
 
-                    b.Property<DateTime>("PayedDtetime");
+                    b.Property<DateTime>("PayedDatetime");
+
+                    b.Property<string>("PayedToId")
+                        .HasMaxLength(64);
 
                     b.Property<string>("UserId")
                         .HasMaxLength(64);
@@ -261,55 +267,13 @@ namespace UsersSubscriptions.Migrations
 
                     b.HasIndex("AppUserId");
 
+                    b.HasIndex("ConfirmedById");
+
                     b.HasIndex("CourseId");
 
+                    b.HasIndex("PayedToId");
+
                     b.ToTable("Subscriptions");
-                });
-
-            modelBuilder.Entity("UsersSubscriptions.Models.SubscriptionCreatedby", b =>
-                {
-                    b.Property<string>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasMaxLength(64);
-
-                    b.Property<string>("AppUserId")
-                        .HasMaxLength(64);
-
-                    b.Property<string>("SubscriptionId")
-                        .HasMaxLength(64);
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("AppUserId");
-
-                    b.HasIndex("SubscriptionId")
-                        .IsUnique()
-                        .HasFilter("[SubscriptionId] IS NOT NULL");
-
-                    b.ToTable("SubscriptionCreatedby");
-                });
-
-            modelBuilder.Entity("UsersSubscriptions.Models.SubscriptionPayedTo", b =>
-                {
-                    b.Property<string>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasMaxLength(64);
-
-                    b.Property<string>("AppUserId")
-                        .HasMaxLength(64);
-
-                    b.Property<string>("SubscriptionId")
-                        .HasMaxLength(64);
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("AppUserId");
-
-                    b.HasIndex("SubscriptionId")
-                        .IsUnique()
-                        .HasFilter("[SubscriptionId] IS NOT NULL");
-
-                    b.ToTable("SubscriptionPayedTo");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -374,31 +338,18 @@ namespace UsersSubscriptions.Migrations
                         .WithMany("Subscriptions")
                         .HasForeignKey("AppUserId");
 
+                    b.HasOne("UsersSubscriptions.Models.AppUser", "ConfirmedBy")
+                        .WithMany("SubscriptionConfirmedBy")
+                        .HasForeignKey("ConfirmedById")
+                        .OnDelete(DeleteBehavior.SetNull);
+
                     b.HasOne("UsersSubscriptions.Models.Course", "Course")
                         .WithMany("Subscriptions")
                         .HasForeignKey("CourseId");
-                });
 
-            modelBuilder.Entity("UsersSubscriptions.Models.SubscriptionCreatedby", b =>
-                {
-                    b.HasOne("UsersSubscriptions.Models.AppUser", "AppUser")
-                        .WithMany("SubscriptionCreatedby")
-                        .HasForeignKey("AppUserId");
-
-                    b.HasOne("UsersSubscriptions.Models.Subscription", "Subscription")
-                        .WithOne("ConfirmedByTeacher")
-                        .HasForeignKey("UsersSubscriptions.Models.SubscriptionCreatedby", "SubscriptionId");
-                });
-
-            modelBuilder.Entity("UsersSubscriptions.Models.SubscriptionPayedTo", b =>
-                {
-                    b.HasOne("UsersSubscriptions.Models.AppUser", "AppUser")
+                    b.HasOne("UsersSubscriptions.Models.AppUser", "PayedTo")
                         .WithMany("SubscriptionPayedTo")
-                        .HasForeignKey("AppUserId");
-
-                    b.HasOne("UsersSubscriptions.Models.Subscription", "Subscription")
-                        .WithOne("PyedToTeacher")
-                        .HasForeignKey("UsersSubscriptions.Models.SubscriptionPayedTo", "SubscriptionId");
+                        .HasForeignKey("PayedToId");
                 });
 #pragma warning restore 612, 618
         }

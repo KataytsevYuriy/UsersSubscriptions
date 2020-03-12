@@ -35,8 +35,8 @@ namespace UsersSubscriptions.Areas.Teacher.Models
         {
             IEnumerable<Course> courses = await _context.Courses
                 .Include(sub=>sub.Subscriptions)
-                .Include(cu => cu.Subscriptions).ThenInclude(cus => cus.ConfirmedByTeacher)
-                .Include(cu => cu.Subscriptions).ThenInclude(cus => cus.PyedToTeacher)
+                .Include(cu => cu.Subscriptions).ThenInclude(cus => cus.ConfirmedBy)
+                .Include(cu => cu.Subscriptions).ThenInclude(cus => cus.PayedTo)
                 .Include(cu => cu.CourseAppUsers).ThenInclude(te=>te.AppUser)
                     .Where(cap => cap.CourseAppUsers.Any(dd => dd.AppUserId == teacher.Id)).ToListAsync();
             return courses;
@@ -46,10 +46,10 @@ namespace UsersSubscriptions.Areas.Teacher.Models
         {
             Course course = await _context.Courses
                 .Include(cu => cu.Subscriptions).ThenInclude(cus => cus.AppUser)
-                .Include(cu => cu.Subscriptions).ThenInclude(cus => cus.ConfirmedByTeacher).ThenInclude(cus => cus.AppUser)
-                .Include(cu => cu.Subscriptions).ThenInclude(cus => cus.PyedToTeacher).ThenInclude(cus => cus.AppUser)
+                .Include(cu => cu.Subscriptions).ThenInclude(cus => cus.ConfirmedBy)//.ThenInclude(cus => cus.AppUser)
+                .Include(cu => cu.Subscriptions).ThenInclude(cus => cus.PayedTo)//.ThenInclude(cus => cus.AppUser)
                 .Include(teach=>teach.CourseAppUsers).ThenInclude(teachUs=>teachUs.AppUser)
-                .FirstOrDefaultAsync(cour => cour.Id == id);
+                .FirstAsync(cour => cour.Id == id);
             return course;
         }
 
@@ -58,53 +58,44 @@ namespace UsersSubscriptions.Areas.Teacher.Models
             Subscription subscription = await _context.Subscriptions
                             .Include(co => co.Course)
                             .Include(user=>user.AppUser)
-                            .Include(pay => pay.PyedToTeacher).ThenInclude(user => user.AppUser)
-                            .Include(conf => conf.ConfirmedByTeacher).ThenInclude(user => user.AppUser)
-                            .FirstOrDefaultAsync(subs => subs.Id == id);
+                            .Include(pay => pay.PayedTo)
+                            .Include(conf => conf.ConfirmedBy)
+                            .FirstAsync(subs => subs.Id == id);
             return (subscription);
         }
 
         public async Task ConfirmSubscriptionAsync(AppUser teacher, string id)
         {
             Subscription subscription = await _context.Subscriptions
-                            .Include(teach => teach.ConfirmedByTeacher)
-                            .FirstOrDefaultAsync(subsId => subsId.Id == id);
-            if (subscription.ConfirmedByTeacher == null)
+                            .Include(teach => teach.ConfirmedBy)
+                            .FirstAsync(subsId => subsId.Id == id);
+            if (subscription.ConfirmedBy == null)
             {
-                subscription.ConfirmedByTeacher = new SubscriptionCreatedby
-                {
-                    SubscriptionId = subscription.Id,
-                    AppUserId = teacher.Id
-                };
-                subscription.ConfirmedDatetime = DateTime.Now;
+                 subscription.ConfirmedById = teacher.Id;
+                 subscription.ConfirmedDatetime = DateTime.Now;
                 await _context.SaveChangesAsync();
             }
         }
         public async Task ConfirmPayedSubscriptionAsync(AppUser teacher, string id)
         {
             Subscription subscription = await _context.Subscriptions
-                            .Include(teach => teach.ConfirmedByTeacher)
-                            .Include(payed=>payed.PyedToTeacher)
-                            .FirstOrDefaultAsync(subsId => subsId.Id == id);
-            if (subscription.ConfirmedByTeacher != null && subscription.PyedToTeacher==null)
+                            .Include(teach => teach.ConfirmedBy)
+                            .Include(payed=>payed.PayedTo)
+                            .FirstAsync(subsId => subsId.Id == id);
+            if (subscription.ConfirmedBy != null && subscription.PayedTo == null)
             {
-                subscription.PyedToTeacher = new SubscriptionPayedTo
-                {
-                    SubscriptionId = subscription.Id,
-                    AppUserId = teacher.Id
-                };
+                subscription.PayedToId = teacher.Id;
                 subscription.PayedDatetime = DateTime.Now;
                 subscription.WasPayed = true;
                 await _context.SaveChangesAsync();
             }
         }
-
         public async Task RemoveSubscriptionAsync(string id)
         {
             Subscription subscription =
                 await _context.Subscriptions
-                .Include(subs=>subs.ConfirmedByTeacher)
-                .Include(subsc=>subsc.PyedToTeacher)
+                .Include(subs => subs.ConfirmedBy)
+                .Include(subsc => subsc.PayedTo)
                 .FirstOrDefaultAsync(subs => subs.Id == id);
             if (subscription != null)
             {
@@ -112,5 +103,6 @@ namespace UsersSubscriptions.Areas.Teacher.Models
                 await _context.SaveChangesAsync();
             }
         }
+
     }
 }

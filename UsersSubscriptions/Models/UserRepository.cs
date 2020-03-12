@@ -43,10 +43,10 @@ namespace UsersSubscriptions.Models
 
         public AppUser GetUserCourses(string id)
         {
-            AppUser user = _context.Users.Include(s => s.Subscriptions)
+            AppUser user = _context.Users.Include(sub => sub.Subscriptions)
                                     .ThenInclude(c => c.Course).ThenInclude(cu=>cu.CourseAppUsers)
                                     .ThenInclude(au=>au.AppUser)
-                                .Include(sub=>sub.Subscriptions).ThenInclude(conf=>conf.ConfirmedByTeacher)
+                                .Include(sub=>sub.Subscriptions).ThenInclude(conf=>conf.ConfirmedBy)
                                     .FirstOrDefault(i => i.Id == id);
             return (user);
         }

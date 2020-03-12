@@ -14,24 +14,24 @@
                 <td>@subs.AppUser.FullName <br /> @subs.AppUser.UserName</td>
                 <td>@subs.Course.Name</td>
                 <td>@subs.DayStart.ToString("MMMM:yyyy") </td>
-                <td>@if (subs.ConfirmedByTeacher == null)
+                <td>@if (subs.ConfirmedBy == null)
                 {
                     <span class="text-danger">No confirmed subscription</span>
                 }
                 else
                 {
-                    @subs.ConfirmedByTeacher?.AppUser.FullName
+                    @subs.ConfirmedBy?.FullName
                         <br /> @subs.ConfirmedDatetime.ToString("dd:MMMM:yyyy")
                 }
                 </td>
                 <td>
-                    @if (subs.PyedToTeacher == null)
+                    @if (subs.PayedTo == null)
                     {
                         <span class="text-danger">No payed subscription</span>
                     }
                     else
                     {
-                    @subs.PyedToTeacher?.AppUser.FullName <br /> @subs.PayedDatetime.ToString("dd:MMMM:yyyy")
+                    @subs.PayedTo?.FullName <br /> @subs.PayedDatetime.ToString("dd:MMMM:yyyy")
                     }
                 </td>
                 <td>

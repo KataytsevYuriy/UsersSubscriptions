@@ -23,7 +23,6 @@ namespace UsersSubscriptions.Areas.Teacher.Controllers
         public async Task<IActionResult> TeacherCourses()
         {
             AppUser currentUser = await repository.GetCurrentUserAsync(HttpContext);
-            //var ttt = await repository.GetTeacherCoursesAsync(currentUser);
             IEnumerable<Course> courses = await repository.GetTeacherCoursesAsync(currentUser);
             return View(courses);
         }
@@ -43,7 +42,7 @@ namespace UsersSubscriptions.Areas.Teacher.Controllers
         {
             AppUser currentUser = await repository.GetCurrentUserAsync(HttpContext);
             Subscription subscription = await repository.GetSubscriptionAsync(subsc.Id);
-            if (subscription.ConfirmedByTeacher == null)
+            if (subscription.ConfirmedBy == null)
             {
                 await repository.ConfirmSubscriptionAsync(currentUser, subsc.Id);
             } else

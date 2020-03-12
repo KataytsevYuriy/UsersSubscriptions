@@ -7,19 +7,19 @@
 <div>Course: <span>@Model.Course.Name</span></div>
 <div>User: @Model.AppUser.FullName</div>
 <div>Month: @Model.DayStart.ToString("MMMM:yyyy")</div>
-<form action="@(Model.ConfirmedByTeacher==null?"ConfirmSubscription":"ConfirmPayedSubscription")" method="post">
+<form action="@(Model.ConfirmedBy==null?"ConfirmSubscription":"ConfirmPayedSubscription")" method="post">
     <input type="hidden" asp-for="Id" />
-    @if (Model.ConfirmedByTeacher == null)
+    @if (Model.ConfirmedBy == null)
     {
         <button type="submit" class="btn btn-primary">Confirm a Subscription</button>
     }
     else
     {
-        <div> Confirmed: @Model.ConfirmedByTeacher.AppUser.FullName  @Model.ConfirmedDatetime.ToString("dd:MMMM:yyyy")</div>
+        <div> Confirmed: @Model.ConfirmedBy.FullName  @Model.ConfirmedDatetime.ToString("dd:MMMM:yyyy")</div>
         @*<input type="hidden" asp-for="ConfirmedByTeacher.AppUserId" />*@
-        @if (Model.PyedToTeacher!=null)
+        @if (Model.PayedTo != null)
         {
-            <div>Payed to: @Model.PyedToTeacher.AppUser.FullName  @Model.PayedDatetime.ToString("dd:MMMM:yyyy")</div>
+            <div>Payed to: @Model.PayedTo.FullName  @Model.PayedDatetime.ToString("dd:MMMM:yyyy")</div>
         }
         else
         {

@@ -18,7 +18,7 @@
             <tr>
                 <td>
                 @subscription.Course.Name
-                @if (subscription.ConfirmedByTeacher == null)
+                @if (subscription.ConfirmedBy == null)
                 {
                     <br />
                     <span class="text-danger">Unconfirmed</span>
@@ -39,7 +39,7 @@
                     <a asp-action="AddToCourse" asp-route-Id="@subscription.CourseId"
                             class="btn btn-primary">Add new Subscription</a>
      @*Allow remove only not confirmed Subscription*@
-                    @if (subscription.ConfirmedByTeacher == null)
+                    @if (subscription.ConfirmedBy == null)
                     {
                     <br />
                     <a asp-action="RemoveSubscription" asp-route-Id="@subscription.Id" 

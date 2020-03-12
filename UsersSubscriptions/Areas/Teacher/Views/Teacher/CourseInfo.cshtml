@@ -22,20 +22,20 @@
             <td>@subscription.AppUser.FullName</td>
             <td>@subscription.AppUser.Email</td>
             <td>@subscription.DayStart.ToString("MMMM:yyyy") </td>
-            <td>@if (subscription.ConfirmedByTeacher == null)
+            <td>@if (subscription.ConfirmedBy == null)
             {
                     <span class="text-danger">NO</span>
             }
             else
             {
-                @subscription.ConfirmedByTeacher.AppUser.FullName 
+                @subscription.ConfirmedBy.FullName;
                 @string.Format(" {0:dd-MMMM-yyyy}", subscription.ConfirmedDatetime)
             }
             </td>
             <td>
-                @if(subscription.PyedToTeacher!=null)
-                { 
-                    @subscription.PyedToTeacher.AppUser.FullName
+                @if(subscription.PayedTo != null)
+                {
+                    @subscription.PayedTo.FullName
                     @string.Format(" {0:dd-MMMM-yyyy}",subscription.PayedDatetime)
                 } else
                 {
@@ -43,11 +43,11 @@
                 }
             </td>
             <td>
-                @if (subscription.ConfirmedByTeacher == null)
+                @if (subscription.ConfirmedBy == null)
                 {
                     <a asp-action="ConfirmSubscription" asp-route-Id="@subscription.Id">Confirm Subscription</a>
                 }
-                else if (subscription.PyedToTeacher != null)
+                else if (subscription.PayedTo == null)
                 {
                     <a asp-action="ConfirmSubscription" asp-route-Id="@subscription.Id">Confirm Payed of Subscription</a>
                 }

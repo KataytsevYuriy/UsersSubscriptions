@@ -17,7 +17,7 @@
             }
         </td>
         <td> @(course.IsActive == true ? "YES" : "NO")</td>
-        @{int unconfSubscriptions = course.Subscriptions.Where(sub => sub.ConfirmedByTeacher == null).ToList().Count();}
+        @{int unconfSubscriptions = course.Subscriptions.Where(sub => sub.ConfirmedBy == null).ToList().Count();}
         <td>
             @if(unconfSubscriptions > 0)
             {

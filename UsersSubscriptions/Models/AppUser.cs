@@ -11,6 +11,7 @@ namespace UsersSubscriptions.Models
     public class AppUser : IdentityUser
     {
         [StringLength(64)]
+        [Key]
         public override string Id { get; set; }
         [StringLength(50)]
         public string FullName { get; set; }
@@ -18,7 +19,7 @@ namespace UsersSubscriptions.Models
 
         public IEnumerable<CourseAppUser> CourseAppUsers { get; set; }
         public IEnumerable<Subscription> Subscriptions { get; set; }
-        public IEnumerable<SubscriptionCreatedby> SubscriptionCreatedby { get; set; }
-        public IEnumerable<SubscriptionPayedTo> SubscriptionPayedTo { get; set; }
+        public IEnumerable<Subscription> SubscriptionConfirmedBy { get; set; }
+        public IEnumerable<Subscription> SubscriptionPayedTo { get; set; }
     }
 }

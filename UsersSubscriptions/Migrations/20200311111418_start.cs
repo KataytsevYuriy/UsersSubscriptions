@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace UsersSubscriptions.Migrations
 {
-    public partial class start1 : Migration
+    public partial class start : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -56,7 +56,7 @@ namespace UsersSubscriptions.Migrations
                     Id = table.Column<string>(maxLength: 64, nullable: false),
                     Name = table.Column<string>(maxLength: 50, nullable: true),
                     IsActive = table.Column<bool>(nullable: false),
-                    Discription = table.Column<string>(nullable: true)
+                    Description = table.Column<string>(nullable: true)
                 },
                 constraints: table =>
                 {
@@ -205,10 +205,11 @@ namespace UsersSubscriptions.Migrations
                     UserId = table.Column<string>(maxLength: 64, nullable: true),
                     AppUserId = table.Column<string>(nullable: true),
                     WasPayed = table.Column<bool>(nullable: false),
-                    CreatedbyTeacher = table.Column<string>(maxLength: 64, nullable: true),
+                    ConfirmedById = table.Column<string>(maxLength: 64, nullable: true),
+                    ConfirmedDatetime = table.Column<DateTime>(nullable: false),
                     CreatedDatetime = table.Column<DateTime>(nullable: false),
-                    PyedToTeacher = table.Column<string>(maxLength: 64, nullable: true),
-                    PayedDtetime = table.Column<DateTime>(nullable: false)
+                    PayedToId = table.Column<string>(maxLength: 64, nullable: true),
+                    PayedDatetime = table.Column<DateTime>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -220,9 +221,21 @@ namespace UsersSubscriptions.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
+                        name: "FK_Subscriptions_AspNetUsers_ConfirmedById",
+                        column: x => x.ConfirmedById,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.SetNull);
+                    table.ForeignKey(
                         name: "FK_Subscriptions_Courses_CourseId",
                         column: x => x.CourseId,
                         principalTable: "Courses",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Subscriptions_AspNetUsers_PayedToId",
+                        column: x => x.PayedToId,
+                        principalTable: "AspNetUsers",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                 });
@@ -282,9 +295,19 @@ namespace UsersSubscriptions.Migrations
                 column: "AppUserId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Subscriptions_ConfirmedById",
+                table: "Subscriptions",
+                column: "ConfirmedById");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Subscriptions_CourseId",
                 table: "Subscriptions",
                 column: "CourseId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Subscriptions_PayedToId",
+                table: "Subscriptions",
+                column: "PayedToId");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)

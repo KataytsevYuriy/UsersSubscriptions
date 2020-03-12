@@ -63,15 +63,35 @@ namespace UsersSubscriptions.Areas.Admin.Models
 
         public async Task DeleteUseAsyncr(string id)
         {
-            AppUser user = await GetUserAsync(id);
+            AppUser user = await _context.Users
+                                .Include(s => s.CourseAppUsers)
+                                .Include(s => s.Subscriptions)
+                                .Include(s => s.SubscriptionConfirmedBy)
+                                .Include(s => s.SubscriptionPayedTo)
+                                .FirstOrDefaultAsync(us => us.Id == id);
+            //AppUser user = await GetUserAsync(id);
             if (user != null)
             {
-                IList<string> roles = await GetUserRolesAsync(id);
-                if (roles.Count > 0)
+                if (user.CourseAppUsers.Count() ==0)
                 {
-                    await _userManager.RemoveFromRolesAsync(user, roles);
+                    if (user.Subscriptions.Count() == 0)
+                    {
+                        if(user.SubscriptionConfirmedBy.Count() == 0)
+                        {
+                            if (user.SubscriptionPayedTo.Count() == 0)
+                            {
+                                IList<string> roles = await GetUserRolesAsync(id);
+                                if (roles.Count > 0)
+                                {
+                                    await _userManager.RemoveFromRolesAsync(user, roles);
+                                }
+                                await _userManager.DeleteAsync(user);
+                            }
+          // Trow exception if Payed to this user, confirmed...                  
+                        }
+                    }
                 }
-                await _userManager.DeleteAsync(user);
+                
             }
         }
 
@@ -189,16 +209,16 @@ namespace UsersSubscriptions.Areas.Admin.Models
         public IEnumerable<Subscription> GetAllSubscriptions()
         {
             return _context.Subscriptions.Include(cour => cour.Course)
-                                        .Include(confirm=>confirm.ConfirmedByTeacher)
-                                        .Include(payed=>payed.PyedToTeacher)
+                                        .Include(confirm=>confirm.ConfirmedBy)
+                                        .Include(payed=>payed.PayedTo)
                                         .Include(user=>user.AppUser).ToList();
         }
 
         public async Task RemoveSubscriptionAsync(string id)
         {
             Subscription subscription = await _context.Subscriptions
-                                                .Include(pay => pay.PyedToTeacher)
-                                                .Include(confirm => confirm.ConfirmedByTeacher)
+                                                .Include(pay => pay.PayedTo)
+                                                .Include(confirm => confirm.ConfirmedBy)
                                                 .FirstOrDefaultAsync(subs => subs.Id == id);
             if (subscription != null)
             {
@@ -214,8 +234,8 @@ namespace UsersSubscriptions.Areas.Admin.Models
         {
             Subscription subscription = await _context.Subscriptions
                             .Include(usr=>usr.AppUser)
-                            .Include(pay => pay.PyedToTeacher).ThenInclude(use => use.AppUser)
-                            .Include(confirm => confirm.ConfirmedByTeacher).ThenInclude(use=>use.AppUser)
+                            .Include(pay => pay.PayedTo)//.ThenInclude(use => use.AppUser)
+                            .Include(confirm => confirm.ConfirmedBy)//.ThenInclude(use=>use.AppUser)
                             .Include(cour=>cour.Course)
                             .FirstOrDefaultAsync(subs => subs.Id == id);
             return subscription;
