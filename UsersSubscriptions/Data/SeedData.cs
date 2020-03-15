@@ -7,11 +7,25 @@ using UsersSubscriptions.Models;
 using UsersSubscriptions.Common;
 using UsersSubscriptions.Data;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 
 namespace UsersSubscriptions.Data
 {
     public static class SeedData
     {
+        public static async Task Initialize(IServiceProvider serviceProvider)
+        {
+            ApplicationDbContext _context = new ApplicationDbContext(serviceProvider.GetRequiredService<
+                    DbContextOptions<ApplicationDbContext>>());
+            var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+            var userManager = serviceProvider.GetRequiredService<UserManager<AppUser>>();
+            await CreateRolesAsync(roleManager);
+            await CreateUsersAsync(userManager);
+            await CreateCoursesAsync(_context, userManager);
+            await CreateSubscriptionsAsync(_context, userManager);
+        }
+        
         public static async Task CreateRolesAsync(RoleManager<IdentityRole> _roleManager)
         {
             List<string> roles = new List<string>
@@ -127,34 +141,41 @@ namespace UsersSubscriptions.Data
             }
             
         }
-
         public static async Task CreateSubscriptionsAsync(ApplicationDbContext _context,
+
                                                             UserManager<AppUser> _userManager)
         {
-            List<string> users = new List<string> {"Tester", "Student", "Student1" };
-            List<AppUser> appUsers = new List<AppUser>();
-            foreach(string userName in users)
+            if (_context.Subscriptions.FirstOrDefault() == null)
             {
-                AppUser appUser = await _userManager.FindByNameAsync(userName + "@mail.com");
-                if (appUser != null)
+                List<string> users = new List<string> { "Tester", "Student", "Student1" };
+                List<AppUser> appUsers = new List<AppUser>();
+                foreach (string userName in users)
                 {
-                    appUsers.Add(appUser);
-                }
-            }
-            Course course = await _context.Courses.FirstAsync(cour => cour.Name == "Bachata");
-            if (course != null && appUsers.Count>0)
-            {
-                foreach(AppUser user in appUsers)
-                {
-                    Subscription newSubscription = new Subscription
+                    AppUser appUser = await _userManager.FindByNameAsync(userName + "@mail.com");
+                    if (appUser != null)
                     {
-                        AppUser = user,
-                        Course = course,
-                        CreatedDatetime = DateTime.Now,
-                        DayStart = DateTime.Now,
-                    };
-                    await _context.Subscriptions.AddAsync(newSubscription);
-                    await _context.SaveChangesAsync();
+                        appUsers.Add(appUser);
+                    }
+                }
+                Course course = await _context.Courses.FirstOrDefaultAsync(cour => cour.Name == "Bachata");
+                if (course != null && appUsers.Count > 0)
+                {
+                    foreach (AppUser user in appUsers)
+                    {
+                        Subscription newSubscription = new Subscription
+                        {
+                            //AppUser = user,
+                            AppUserId = user.Id,
+                            //Course = course,
+                            CourseId = course.Id,
+                            CreatedDatetime = DateTime.Now,
+                            DayStart = DateTime.Now,
+                        };
+                        _context.Subscriptions.Add(newSubscription);
+                        //await _context.Subscriptions.AddAsync(newSubscription);
+                        //await _context.SaveChangesAsync();
+                    }
+                    _context.SaveChanges();
                 }
             }
         }

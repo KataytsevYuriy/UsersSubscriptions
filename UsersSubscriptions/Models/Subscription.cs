@@ -20,7 +20,7 @@ namespace UsersSubscriptions.Models
         public Course Course { get; set; }
 
         [StringLength(64)]
-        public string UserId { get; set; }
+        public string AppUserId { get; set; }
         public AppUser AppUser { get; set; }
 
         public bool WasPayed { get; set; }
@@ -37,11 +37,13 @@ namespace UsersSubscriptions.Models
         public DateTime PayedDatetime { get; set; }
     }
 
-    //public class SubscriptionConfiguration : IEntityTypeConfiguration<Subscription>
-    //{
-    //    public void Configure(EntityTypeBuilder<Subscription> builder)
-    //    {
-    //        builder.HasOne(s => s.PayedTo).WithMany(s => s.Subscriptions).OnDelete(DeleteBehavior.SetNull);
-    //    }
-    //}
+    public class SubscriptionConfiguration : IEntityTypeConfiguration<Subscription>
+    {
+        public void Configure(EntityTypeBuilder<Subscription> builder)
+        {
+            builder.HasOne(s => s.PayedTo).WithMany(s => s.Subscriptions);//.OnDelete(DeleteBehavior.SetNull);
+            builder.HasOne(s => s.ConfirmedBy).WithMany(ap => ap.SubscriptionConfirmedBy)
+                .OnDelete(DeleteBehavior.SetNull);
+        }
+    }
 }

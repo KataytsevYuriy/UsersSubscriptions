@@ -16,6 +16,7 @@ namespace UsersSubscriptions.Areas.Admin.Controllers
  
         public IActionResult Index()
         {
+            var ttt = repository.GetAllSubscriptions();
             return View(repository.GetAllSubscriptions());
         }
 

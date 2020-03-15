@@ -43,11 +43,16 @@ namespace UsersSubscriptions.Models
 
         public AppUser GetUserCourses(string id)
         {
-            AppUser user = _context.Users.Include(sub => sub.Subscriptions)
-                                    .ThenInclude(c => c.Course).ThenInclude(cu=>cu.CourseAppUsers)
-                                    .ThenInclude(au=>au.AppUser)
-                                .Include(sub=>sub.Subscriptions).ThenInclude(conf=>conf.ConfirmedBy)
+            AppUser user = _context.Users//.Include(sub => sub.Subscriptions)
+                                         //    .ThenInclude(c => c.Course).ThenInclude(cu=>cu.CourseAppUsers)
+                                         //    .ThenInclude(au=>au.AppUser)
+                                         //.Include(sub=>sub.Subscriptions).ThenInclude(conf=>conf.ConfirmedBy)
                                     .FirstOrDefault(i => i.Id == id);
+            IEnumerable<Subscription> subscriptions = _context.Subscriptions
+                    .Include(c => c.Course).ThenInclude(cu => cu.CourseAppUsers).ThenInclude(au => au.AppUser)
+                    .Include(conf => conf.ConfirmedBy)
+                    .Where(sub => sub.AppUserId == id);
+            user.Subscriptions = subscriptions;
             return (user);
         }
 

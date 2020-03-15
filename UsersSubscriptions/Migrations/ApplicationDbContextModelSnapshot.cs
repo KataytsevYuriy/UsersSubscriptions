@@ -15,7 +15,7 @@ namespace UsersSubscriptions.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "2.1.11-servicing-32099")
+                .HasAnnotation("ProductVersion", "2.1.14-servicing-32113")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
@@ -235,7 +235,8 @@ namespace UsersSubscriptions.Migrations
                         .ValueGeneratedOnAdd()
                         .HasMaxLength(64);
 
-                    b.Property<string>("AppUserId");
+                    b.Property<string>("AppUserId")
+                        .HasMaxLength(64);
 
                     b.Property<string>("ConfirmedById")
                         .HasMaxLength(64);
@@ -254,9 +255,6 @@ namespace UsersSubscriptions.Migrations
                     b.Property<DateTime>("PayedDatetime");
 
                     b.Property<string>("PayedToId")
-                        .HasMaxLength(64);
-
-                    b.Property<string>("UserId")
                         .HasMaxLength(64);
 
                     b.Property<bool>("WasPayed");
@@ -333,7 +331,7 @@ namespace UsersSubscriptions.Migrations
             modelBuilder.Entity("UsersSubscriptions.Models.Subscription", b =>
                 {
                     b.HasOne("UsersSubscriptions.Models.AppUser", "AppUser")
-                        .WithMany("Subscriptions")
+                        .WithMany("SubscriptionPayedTo")
                         .HasForeignKey("AppUserId");
 
                     b.HasOne("UsersSubscriptions.Models.AppUser", "ConfirmedBy")
@@ -346,7 +344,7 @@ namespace UsersSubscriptions.Migrations
                         .HasForeignKey("CourseId");
 
                     b.HasOne("UsersSubscriptions.Models.AppUser", "PayedTo")
-                        .WithMany("SubscriptionPayedTo")
+                        .WithMany("Subscriptions")
                         .HasForeignKey("PayedToId");
                 });
 #pragma warning restore 612, 618

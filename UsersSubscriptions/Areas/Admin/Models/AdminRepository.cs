@@ -211,7 +211,8 @@ namespace UsersSubscriptions.Areas.Admin.Models
             return _context.Subscriptions.Include(cour => cour.Course)
                                         .Include(confirm=>confirm.ConfirmedBy)
                                         .Include(payed=>payed.PayedTo)
-                                        .Include(user=>user.AppUser).ToList();
+                                        .Include(user=>user.AppUser)
+                                        .ToList();
         }
 
         public async Task RemoveSubscriptionAsync(string id)

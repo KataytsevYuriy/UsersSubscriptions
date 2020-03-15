@@ -47,8 +47,8 @@ namespace UsersSubscriptions.Controllers
         {
             AppUser currentUser = await repository.GetCurentUser(HttpContext);
             AppUser appUser = repository.GetUserCourses(currentUser.Id);
-            IEnumerable<Subscription> subscriptions = appUser.Subscriptions.OrderBy(ord => ord.Id);
-            IEnumerable<Subscription> subscriptions1 = appUser.Subscriptions.OrderBy(ord => ord.CreatedDatetime);
+            //IEnumerable<Subscription> subscriptions = appUser.Subscriptions.OrderBy(ord => ord.Id);
+            //IEnumerable<Subscription> subscriptions1 = appUser.Subscriptions.OrderBy(ord => ord.CreatedDatetime);
             appUser.Subscriptions = appUser.Subscriptions.OrderBy(cours => cours.DayStart);
             return View(appUser);
         }
