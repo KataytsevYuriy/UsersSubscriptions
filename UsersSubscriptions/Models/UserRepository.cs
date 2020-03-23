@@ -51,7 +51,7 @@ namespace UsersSubscriptions.Models
             IEnumerable<Subscription> subscriptions = _context.Subscriptions
                     .Include(c => c.Course).ThenInclude(cu => cu.CourseAppUsers).ThenInclude(au => au.AppUser)
                     .Include(conf => conf.ConfirmedBy)
-                    .Where(sub => sub.AppUserId == id);
+                    .Where(sub => sub.AppUserId == id).ToList();
             user.Subscriptions = subscriptions;
             return (user);
         }
@@ -82,7 +82,8 @@ namespace UsersSubscriptions.Models
 
                   dbSubscription.CourseId == subscription.CourseId &&
                   dbSubscription.DayStart.Year == subscription.DayStart.Year &&
-                  dbSubscription.DayStart.Month == subscription.DayStart.Month)
+                  dbSubscription.DayStart.Month == subscription.DayStart.Month &&
+                  dbSubscription.AppUserId == subscription.AppUserId)
                   .Count()==0)
             {
                 return false;

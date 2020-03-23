@@ -1,0 +1,12 @@
+﻿@model Subscription
+@{
+    Layout = "_TeacherLayout";
+}
+
+<div class="bg-danger text-info text-center"><h2>Remove subscription</h2></div>
+
+<h3>Are you shore?</h3>
+<form asp-route="RemoveStudentSubscription" method="post">
+    <input type="hidden" name="Id" value="@Model.Id" />
+    <button class="btn btn-danger" type="submit">Remove</button>
+</form>

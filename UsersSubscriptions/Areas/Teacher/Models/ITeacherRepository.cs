@@ -10,11 +10,13 @@ namespace UsersSubscriptions.Areas.Teacher.Models
     public interface ITeacherRepository
     {
         Task<AppUser> GetCurrentUserAsync(HttpContext context);
+        Task<AppUser> GetUserAsync(string id);
         Task<IEnumerable<Course>> GetTeacherCoursesAsync(AppUser teacher);
         Task<Course> GetCoursInfoAsync(string id);
         Task<Subscription> GetSubscriptionAsync(string id);
         Task ConfirmSubscriptionAsync(AppUser teacher, string id);
         Task ConfirmPayedSubscriptionAsync(AppUser teacher, string id);
         Task RemoveSubscriptionAsync(string id);
+        IEnumerable<Subscription> GetStudentSubscriptionsOfCourse(string userId, string coursId);
     }
 }

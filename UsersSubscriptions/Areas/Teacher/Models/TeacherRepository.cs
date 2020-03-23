@@ -31,6 +31,11 @@ namespace UsersSubscriptions.Areas.Teacher.Models
             return currentUser;
         }
 
+        public async Task<AppUser> GetUserAsync(string id)
+        {
+            return await _userManager.FindByIdAsync(id);
+        }
+
         public async Task<IEnumerable<Course>> GetTeacherCoursesAsync(AppUser teacher)
         {
             IEnumerable<Course> courses = await _context.Courses
@@ -49,7 +54,7 @@ namespace UsersSubscriptions.Areas.Teacher.Models
                 .Include(cu => cu.Subscriptions).ThenInclude(cus => cus.ConfirmedBy)//.ThenInclude(cus => cus.AppUser)
                 .Include(cu => cu.Subscriptions).ThenInclude(cus => cus.PayedTo)//.ThenInclude(cus => cus.AppUser)
                 .Include(teach=>teach.CourseAppUsers).ThenInclude(teachUs=>teachUs.AppUser)
-                .FirstAsync(cour => cour.Id == id);
+                .FirstOrDefaultAsync(cour => cour.Id == id);
             return course;
         }
 
@@ -60,7 +65,7 @@ namespace UsersSubscriptions.Areas.Teacher.Models
                             .Include(user=>user.AppUser)
                             .Include(pay => pay.PayedTo)
                             .Include(conf => conf.ConfirmedBy)
-                            .FirstAsync(subs => subs.Id == id);
+                            .FirstOrDefaultAsync(subs => subs.Id == id);
             return (subscription);
         }
 
@@ -68,7 +73,7 @@ namespace UsersSubscriptions.Areas.Teacher.Models
         {
             Subscription subscription = await _context.Subscriptions
                             .Include(teach => teach.ConfirmedBy)
-                            .FirstAsync(subsId => subsId.Id == id);
+                            .FirstOrDefaultAsync(subsId => subsId.Id == id);
             if (subscription.ConfirmedBy == null)
             {
                  subscription.ConfirmedById = teacher.Id;
@@ -81,7 +86,7 @@ namespace UsersSubscriptions.Areas.Teacher.Models
             Subscription subscription = await _context.Subscriptions
                             .Include(teach => teach.ConfirmedBy)
                             .Include(payed=>payed.PayedTo)
-                            .FirstAsync(subsId => subsId.Id == id);
+                            .FirstOrDefaultAsync(subsId => subsId.Id == id);
             if (subscription.ConfirmedBy != null && subscription.PayedTo == null)
             {
                 subscription.PayedToId = teacher.Id;
@@ -102,6 +107,13 @@ namespace UsersSubscriptions.Areas.Teacher.Models
                 _context.Subscriptions.Remove(subscription);
                 await _context.SaveChangesAsync();
             }
+        }
+
+        public IEnumerable<Subscription> GetStudentSubscriptionsOfCourse(string userId, string coursId)
+        {
+            IEnumerable<Subscription> studentSubscriptions = _context.Subscriptions
+                .Where(sub => sub.AppUserId == userId && sub.CourseId == coursId).ToList();
+            return studentSubscriptions;
         }
 
     }

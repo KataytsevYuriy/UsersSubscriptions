@@ -40,6 +40,9 @@
     <Content Update="Areas\Teacher\Views\Shared\_TeacherLayout.cshtml">
       <Pack>$(IncludeRazorContentInPack)</Pack>
     </Content>
+    <Content Update="Areas\Teacher\Views\Teacher\StudentInfo.cshtml">
+      <Pack>$(IncludeRazorContentInPack)</Pack>
+    </Content>
     <Content Update="Areas\Teacher\Views\Teacher\Index.cshtml">
       <Pack>$(IncludeRazorContentInPack)</Pack>
     </Content>

@@ -1,0 +1,19 @@
+﻿@model SubscriptionTeatcherViewModel
+@{
+    ViewData["Title"] = "AddSubscription";
+    Layout = "_TeacherLayout";
+}
+
+<div class="bg-primary text-info text-center"><h2>Add to Course @Model.Course.Name</h2></div>
+<form asp-action="AddSubscription" method="post">
+    <p> Course name: @Model.Course.Name</p>
+    <input type="hidden" name="Course.Id" value="@Model.Course.Id" />
+    <input type="hidden" name="Subscriptions.Id" value="" />
+    <input type="hidden" name="Student.Id" value="@Model.Student.Id" />
+    <div class="form-group">
+        <label asp-for="Subscription.DayStart"></label>
+        <input type="month" name="Subscription.DayStart" />
+    </div>
+    <button type="submit" class="btn btn-primary">Add to Course</button>
+</form>
+<a asp-action="StudentInfo" asp-route-studentQR="@Model.Student.Id"class="btn btn-info">Back</a>

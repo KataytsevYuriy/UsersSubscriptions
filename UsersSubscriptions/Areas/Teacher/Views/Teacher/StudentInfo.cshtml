@@ -1,0 +1,41 @@
+﻿@model StudentInfoViewModel
+@{
+    Layout = "_TeacherLayout";
+}
+
+<div class="bg-primary text-center text-info"><h3> Student @Model.Student.FullName</h3></div>
+<div class="text-info"> Student name : @Model.Student.UserName</div>
+@if (string.IsNullOrEmpty(Model.Student.PhoneNumber))
+{
+    <div class="text-danger"> There is not added phone</div>
+}
+else {
+    <div class="text-info"> Student Phone : @Model.Student.PhoneNumber</div>
+}
+@if (Model.Student.IsActive)
+{
+    <table class=" table table-bordered table-striped">
+        <tr><th>Course name</th><th></th><th></th></tr>
+        @if (Model.Courses.Count() > 0)
+        {
+            @foreach (Course course in Model.Courses)
+            {
+                <tr>
+                     <td>@course.Name</td>
+                     <td>
+  <a class="btn btn-primary" asp-action="CourseStudentInfo" asp-route-studentId="@Model.Student.Id" asp-route-courseId="@course.Id">Info</a>
+                    </td>
+                    <td>
+  <a class="btn btn-info" asp-action="AddSubscription" asp-route-studentId="@Model.Student.Id" asp-route-courseId="@course.Id">Add subscription</a>
+                    </td>
+                </tr>
+
+            }
+        } else { <tr><td colspan="2"><h3 class="text-danger">There are no active courses</h3></td></tr>}
+    </table>
+
+}
+else
+{
+    <div class="bg-danger text-center"> <h2>This accaunt is blocked. Please contact the admin.</h2></div>
+}

@@ -1,0 +1,35 @@
+﻿@model CourceStudentViewModel
+@{
+    Layout = "_TeacherLayout";
+}
+
+<div class=" bg-primary text-center"><h3>Course ( @Model.Course.Name ) Subscriptions of student @Model.Student.FullName</h3></div>
+
+<table class="table table-bordered table-striped">
+    <tr><th>Month</th><th>Confirmed</th><th>Payed</th><th></th></tr>
+    @if (Model.Subscriptions.Count() > 0)
+    {
+        @foreach (Subscription subscription in Model.Subscriptions)
+        {
+            <tr>
+                <td>@subscription.DayStart.ToString("MMMM:yyyy")</td>
+                <td>@if (string.IsNullOrEmpty(subscription.ConfirmedById))
+                        {<span>No Confirmed</span>}
+                        else {@subscription.ConfirmedBy.FullName <br />@subscription.ConfirmedDatetime.ToString("MMMM:yyyy") }</td>
+                <td>
+                    @if (string.IsNullOrEmpty(subscription.PayedToId))
+                    {<span>No Payed</span>}
+                    else
+                    {@subscription.PayedTo.FullName <br />@subscription.ConfirmedDatetime.ToString("MMMM:yyyy")}
+                  </td>
+                <td>
+                    <a class="btn btn-danger" asp-action="RemoveStudentSubscription" asp-route-Id="@subscription.Id">Remove</a>
+                </td>
+            </tr>
+        }
+    } else
+    {
+        <tr><td colspan="4"><h3>There is no Subscriptions</h3></td></tr>
+    }
+</table>
+<a class="btn btn-info" asp-action="StudentInfo" asp-route-studentQR="@Model.Student.Id">Back</a>
