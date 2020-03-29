@@ -7,12 +7,13 @@
 <div class="text-danger" asp-validation-summary="ModelOnly"></div>
 <div>
     <table class="table table-striped table-bordered text-center">
-        <tr><th>User</th><th>Course Name</th><th>Day Star / Finish</th><th>Confirm by Teacher</th><th>Payed to Teacher</th><th></th></tr>
+        <tr><th>User</th><th>Course Name</th><th>Price</th><th>Month</th><th>Confirm by Teacher</th><th>Payed to Teacher</th><th></th></tr>
         @foreach(var subs in Model)
         {
             <tr>
                 <td>@subs.AppUser.FullName <br /> @subs.AppUser.UserName</td>
                 <td>@subs.Course.Name</td>
+                <td>@subs.Price</td>
                 <td>@subs.DayStart.ToString("MMMM:yyyy") </td>
                 <td>@if (subs.ConfirmedBy == null)
                 {

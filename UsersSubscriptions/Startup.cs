@@ -40,12 +40,19 @@ namespace UsersSubscriptions
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(
                     Configuration.GetConnectionString("DefaultConnection")));
-            services.AddDefaultIdentity<AppUser>()
-                .AddRoles<IdentityRole>()
-                .AddEntityFrameworkStores<ApplicationDbContext>();
             services.AddTransient<IAdminDataRepository, AdminRepository>();
             services.AddTransient<IUserRepository, UserRepository>();
             services.AddTransient<ITeacherRepository, TeacherRepository>();
+            services.AddDefaultIdentity<AppUser>()
+                .AddRoles<IdentityRole>()
+                .AddEntityFrameworkStores<ApplicationDbContext>();
+            //services.AddAuthorization(opts =>
+            //{
+            //    opts.AddPolicy("onlyAdmin", policy =>
+            //    {
+            //        policy.RequireRole(Common.UsersConstants.admin);
+            //    });
+            //});
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
             services.AddAuthentication().AddFacebook(facebookOptions =>
             {

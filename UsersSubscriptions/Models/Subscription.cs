@@ -24,6 +24,7 @@ namespace UsersSubscriptions.Models
         public AppUser AppUser { get; set; }
 
         public bool WasPayed { get; set; }
+        public int Price { get; set; }
 
         [StringLength(64)]
         public string ConfirmedById { get; set; }

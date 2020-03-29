@@ -6,10 +6,11 @@ using UsersSubscriptions.Models;
 
 namespace UsersSubscriptions.Areas.Teacher.Models
 {
-    public class SubscriptionTeatcherViewModel
+    public class CourceStudentViewModel
     {
-        public Subscription Subscription { get; set; }
+        public IEnumerable<Subscription> Subscriptions { get; set; }
         public AppUser Student { get; set; }
         public Course Course { get; set; }
     }
+    
 }

@@ -81,7 +81,7 @@ namespace UsersSubscriptions.Areas.Teacher.Models
                 await _context.SaveChangesAsync();
             }
         }
-        public async Task ConfirmPayedSubscriptionAsync(AppUser teacher, string id)
+        public async Task ConfirmPayedSubscriptionAsync(AppUser teacher, string id, int price)
         {
             Subscription subscription = await _context.Subscriptions
                             .Include(teach => teach.ConfirmedBy)
@@ -92,6 +92,7 @@ namespace UsersSubscriptions.Areas.Teacher.Models
                 subscription.PayedToId = teacher.Id;
                 subscription.PayedDatetime = DateTime.Now;
                 subscription.WasPayed = true;
+                subscription.Price = price;
                 await _context.SaveChangesAsync();
             }
         }
@@ -116,5 +117,25 @@ namespace UsersSubscriptions.Areas.Teacher.Models
             return studentSubscriptions;
         }
 
+        public CourseCalculate CourseCalculateGetSum (string courseId, DateTime month)
+        {
+            IEnumerable<Subscription> subscriptions = _context.Subscriptions
+                .Where(sub => sub.CourseId == courseId && sub.DayStart.Year == month.Year && sub.DayStart.Month == month.Month)
+                .ToList();
+            int sumPayed = subscriptions.Where(sub => sub.PayedToId != null)
+                .Select(sub => sub.Price)
+                .Sum();
+            int sumNoPayed = subscriptions.Where(sub => sub.PayedToId == null)
+                .Select(sub => sub.Price)
+                .Sum();
+            int quantity = subscriptions.Count();
+             CourseCalculate courseCalculate = new CourseCalculate
+            {
+                PayedSum = sumPayed,
+                NoPayedSum = sumNoPayed,
+                QuantityStudents = quantity,
+            };
+            return courseCalculate;
+        }
     }
 }

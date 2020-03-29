@@ -9,10 +9,13 @@ using UsersSubscriptions.Areas.Admin.Models;
 using UsersSubscriptions.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authorization;
+using UsersSubscriptions.Common;
 
 namespace UsersSubscriptions.Areas.Admin.Controllers
 {
     [Area("Admin")]
+    //[Authorize(Roles = UsersConstants.admin)]
     public class UserController : Controller
     {
         private IAdminDataRepository repository;

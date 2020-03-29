@@ -16,7 +16,7 @@ namespace UsersSubscriptions.Areas.Admin.Models
         public string Name { get; set; }
         public bool IsActive { get; set; }
         public string Description { get; set; }
-        //public Course Course { get; set; }
+        public int Price { get; set; }
         public IList<AppUser> AllTeachers { get; set; }
         public IList<AppUser> Teachers { get; set; }
         public List<string> NewTeachers { get; set; }

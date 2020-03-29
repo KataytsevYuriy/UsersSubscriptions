@@ -6,10 +6,12 @@ using Microsoft.AspNetCore.Mvc;
 using UsersSubscriptions.Areas.Admin.Models;
 using UsersSubscriptions.Models;
 using UsersSubscriptions.Common;
+using Microsoft.AspNetCore.Authorization;
 
 namespace UsersSubscriptions.Areas.Admin.Controllers
 {
     [Area("Admin")]
+    [Authorize(Roles =UsersConstants.admin)]
     public class CourseController : Controller
     {
         private IAdminDataRepository repository;
@@ -17,7 +19,6 @@ namespace UsersSubscriptions.Areas.Admin.Controllers
         {
             repository = repo;
         }
-
         public IActionResult Index()
         {
             return View(repository.GetAllCourses());
@@ -50,6 +51,7 @@ namespace UsersSubscriptions.Areas.Admin.Controllers
                 Name = course.Name,
                 Description = course.Description,
                 IsActive = course.IsActive,
+                Price = course.Price,
                 Teachers = appUsers,
                 AllTeachers = allTeachers
             };
@@ -65,6 +67,7 @@ namespace UsersSubscriptions.Areas.Admin.Controllers
                 Name = model.Name,
                 Description = model.Description,
                 IsActive = model.IsActive,
+                Price = model.Price,
                 CourseAppUsers = model.NewTeachers.Select(us => new CourseAppUser
                 {
                     CourseId = model.Id,

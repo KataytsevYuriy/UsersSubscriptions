@@ -162,6 +162,7 @@ namespace UsersSubscriptions.Areas.Admin.Models
                 course.Name = model.Name;
                 course.Description = model.Description;
                 course.IsActive = model.IsActive;
+                course.Price = model.Price;
                 await _context.Courses.AddAsync(course);
                 await _context.SaveChangesAsync();
                 Course newCourse = await _context.Courses
@@ -188,6 +189,7 @@ namespace UsersSubscriptions.Areas.Admin.Models
             dbCourse.Name = course.Name;
             dbCourse.IsActive = course.IsActive;
             dbCourse.Description = course.Description;
+            dbCourse.Price = course.Price;
             dbCourse.CourseAppUsers = course.CourseAppUsers;
             await _context.SaveChangesAsync();
         }

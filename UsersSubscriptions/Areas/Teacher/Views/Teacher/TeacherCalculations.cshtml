@@ -1,0 +1,36 @@
+﻿@model TeacherCalculationsViewModel
+@{
+    Layout = "_TeacherLayout";
+}
+
+<div class="bg-primary text-center text-info"><h3> Your Calculations</h3></div>
+<form asp-action="TeacherCalculations" method="post">
+    <div class="form-group">
+        <label asp-for="Month"></label>
+        <input type="month" name="Month"  value="@DateTime.Now" />
+    </div>
+    <button type="submit" class="btn btn-default">Select month</button>
+</form>
+<div><h3>Courses Calculations in @Model.Month.ToString("MMMM:yyyy")</h3></div>
+<table class="table table-bordered table-striped text-center">
+    <tr><th>Name</th><th>Quantity</th><th>Price</th><th>Payed</th><th>No Payed</th><th></th></tr>
+    @foreach(var course in Model.Courses)
+    {
+        <tr>
+            <td>@course.Name</td>
+            <td>@course.QuantityStudents</td>
+            <td>@course.Price</td>
+            <td>@course.PayedSum</td>
+            <td>@course.NoPayedSum</td>
+            <td>
+                <a class="btn btn-info" asp-action="TeacherCalculationsInfo" asp-route-Id="@course.Id">Info</a>
+            </td>
+        </tr>
+    }
+    <tr class="bg-success">
+        <td colspan="3" class="text-right"><strong>Total</strong></td>
+        <td><strong>@Model.SumPayed</strong></td>
+        <td><strong>@Model.SumNoPayed</strong></td>
+        <td></td>
+    </tr>
+</table>

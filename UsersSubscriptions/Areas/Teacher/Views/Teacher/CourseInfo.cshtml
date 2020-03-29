@@ -15,13 +15,14 @@
     </p>
 <p>Subscriptions:</p>
 <table class="table table-bordered table-striped">
-    <tr><th>Student Name</th><th>Student Email</th><th>Month</th><th>Confirmed</th><th>Payed</th><th></th></tr>
+    <tr><th>Student Name</th><th>Student Email</th><th>Month</th><th>Price</th><th>Confirmed</th><th>Payed</th><th></th></tr>
     @foreach(Subscription subscription in Model.Subscriptions)
     {
         <tr>
             <td>@subscription.AppUser.FullName</td>
             <td>@subscription.AppUser.Email</td>
             <td>@subscription.DayStart.ToString("MMMM:yyyy") </td>
+            <td>@subscription.Price</td>
             <td>@if (subscription.ConfirmedBy == null)
             {
                     <span class="text-danger">NO</span>

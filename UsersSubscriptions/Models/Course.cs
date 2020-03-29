@@ -16,6 +16,7 @@ namespace UsersSubscriptions.Models
         public string Name { get; set; }
         public bool IsActive { get; set; }
         public string Description { get; set; }
+        public int Price { get; set; }
 
         public IEnumerable<Subscription> Subscriptions { get; set; }
         public IEnumerable<CourseAppUser> CourseAppUsers { get; set; }

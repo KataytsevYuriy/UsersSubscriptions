@@ -6,6 +6,7 @@
 <form asp-action="AddToCourse" method="post">
     <p> Course name: @ViewBag.course.Name</p>
     <input type="hidden" name="CourseId" value="@ViewBag.course.Id" />
+    <input type="hidden" name="Price" value="@ViewBag.course.Price" />
     <input type="hidden" name="Id" value="" />
     <div class="form-group">
         <label asp-for="DayStart"></label>

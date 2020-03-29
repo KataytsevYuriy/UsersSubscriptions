@@ -14,6 +14,10 @@
         <label asp-for="Subscription.DayStart"></label>
         <input type="month" name="Subscription.DayStart" />
     </div>
+    <div class="form-group">
+        <label asp-for="Subscription.Price"></label>
+        <input type="number" name="Subscription.Price" value="@Model.Course.Price" />
+    </div>
     <button type="submit" class="btn btn-primary">Add to Course</button>
 </form>
 <a asp-action="StudentInfo" asp-route-studentQR="@Model.Student.Id"class="btn btn-info">Back</a>

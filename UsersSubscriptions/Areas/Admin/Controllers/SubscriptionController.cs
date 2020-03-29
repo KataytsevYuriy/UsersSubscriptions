@@ -5,10 +5,13 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using UsersSubscriptions.Models;
 using UsersSubscriptions.Areas.Admin.Models;
+using Microsoft.AspNetCore.Authorization;
+using UsersSubscriptions.Common;
 
 namespace UsersSubscriptions.Areas.Admin.Controllers
 {
     [Area("Admin")]
+    [Authorize(Roles = "Admin")]
     public class SubscriptionController : Controller
     {
         private IAdminDataRepository repository;

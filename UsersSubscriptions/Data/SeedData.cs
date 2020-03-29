@@ -98,18 +98,21 @@ namespace UsersSubscriptions.Data
                     Name="Bachata",
                     IsActive=true,
                     Description="Dancing",
+                    Price=800,
                 },
                 new Course
                 {
                     Name="Samba",
                     IsActive=true,
                     Description="Dancing",
+                    Price=500,
                 },
                 new Course
                 {
                     Name="Street Dancing",
                     IsActive=true,
                     Description="Dancing",
+                    Price=400,
                 },
             };
             List<string> teachers = new List<string> {"Teacher", "Teacher1", "Tester"};
@@ -164,10 +167,9 @@ namespace UsersSubscriptions.Data
                     {
                         Subscription newSubscription = new Subscription
                         {
-                            //AppUser = user,
                             AppUserId = user.Id,
-                            //Course = course,
                             CourseId = course.Id,
+                            Price = course.Price,
                             CreatedDatetime = DateTime.Now,
                             DayStart = DateTime.Now,
                         };

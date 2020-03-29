@@ -54,7 +54,7 @@ namespace UsersSubscriptions.Areas.Teacher.Controllers
                 await repository.ConfirmSubscriptionAsync(currentUser, subsc.Id);
             } else
             {
-                await repository.ConfirmPayedSubscriptionAsync(currentUser, subsc.Id);
+                await repository.ConfirmPayedSubscriptionAsync(currentUser, subsc.Id, subsc.Price);
             }
             return View(await repository.GetSubscriptionAsync(subsc.Id));
         }
@@ -132,6 +132,7 @@ namespace UsersSubscriptions.Areas.Teacher.Controllers
                 ConfirmedById = teacher.Id,
                 CourseId = model.Course.Id,
                 DayStart=model.Subscription.DayStart,
+                Price = model.Subscription.Price,
         };
             await userRepository.CreateSubscription(subscription);
             return RedirectToAction(nameof(StudentInfo), new { studentQR = model.Student.Id});
@@ -149,6 +150,46 @@ namespace UsersSubscriptions.Areas.Teacher.Controllers
             Subscription subscription = await repository.GetSubscriptionAsync(model.Id);
             await repository.RemoveSubscriptionAsync(model.Id);
             return RedirectToAction(nameof(StudentInfo), new { studentQR = subscription.AppUserId });
+        }
+
+        public async Task<IActionResult> TeacherCalculations(TeacherCalculationsViewModel teacherCalculationsViewModel)
+        {
+            int sumPayed = 0, sumNoPayed=0;
+            DateTime date;
+            if (teacherCalculationsViewModel.Month.Year < 2000)
+            {
+                 date = DateTime.Now;
+            } else
+            {
+                 date = teacherCalculationsViewModel.Month;
+            }
+            AppUser teacher = await repository.GetCurrentUserAsync(HttpContext);
+            List<CourseCalculate> courseCalculates = new List<CourseCalculate>();
+            IEnumerable<Course> courses = await repository.GetTeacherCoursesAsync(teacher);
+            foreach(Course course in courses)
+            {
+                CourseCalculate courseCalculate = repository.CourseCalculateGetSum(course.Id, date);
+                courseCalculate.Id = course.Id;
+                courseCalculate.Name = course.Name;
+                courseCalculate.Price = course.Price;
+                courseCalculates.Add(courseCalculate);
+                sumPayed += courseCalculate.PayedSum;
+                sumNoPayed += courseCalculate.NoPayedSum;
+            }
+            TeacherCalculationsViewModel model = new TeacherCalculationsViewModel
+            {
+                Month = date,
+                Courses = courseCalculates,
+                SumPayed = sumPayed,
+                SumNoPayed = sumNoPayed,
+            };
+
+            return View(model);
+        }
+
+        public async Task<IActionResult> TeacherCalculationsInfo(string id)
+        {
+            return View();
         }
     }
 }

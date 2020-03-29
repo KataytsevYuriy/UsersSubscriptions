@@ -8,13 +8,14 @@
 
 
 <table class="table table-bordered table-striped">
-    <tr><th>Course Name</th><th>Course Description</th><th>Course Teachers</th><th></th></tr>
+    <tr><th>Course Name</th><th>Price</th><th>Course Description</th><th>Course Teachers</th><th></th></tr>
     @foreach(Course course in Model)
     {
         @if (course.IsActive)
         {
         <tr>
             <td>@course.Name</td>
+            <td>@course.Price</td>
             <td>@course.Description</td>
             <td>
                 @foreach(var teacher in course.CourseAppUsers)

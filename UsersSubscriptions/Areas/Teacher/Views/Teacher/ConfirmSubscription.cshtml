@@ -16,13 +16,13 @@
     else
     {
         <div> Confirmed: @Model.ConfirmedBy.FullName  @Model.ConfirmedDatetime.ToString("dd:MMMM:yyyy")</div>
-        @*<input type="hidden" asp-for="ConfirmedByTeacher.AppUserId" />*@
         @if (Model.PayedTo != null)
         {
             <div>Payed to: @Model.PayedTo.FullName  @Model.PayedDatetime.ToString("dd:MMMM:yyyy")</div>
         }
         else
         {
+            <div>Price: <input type="number" name="Price" value="@Model.Price" /></div>
             <button type="submit" class="btn btn-primary">Confirm payed a Subscription</button>
         }
     }

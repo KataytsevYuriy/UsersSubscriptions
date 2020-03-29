@@ -6,10 +6,13 @@ using Microsoft.AspNetCore.Mvc;
 using UsersSubscriptions.Models;
 using UsersSubscriptions.Areas.Admin.Models;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Authorization;
+using UsersSubscriptions.Common;
 
 namespace UsersSubscriptions.Areas.Admin.Controllers
 {
     [Area("Admin")]
+    //[Authorize(Roles = UsersConstants.admin)]
     public class RoleController : Controller
     {
         private IAdminDataRepository repository;

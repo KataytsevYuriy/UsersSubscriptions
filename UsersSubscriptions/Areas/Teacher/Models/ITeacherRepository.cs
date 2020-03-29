@@ -15,8 +15,9 @@ namespace UsersSubscriptions.Areas.Teacher.Models
         Task<Course> GetCoursInfoAsync(string id);
         Task<Subscription> GetSubscriptionAsync(string id);
         Task ConfirmSubscriptionAsync(AppUser teacher, string id);
-        Task ConfirmPayedSubscriptionAsync(AppUser teacher, string id);
+        Task ConfirmPayedSubscriptionAsync(AppUser teacher, string id, int price);
         Task RemoveSubscriptionAsync(string id);
         IEnumerable<Subscription> GetStudentSubscriptionsOfCourse(string userId, string coursId);
+        CourseCalculate CourseCalculateGetSum (string courseId, DateTime month);
     }
 }
