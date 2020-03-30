@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using UsersSubscriptions.Models;
+using UsersSubscriptions.Areas.Teacher.Models.ViewModels;
 using UsersSubscriptions.Data;
 using System.Security.Principal;
 using Microsoft.EntityFrameworkCore;
@@ -137,5 +138,21 @@ namespace UsersSubscriptions.Areas.Teacher.Models
             };
             return courseCalculate;
         }
+
+        public async Task<Course> CourseCalculateDetailsAsync(string courseId, DateTime month)
+        {
+            Course course = await _context.Courses.FirstOrDefaultAsync(cour => cour.Id == courseId);
+            if (course != null)
+            {
+                List<Subscription> subscriptions = _context.Subscriptions
+                    .Include(sub => sub.AppUser)
+                    .Include(sub => sub.ConfirmedBy)
+                    .Include(sub => sub.PayedTo)
+                    .Where(sub => sub.CourseId == courseId && sub.DayStart.Year == month.Year && sub.DayStart.Month == month.Month)
+                    .ToList();
+                course.Subscriptions = subscriptions;
+            }
+            return course;
+         }
     }
 }

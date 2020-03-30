@@ -2,12 +2,14 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using UsersSubscriptions.Models;
 using UsersSubscriptions.Services;
 
 namespace UsersSubscriptions.Controllers
 {
+    [Authorize(Roles =Common.UsersConstants.user)]
     public class StudentController : Controller
     {
         private IUserRepository repository;

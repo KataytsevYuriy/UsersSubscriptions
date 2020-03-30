@@ -12,7 +12,7 @@ using UsersSubscriptions.Common;
 namespace UsersSubscriptions.Areas.Admin.Controllers
 {
     [Area("Admin")]
-    //[Authorize(Roles = UsersConstants.admin)]
+    [Authorize(Roles = UsersConstants.admin)]
     public class RoleController : Controller
     {
         private IAdminDataRepository repository;

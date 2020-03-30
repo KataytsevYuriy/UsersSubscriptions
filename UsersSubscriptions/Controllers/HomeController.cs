@@ -57,14 +57,14 @@ namespace UsersSubscriptions.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        public async Task<IActionResult> Contact()
+        public IActionResult Contact()
         {
-            var IsAdminExist = await _roleManager.RoleExistsAsync(Common.UsersConstants.admin);
-            var user = await _userManager.GetUserAsync(HttpContext.User);
-            var roles =await _userManager.GetRolesAsync(user);
-            var isInRole = await _userManager.IsInRoleAsync(user, Common.UsersConstants.admin);
-            var ttt = HttpContext.User.IsInRole(Common.UsersConstants.admin);
-            var usersInRole = await _userManager.GetUsersInRoleAsync(UsersSubscriptions.Common.UsersConstants.admin);
+            //var IsAdminExist = await _roleManager.RoleExistsAsync(Common.UsersConstants.admin);
+            //var user = await _userManager.GetUserAsync(HttpContext.User);
+            //var roles =await _userManager.GetRolesAsync(user);
+            //var isInRole = await _userManager.IsInRoleAsync(user, Common.UsersConstants.admin);
+            //var ttt = HttpContext.User.IsInRole(Common.UsersConstants.admin);
+            //var usersInRole = await _userManager.GetUsersInRoleAsync(Common.UsersConstants.admin);
             ViewData["Message"] = "Your contact page.";
 
             return View();

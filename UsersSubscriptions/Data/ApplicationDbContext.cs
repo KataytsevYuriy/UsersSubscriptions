@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Identity;
 
 namespace UsersSubscriptions.Data
 {
-    public class ApplicationDbContext : IdentityDbContext<AppUser>
+    public class ApplicationDbContext : IdentityDbContext<AppUser,IdentityRole,string>
     {
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)

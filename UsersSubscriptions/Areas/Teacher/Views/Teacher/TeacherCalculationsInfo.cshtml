@@ -1,0 +1,30 @@
+﻿@model Course
+@{
+    Layout = "_TeacherLayout";
+}
+
+<div class="bg-primary text-center"><h3>Calculation course: @Model.Name month:@ViewBag.month.ToString("MMMM:yyyy")</h3></div>
+<div><strong>Subscriptions</strong></div>
+<table class="table table-striped table-bordered">
+    <tr><th>StudentName</th><th>Price</th><th>Payed to</th></tr>
+    @if (Model.Subscriptions.Count() > 0)
+    {
+        @foreach(var subscription in Model.Subscriptions)
+        {
+            <tr>
+                <td><a asp-action="CourseInfo" asp-route-Id="@subscription.CourseId"> @subscription.AppUser.FullName</a></td>
+                <td>@subscription.Price</td>
+                @if (subscription.PayedToId != null)
+                {
+                <td>
+                    <span>@subscription.PayedTo.FullName</span><br />
+                    <span>@subscription.PayedDatetime.ToShortDateString()</span>
+                </td>
+                } else
+                { <td><span class="text-danger">No payed</span></td>}
+            </tr>
+        }
+    }
+</table>
+
+<a class="btn btn-primary" asp-action="ReturnToTeacherCalculations" asp-route-month="@ViewBag.month" >Back</a>

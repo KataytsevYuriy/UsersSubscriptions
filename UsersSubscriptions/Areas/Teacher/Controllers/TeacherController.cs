@@ -5,10 +5,13 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using UsersSubscriptions.Models;
 using UsersSubscriptions.Areas.Teacher.Models;
+using UsersSubscriptions.Areas.Teacher.Models.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 
 namespace UsersSubscriptions.Areas.Teacher.Controllers
 {
     [Area("Teacher")]
+    [Authorize(Roles = Common.UsersConstants.teacher)]
     public class TeacherController : Controller
     {
         private ITeacherRepository repository;
@@ -187,9 +190,31 @@ namespace UsersSubscriptions.Areas.Teacher.Controllers
             return View(model);
         }
 
-        public async Task<IActionResult> TeacherCalculationsInfo(string id)
+        public async Task<IActionResult> TeacherCalculationsInfo(string Id, string month)
         {
-            return View();
+            DateTime Month;
+            try
+            {
+                Month = Convert.ToDateTime(month);
+            }
+            catch
+            {
+                Month = DateTime.Now;
+            }
+            Course course = await repository.CourseCalculateDetailsAsync(Id, Month);
+            ViewBag.month = Month;
+            if (course == null)
+            {
+                //exception not found
+            }
+            return View(course);
+        }
+
+        //need to return with current month
+        public IActionResult ReturnToTeacherCalculations(string month)
+        {
+            DateTime date = Convert.ToDateTime(month);
+            return RedirectToAction("TeacherCalculations", new { Month = date });
         }
     }
 }

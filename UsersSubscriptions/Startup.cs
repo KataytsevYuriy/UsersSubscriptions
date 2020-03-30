@@ -43,15 +43,20 @@ namespace UsersSubscriptions
             services.AddTransient<IAdminDataRepository, AdminRepository>();
             services.AddTransient<IUserRepository, UserRepository>();
             services.AddTransient<ITeacherRepository, TeacherRepository>();
-            services.AddDefaultIdentity<AppUser>()
-                .AddRoles<IdentityRole>()
+            services.AddIdentity<AppUser, IdentityRole>()
+                .AddRoleManager<RoleManager<IdentityRole>>()
+                .AddDefaultUI()
+                .AddDefaultTokenProviders()
                 .AddEntityFrameworkStores<ApplicationDbContext>();
-            //services.AddAuthorization(opts =>
+            //services.AddDefaultIdentity<AppUser>()
+            //    .AddRoles<IdentityRole>()
+            //    .AddRoleManager<RoleManager<IdentityRole>>()
+            //    .AddEntityFrameworkStores<ApplicationDbContext>();
+            //services.AddAuthentication(option =>
             //{
-            //    opts.AddPolicy("onlyAdmin", policy =>
-            //    {
-            //        policy.RequireRole(Common.UsersConstants.admin);
-            //    });
+            //    option.DefaultAuthenticateScheme = IdentityConstants.ApplicationScheme;
+            //    option.DefaultChallengeScheme = IdentityConstants.ApplicationScheme;
+            //    option.DefaultSignInScheme = IdentityConstants.ExternalScheme;
             //});
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
             services.AddAuthentication().AddFacebook(facebookOptions =>

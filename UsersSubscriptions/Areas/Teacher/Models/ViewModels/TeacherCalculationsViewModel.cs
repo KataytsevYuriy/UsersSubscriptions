@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using UsersSubscriptions.Models;
 
-namespace UsersSubscriptions.Areas.Teacher.Models
+namespace UsersSubscriptions.Areas.Teacher.Models.ViewModels
 {
     public class TeacherCalculationsViewModel
     {

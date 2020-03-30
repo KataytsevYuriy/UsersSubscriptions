@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using UsersSubscriptions.Models;
+using UsersSubscriptions.Areas.Teacher.Models.ViewModels;
 
 namespace UsersSubscriptions.Areas.Teacher.Models
 {
@@ -19,5 +20,6 @@ namespace UsersSubscriptions.Areas.Teacher.Models
         Task RemoveSubscriptionAsync(string id);
         IEnumerable<Subscription> GetStudentSubscriptionsOfCourse(string userId, string coursId);
         CourseCalculate CourseCalculateGetSum (string courseId, DateTime month);
+        Task<Course> CourseCalculateDetailsAsync(string courseId, DateTime month);
     }
 }

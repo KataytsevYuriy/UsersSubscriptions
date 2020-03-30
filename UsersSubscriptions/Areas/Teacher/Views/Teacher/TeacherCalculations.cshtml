@@ -7,13 +7,13 @@
 <form asp-action="TeacherCalculations" method="post">
     <div class="form-group">
         <label asp-for="Month"></label>
-        <input type="month" name="Month"  value="@DateTime.Now" />
+        <input type="month" name="Month"  value="@Model.Month" />
     </div>
     <button type="submit" class="btn btn-default">Select month</button>
 </form>
 <div><h3>Courses Calculations in @Model.Month.ToString("MMMM:yyyy")</h3></div>
 <table class="table table-bordered table-striped text-center">
-    <tr><th>Name</th><th>Quantity</th><th>Price</th><th>Payed</th><th>No Payed</th><th></th></tr>
+    <tr><th>Name</th><th>Subscription Quantity</th><th>Price</th><th>Payed</th><th>No Payed</th><th></th></tr>
     @foreach(var course in Model.Courses)
     {
         <tr>
@@ -23,7 +23,7 @@
             <td>@course.PayedSum</td>
             <td>@course.NoPayedSum</td>
             <td>
-                <a class="btn btn-info" asp-action="TeacherCalculationsInfo" asp-route-Id="@course.Id">Info</a>
+                <a class="btn btn-info" asp-action="TeacherCalculationsInfo" asp-route-Id="@course.Id" asp-route-month="@Model.Month">Details</a>
             </td>
         </tr>
     }
