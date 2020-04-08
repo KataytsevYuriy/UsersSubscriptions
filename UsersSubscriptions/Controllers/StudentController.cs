@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using UsersSubscriptions.Models;
 using UsersSubscriptions.Services;
@@ -14,7 +15,7 @@ namespace UsersSubscriptions.Controllers
     {
         private IUserRepository repository;
         public StudentController(IUserRepository repo) => repository = repo;
- 
+
         public async Task<IActionResult> Index()
         {
             AppUser currentUser = await repository.GetCurentUser(HttpContext);
@@ -40,8 +41,22 @@ namespace UsersSubscriptions.Controllers
         {
             AppUser currentUser = await repository.GetCurentUser(HttpContext);
             subscription.AppUser = currentUser;
+            subscription.AppUserId = currentUser.Id;
             subscription.CreatedDatetime = DateTime.Now;
-            await repository.CreateSubscription(subscription);
+            IdentityResult result = await repository.CreateSubscription(subscription);
+            if (result.Succeeded)
+            {
+            TempData["Result"] = result.Succeeded;
+            }
+            if (result.Errors.Count() > 0)
+            {
+                string erorMessage = "";
+                foreach (var error in result.Errors)
+                {
+                    erorMessage += error.Description;
+                }
+                TempData["ErorMessage"] = erorMessage;
+            }
             return RedirectToAction(nameof(UserCourses));
         }
 
@@ -52,6 +67,10 @@ namespace UsersSubscriptions.Controllers
             //IEnumerable<Subscription> subscriptions = appUser.Subscriptions.OrderBy(ord => ord.Id);
             //IEnumerable<Subscription> subscriptions1 = appUser.Subscriptions.OrderBy(ord => ord.CreatedDatetime);
             //appUser.Subscriptions = appUser.Subscriptions.OrderBy(cours => cours.DayStart);
+            
+                ViewBag.Result = TempData["Result"];
+                ViewBag.ErorMessage = TempData["ErorMessage"];
+
             return View(appUser);
         }
 

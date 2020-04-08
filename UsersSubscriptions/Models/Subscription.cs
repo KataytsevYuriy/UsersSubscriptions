@@ -42,7 +42,7 @@ namespace UsersSubscriptions.Models
     {
         public void Configure(EntityTypeBuilder<Subscription> builder)
         {
-            builder.HasOne(s => s.PayedTo).WithMany(s => s.Subscriptions);//.OnDelete(DeleteBehavior.SetNull);
+            builder.HasOne(s => s.PayedTo).WithMany(s => s.Subscriptions);
             builder.HasOne(s => s.ConfirmedBy).WithMany(ap => ap.SubscriptionConfirmedBy)
                 .OnDelete(DeleteBehavior.SetNull);
         }

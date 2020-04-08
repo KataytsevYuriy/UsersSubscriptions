@@ -63,6 +63,7 @@ namespace UsersSubscriptions.Areas.Admin.Models
 
         public async Task DeleteUseAsyncr(string id)
         {
+            IdentityResult result = new IdentityResult();
             AppUser user = await _context.Users
                                 .Include(s => s.CourseAppUsers)
                                 .Include(s => s.Subscriptions)
@@ -85,11 +86,15 @@ namespace UsersSubscriptions.Areas.Admin.Models
                                 {
                                     await _userManager.RemoveFromRolesAsync(user, roles);
                                 }
-                                await _userManager.DeleteAsync(user);
+                              result=   await _userManager.DeleteAsync(user);
                             }
           // Trow exception if Payed to this user, confirmed...                  
                         }
                     }
+                }
+                else   //user.CourseAppUsers.Count() >0
+                {
+                    result = IdentityResult.Failed(new IdentityError { Description = "CourseAppUsers.Count() >0" });
                 }
                 
             }

@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,7 +13,7 @@ namespace UsersSubscriptions.Models
         IEnumerable<Course> GetAllCourses();
         Task<Course> GetCourse(string id);
         AppUser GetUserCourses(string id);
-        Task CreateSubscription(Subscription subscription);
+        Task<IdentityResult> CreateSubscription(Subscription subscription);
         Task<Subscription> GetSubscriptionAsync(string id);
         Task DeleteSubscription(string id);
     }

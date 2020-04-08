@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -56,24 +57,32 @@ namespace UsersSubscriptions.Models
             return (user);
         }
 
-        public async Task CreateSubscription(Subscription subscription)
+        public async Task<IdentityResult> CreateSubscription(Subscription subscription)
         {
+            IdentityResult result = new IdentityResult();
             if ((subscription.DayStart.Year == DateTime.Now.Year
                         && subscription.DayStart.Month >= DateTime.Now.Month)
                  || (subscription.DayStart.Year > DateTime.Now.Year))
             {
                 if (!IsSubscriptionExist(subscription))
                 {
-                    await _context.Subscriptions.AddAsync(subscription);
+                   var ttt = await _context.Subscriptions.AddAsync(subscription);
+                   if(ttt.State== EntityState.Added)
+                    {
+                        result = IdentityResult.Success;
+                    }
                     await _context.SaveChangesAsync();
                 } else
                 {
                     // exception Subscription to this month is alreday exist
+                    result = IdentityResult.Failed(new IdentityError { Description = "You alredy have Subscription this month" });
                 }
             } else
             {
                 //exception Date out of range
+                result = IdentityResult.Failed(new IdentityError { Description = "You choosed losted month" });
             }
+            return (result);
         }
 
         private bool IsSubscriptionExist(Subscription subscription)

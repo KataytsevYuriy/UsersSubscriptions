@@ -6,43 +6,50 @@
 <div class="bg-primary text-info text-center"><h3>Info Course @Model.Name</h3></div>
 <p> Name: @Model.Name</p>
 <p>Decsription: @Model.Description</p>
-<p>Course is active: @(Model.IsActive==true? "Active":"NO")</p>
-<p>Teachers: 
-    @foreach(CourseAppUser courseAppUser in Model.CourseAppUsers)
+<p>Course is active: @(Model.IsActive == true ? "Active" : "NO")</p>
+<p>
+    Teachers:
+    @foreach (CourseAppUser courseAppUser in Model.CourseAppUsers)
     {
         <span>@courseAppUser.AppUser.FullName</span>
     }
-    </p>
+</p>
 <p>Subscriptions:</p>
 <table class="table table-bordered table-striped">
     <tr><th>Student Name/Email</th><th>Month</th><th>Price</th><th>Confirmed</th><th>Payed</th><th></th></tr>
-    @foreach(Subscription subscription in Model.Subscriptions)
+    @foreach (Subscription subscription in Model.Subscriptions)
     {
-        <tr>
-            <td>
-                @subscription.AppUser.FullName  <br>
-                @subscription.AppUser.Email     <br>
-                <a asp-action="RemoveSubscription" asp-route-Id="@subscription.Id"
-                   class="btn btn-danger">Remove Subscription</a>
+        if (subscription.DayStart.Year > DateTime.Now.Year
+             || (subscription.DayStart.Year == DateTime.Now.Year && subscription.DayStart.Month >= DateTime.Now.Month))
+        {
+
+            <tr>
+                <td>
+                    @subscription.AppUser.FullName  <br>
+                    @subscription.AppUser.Email     <br>
+                    <a asp-action="RemoveSubscription" asp-route-Id="@subscription.Id"
+                       class="btn btn-danger">Remove Subscription</a>
+                </td>
+                <td>@subscription.DayStart.ToString("MMMM:yyyy") </td>
+                <td>@subscription.Price</td>
+                <td>
+                    @if (subscription.ConfirmedBy == null)
+                    {
+                        <span class="text-danger">NO</span>
+                    }
+                    else
+                    {
+                        @subscription.ConfirmedBy.FullName;<br />
+                        @string.Format(" {0:dd-MMMM-yyyy}", subscription.ConfirmedDatetime)
+                    }
             </td>
-            <td>@subscription.DayStart.ToString("MMMM:yyyy") </td>
-            <td>@subscription.Price</td>
-            <td>@if (subscription.ConfirmedBy == null)
-            {
-                    <span class="text-danger">NO</span>
-            }
-            else
-            {
-                @subscription.ConfirmedBy.FullName;
-                @string.Format(" {0:dd-MMMM-yyyy}", subscription.ConfirmedDatetime)
-            }
-            </td>
             <td>
-                @if(subscription.PayedTo != null)
+                @if (subscription.PayedTo != null)
                 {
-                    @subscription.PayedTo.FullName
-                    @string.Format(" {0:dd-MMMM-yyyy}",subscription.PayedDatetime)
-                } else
+                    @subscription.PayedTo.FullName<br />
+                    @string.Format(" {0:dd-MMMM-yyyy}", subscription.PayedDatetime)
+                }
+                else
                 {
                     <span class="text-danger">NO</span>
                 }
@@ -56,9 +63,65 @@
                 {
                     <a asp-action="ConfirmSubscription" asp-route-Id="@subscription.Id">Confirm Payed of Subscription</a>
                 }
-                
+
             </td>
         </tr>
     }
+}
+</table>
+<p>Losted Subscriptions:</p>
+<table class="table table-bordered table-striped">
+    <tr><th>Student Name/Email</th><th>Month</th><th>Price</th><th>Confirmed</th><th>Payed</th><th></th></tr>
+    @foreach (Subscription subscription in Model.Subscriptions)
+    {
+        if (subscription.DayStart.Year < DateTime.Now.Year
+             || (subscription.DayStart.Year == DateTime.Now.Year && subscription.DayStart.Month < DateTime.Now.Month))
+        {
+
+            <tr>
+                <td>
+                    @subscription.AppUser.FullName  <br>
+                    @subscription.AppUser.Email     <br>
+                    <a asp-action="RemoveSubscription" asp-route-Id="@subscription.Id"
+                       class="btn btn-danger">Remove Subscription</a>
+                </td>
+                <td>@subscription.DayStart.ToString("MMMM:yyyy") </td>
+                <td>@subscription.Price</td>
+                <td>
+                    @if (subscription.ConfirmedBy == null)
+                    {
+                        <span class="text-danger">NO</span>
+                    }
+                    else
+                    {
+                        @subscription.ConfirmedBy.FullName;<br />
+                        @string.Format(" {0:dd-MMMM-yyyy}", subscription.ConfirmedDatetime)
+                    }
+            </td>
+            <td>
+                @if (subscription.PayedTo != null)
+                {
+                    @subscription.PayedTo.FullName<br />
+                    @string.Format(" {0:dd-MMMM-yyyy}", subscription.PayedDatetime)
+                }
+                else
+                {
+                    <span class="text-danger">NO</span>
+                }
+            </td>
+            <td>
+                @if (subscription.ConfirmedBy == null)
+                {
+                    <a asp-action="ConfirmSubscription" asp-route-Id="@subscription.Id">Confirm Subscription</a>
+                }
+                else if (subscription.PayedTo == null)
+                {
+                    <a asp-action="ConfirmSubscription" asp-route-Id="@subscription.Id">Confirm Payed of Subscription</a>
+                }
+
+            </td>
+        </tr>
+    }
+}
 </table>
 <a asp-action="TeacherCourses" class="btn btn-primary">Back to Teacher Courses</a>
