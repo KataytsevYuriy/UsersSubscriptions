@@ -1,23 +1,32 @@
-﻿@model AppUser
+﻿
 @{
     Layout = "_TeacherLayout";
 }
-
-<div class="bg-primary text-center text-info"><h3> Hello @Model.FullName</h3></div>
-@if (Model.IsActive)
-{
-    <div class="text-info"> Your name : @Model.FullName</div>
-    <div class="text-info"> Your Email : @Model.Email</div>
-    @if (string.IsNullOrEmpty(Model.PhoneNumber))
-        {
-            <div class="text-danger"> Please add your phone</div>
-        }
-    else
-        {
-            <div class="text-info"> Your Phone : @Model.PhoneNumber</div>
-
-        }
-} else
-    {
-        <div class="bg-danger text-center"> <h2>Your accaunt is blocked. Please contact the admin.</h2></div>
+<script src="~/js/qr_packed.js"></script>
+@*<script src="https://rawgit.com/sitepoint-editors/jsqrcode/master/src/qr_packed.js"></script>*@
+<script>
+    function openQRCamera(node) {
+        var reader = new FileReader();
+        reader.onload = function () {
+            node.value = "";
+            qrcode.callback = function (res) {
+                if (res instanceof Error) {
+                    alert("QR не відскановано. Будьласка наведіть камеру на QR коду, та спробуйте ще.");
+                } else {
+                    node.parentNode.previousElementSibling.value = res;
+                }
+            };
+            qrcode.decode(reader.result);
+        };
+        reader.readAsDataURL(node.files[0]);
+        $("#StudentInfo").click();
     }
+</script>
+<form asp-action="StudentInfo" method="post">
+    <input type=text size=16 placeholder="QR код" class=qrcode-text name="studentQR">
+
+    <label class=qrcode-text-btn>
+        <input type=file accept="image/*" onclick="return showQRIntro();" onchange="openQRCamera(this);" tabindex=-1>
+    </label>
+    <button type="submit" id="StudentInfo" class="btn btn-primary">Далі</button>
+</form>

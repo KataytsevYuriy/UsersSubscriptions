@@ -1,127 +1,55 @@
-﻿@model Course
+﻿@model TeacherCoursesViewModel
 @{
     Layout = "_TeacherLayout";
+    DateTime currentDate = DateTime.Now;
+    int sum = 0;
 }
 
-<div class="bg-primary text-info text-center"><h3>Info Course @Model.Name</h3></div>
-<p> Name: @Model.Name</p>
-<p>Decsription: @Model.Description</p>
-<p>Course is active: @(Model.IsActive == true ? "Active" : "NO")</p>
-<p>
-    Teachers:
-    @foreach (CourseAppUser courseAppUser in Model.CourseAppUsers)
-    {
-        <span>@courseAppUser.AppUser.FullName</span>
-    }
-</p>
-<p>Subscriptions:</p>
-<table class="table table-bordered table-striped">
-    <tr><th>Student Name/Email</th><th>Month</th><th>Price</th><th>Confirmed</th><th>Payed</th><th></th></tr>
-    @foreach (Subscription subscription in Model.Subscriptions)
-    {
-        if (subscription.DayStart.Year > DateTime.Now.Year
-             || (subscription.DayStart.Year == DateTime.Now.Year && subscription.DayStart.Month >= DateTime.Now.Month))
-        {
-
-            <tr>
-                <td>
-                    @subscription.AppUser.FullName  <br>
-                    @subscription.AppUser.Email     <br>
-                    <a asp-action="RemoveSubscription" asp-route-Id="@subscription.Id"
-                       class="btn btn-danger">Remove Subscription</a>
-                </td>
-                <td>@subscription.DayStart.ToString("MMMM:yyyy") </td>
-                <td>@subscription.Price</td>
-                <td>
-                    @if (subscription.ConfirmedBy == null)
-                    {
-                        <span class="text-danger">NO</span>
-                    }
-                    else
-                    {
-                        @subscription.ConfirmedBy.FullName;<br />
-                        @string.Format(" {0:dd-MMMM-yyyy}", subscription.ConfirmedDatetime)
-                    }
-            </td>
-            <td>
-                @if (subscription.PayedTo != null)
+@*<div class="bg-primary text-info text-center"><h3>Курс @Model.CurrentCourse.Name</h3></div>*@
+<form asp-action="CourseInfo">
+    <div class="form-group">
+        <label asp-for="@Model.CurrentCourse.Name"></label>
+        <select name="Id" asp-for="CurrentCourse.Id" onchange="this.form.submit()">
+            @foreach(var cour in Model.TeacherCourses)
+            {
+                if (cour.Id == Model.CurrentCourse.Id)
                 {
-                    @subscription.PayedTo.FullName<br />
-                    @string.Format(" {0:dd-MMMM-yyyy}", subscription.PayedDatetime)
+                    <option value="@cour.Id" selected>@cour.Name</option>
+                } else
+                {
+                    <option value="@cour.Id">@cour.Name</option>
+                }
+            }
+        </select>
+    </div>
+    <div class="form-group">
+        <label asp-for="@Model.Month"></label>
+        <select name="month" onchange="this.form.submit()">
+            @for (int i = -1; i < 2; i++)
+            {
+                if (currentDate.AddMonths(i).Month == Model.Month.Month)
+                {
+                    <option selected value="@currentDate.AddMonths(i)">@currentDate.AddMonths(i).ToString("MMMM:yyyy")</option>
                 }
                 else
                 {
-                    <span class="text-danger">NO</span>
+                    <option  value="@currentDate.AddMonths(i)">@currentDate.AddMonths(i).ToString("MMMM:yyyy")</option>
                 }
-            </td>
-            <td>
-                @if (subscription.ConfirmedBy == null)
-                {
-                    <a asp-action="ConfirmSubscription" asp-route-Id="@subscription.Id">Confirm Subscription</a>
-                }
-                else if (subscription.PayedTo == null)
-                {
-                    <a asp-action="ConfirmSubscription" asp-route-Id="@subscription.Id">Confirm Payed of Subscription</a>
-                }
-
-            </td>
-        </tr>
-    }
-}
-</table>
-<p>Losted Subscriptions:</p>
-<table class="table table-bordered table-striped">
-    <tr><th>Student Name/Email</th><th>Month</th><th>Price</th><th>Confirmed</th><th>Payed</th><th></th></tr>
-    @foreach (Subscription subscription in Model.Subscriptions)
+            }
+        </select>
+    </div>
+</form>
+<table class="table table-striped table-bordered">
+    <tr><th>Ім'я</th><th>Телефон</th><th>Ціна</th></tr>
+    @foreach (var stud in Model.Students)
     {
-        if (subscription.DayStart.Year < DateTime.Now.Year
-             || (subscription.DayStart.Year == DateTime.Now.Year && subscription.DayStart.Month < DateTime.Now.Month))
-        {
-
-            <tr>
-                <td>
-                    @subscription.AppUser.FullName  <br>
-                    @subscription.AppUser.Email     <br>
-                    <a asp-action="RemoveSubscription" asp-route-Id="@subscription.Id"
-                       class="btn btn-danger">Remove Subscription</a>
-                </td>
-                <td>@subscription.DayStart.ToString("MMMM:yyyy") </td>
-                <td>@subscription.Price</td>
-                <td>
-                    @if (subscription.ConfirmedBy == null)
-                    {
-                        <span class="text-danger">NO</span>
-                    }
-                    else
-                    {
-                        @subscription.ConfirmedBy.FullName;<br />
-                        @string.Format(" {0:dd-MMMM-yyyy}", subscription.ConfirmedDatetime)
-                    }
-            </td>
-            <td>
-                @if (subscription.PayedTo != null)
-                {
-                    @subscription.PayedTo.FullName<br />
-                    @string.Format(" {0:dd-MMMM-yyyy}", subscription.PayedDatetime)
-                }
-                else
-                {
-                    <span class="text-danger">NO</span>
-                }
-            </td>
-            <td>
-                @if (subscription.ConfirmedBy == null)
-                {
-                    <a asp-action="ConfirmSubscription" asp-route-Id="@subscription.Id">Confirm Subscription</a>
-                }
-                else if (subscription.PayedTo == null)
-                {
-                    <a asp-action="ConfirmSubscription" asp-route-Id="@subscription.Id">Confirm Payed of Subscription</a>
-                }
-
-            </td>
+        sum += stud.Price;
+        <tr>
+            <td>@stud.StudentName</td>
+            <td>@stud.Phone</td>
+            <td>@stud.Price</td>
         </tr>
     }
-}
+    <tr><td colspan="2" class="text-right">Ітого</td><td>@sum</td></tr>
 </table>
-<a asp-action="TeacherCourses" class="btn btn-primary">Back to Teacher Courses</a>
+@*<a asp-action="TeacherCourses" class="btn btn-primary">Back to Teacher Courses</a>*@

@@ -1,18 +1,26 @@
 ﻿@{
     Layout = "_Layout";
 }
+
 <div>
-    <a asp-controller="Home" asp-action="Index" class="@GetClassForButton("Home")"> Home </a>
-    <a asp-controller="Student" asp-action="Index" class="@GetClassForButton("Index")"> Info </a>
-    <a asp-controller="Student" asp-action="UserCourses" class="@GetClassForButton("UserCourses")"> Current User's Courses </a>
-    <a asp-controller="Student" asp-action="AllCourses" class="@GetClassForButton("AllCourses")"> AllCourses </a>
+    @*<partial name="_LoginPartial" />
+    @if (User.IsInRole(Common.UsersConstants.user))
+    {
+        <a asp-area="" asp-controller="Home" asp-action="Index">Кабінет учня </a>
+    }*@
+    @if (User.IsInRole(Common.UsersConstants.teacher))
+    {
+        <a asp-area="Teacher" asp-controller="Teacher" asp-action="Index">Кабінет вчителя </a>
+    }
+
+    @if (User.IsInRole(Common.UsersConstants.admin))
+    {
+        <a asp-area="Admin" asp-controller="User" asp-action="Index"> Кабінет адміна </a>
+    }
+
+
 </div>
+
 <div>
     @RenderBody()
 </div>
-@functions{
-    string GetClassForButton(string action)
-    {
-        return "btn " + (ViewContext.RouteData.Values["action"] as string == action ? "btn-primary" : "btn-info");
-    }
-}

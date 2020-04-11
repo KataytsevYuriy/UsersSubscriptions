@@ -2,10 +2,27 @@
     Layout = "_Layout";
 }
 <div>
-    <a asp-controller="Teacher" asp-action="Index" class="@GetClassForButton("Index")"> About </a>
-    <a asp-controller="Teacher" asp-action="TeacherCourses" class="@GetClassForButton("TeacherCourses")"> Teacher's Courses </a>
-    <a asp-controller="Teacher" asp-action="ScanQrCode" class="@GetClassForButton("ScanQrCode")"> Scan QR Code </a>
-    <a asp-controller="Teacher" asp-action="TeacherCalculations" class="@GetClassForButton("TeacherCalculations")"> Calculations </a>
+    <partial name="_LoginPartial" />
+    @if (User.IsInRole(Common.UsersConstants.user))
+    {
+        <a asp-area="" asp-controller="Home" asp-action="Index">Кабінет учня </a>
+    }
+    @if (User.IsInRole(Common.UsersConstants.teacher))
+    {
+        <a asp-area="Teacher" asp-controller="Teacher" asp-action="Index">Кабінет вчителя </a>
+    }
+
+    @if (User.IsInRole(Common.UsersConstants.admin))
+    {
+        <a asp-area="Admin" asp-controller="User" asp-action="Index"> Кабінет адміна </a>
+    }
+
+
+</div>
+<div>
+    <a asp-controller="Teacher" asp-action="Index" class="@GetClassForButton("Index")"> Відсканувати учня </a>
+    <a asp-controller="Teacher" asp-action="TeacherCourses" class="@GetClassForButton("TeacherCourses")"> Ваші активні курси </a>
+    
 </div>
 <div>
     @RenderBody()

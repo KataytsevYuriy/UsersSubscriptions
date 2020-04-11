@@ -12,112 +12,18 @@ using UsersSubscriptions.Models;
 namespace UsersSubscriptions.Models
 {
 
-    public class UserRepository :IUserRepository
+    public class UserRepository : IUserRepository
     {
-        private ApplicationDbContext _context;
         private UserManager<AppUser> _userManager;
-        private RoleManager<IdentityRole> _roleManager;
-        public UserRepository(ApplicationDbContext ctx,
-                                UserManager<AppUser> manager,
-                                RoleManager<IdentityRole> roleManager)
+        public UserRepository(UserManager<AppUser> manager)
         {
             _userManager = manager;
-            _roleManager = roleManager;
-            _context = ctx;
         }
-        
+
         public async Task<AppUser> GetCurentUser(HttpContext context)
         {
             AppUser user = await _userManager.GetUserAsync(context.User);
             return user;
-        }
-
-        public IEnumerable<Course> GetAllCourses()
-        {
-            return _context.Courses.Include(c => c.CourseAppUsers).ThenInclude(u=>u.AppUser).ToList();
-        }
-
-        public async Task<Course> GetCourse(string id)
-        {
-            return (await _context.Courses.FindAsync(id));
-        }
-
-        public AppUser GetUserCourses(string id)
-        {
-            AppUser user = _context.Users//.Include(sub => sub.Subscriptions)
-                                         //    .ThenInclude(c => c.Course).ThenInclude(cu=>cu.CourseAppUsers)
-                                         //    .ThenInclude(au=>au.AppUser)
-                                         //.Include(sub=>sub.Subscriptions).ThenInclude(conf=>conf.ConfirmedBy)
-                                    .FirstOrDefault(i => i.Id == id);
-            IEnumerable<Subscription> subscriptions = _context.Subscriptions
-                    .Include(c => c.Course).ThenInclude(cu => cu.CourseAppUsers).ThenInclude(au => au.AppUser)
-                    .Include(conf => conf.ConfirmedBy)
-                    .Where(sub => sub.AppUserId == id).ToList();
-            user.Subscriptions = subscriptions;
-            return (user);
-        }
-
-        public async Task<IdentityResult> CreateSubscription(Subscription subscription)
-        {
-            IdentityResult result = new IdentityResult();
-            if ((subscription.DayStart.Year == DateTime.Now.Year
-                        && subscription.DayStart.Month >= DateTime.Now.Month)
-                 || (subscription.DayStart.Year > DateTime.Now.Year))
-            {
-                if (!IsSubscriptionExist(subscription))
-                {
-                   var ttt = await _context.Subscriptions.AddAsync(subscription);
-                   if(ttt.State== EntityState.Added)
-                    {
-                        result = IdentityResult.Success;
-                    }
-                    await _context.SaveChangesAsync();
-                } else
-                {
-                    // exception Subscription to this month is alreday exist
-                    result = IdentityResult.Failed(new IdentityError { Description = "You alredy have Subscription this month" });
-                }
-            } else
-            {
-                //exception Date out of range
-                result = IdentityResult.Failed(new IdentityError { Description = "You choosed losted month" });
-            }
-            return (result);
-        }
-
-        private bool IsSubscriptionExist(Subscription subscription)
-        {
-            if (_context.Subscriptions.Where(dbSubscription =>
-
-                  dbSubscription.CourseId == subscription.CourseId &&
-                  dbSubscription.DayStart.Year == subscription.DayStart.Year &&
-                  dbSubscription.DayStart.Month == subscription.DayStart.Month &&
-                  dbSubscription.AppUserId == subscription.AppUserId)
-                  .Count()==0)
-            {
-                return false;
-            }
-            return true;
-        }
-
-        public async Task<Subscription> GetSubscriptionAsync(string id)
-        {
-            return await _context.Subscriptions.Include(subs => subs.Course)
-                .FirstOrDefaultAsync(subs => subs.Id == id);
-        }
-
-        public async Task DeleteSubscription(string id)
-        {
-            Subscription subscription = await _context.Subscriptions
-                    .FirstOrDefaultAsync(subs => subs.Id == id);
-           if( subscription != null)
-            {
-                _context.Subscriptions.Remove(subscription);
-                await _context.SaveChangesAsync();
-            } else
-            {
-                //Subscription not Found
-            }
         }
     }
 }

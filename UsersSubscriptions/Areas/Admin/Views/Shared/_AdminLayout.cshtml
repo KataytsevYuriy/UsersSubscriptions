@@ -2,6 +2,24 @@
     Layout = "_Layout";
 }
 <div>
+    <partial name="_LoginPartial" />
+    @if (User.IsInRole(Common.UsersConstants.user))
+    {
+        <a asp-area="" asp-controller="Home" asp-action="Index">Кабінет учня </a>
+    }
+    @if (User.IsInRole(Common.UsersConstants.teacher))
+    {
+        <a asp-area="Teacher" asp-controller="Teacher" asp-action="Index">Кабінет вчителя </a>
+    }
+
+    @if (User.IsInRole(Common.UsersConstants.admin))
+    {
+        <a asp-area="Admin" asp-controller="User" asp-action="Index"> Кабінет адміна </a>
+    }
+
+
+</div>
+<div>
     <a asp-controller="User" asp-action="Index" class="@GetClassForButton("User")"> Users </a>
     <a asp-controller="Role" asp-action="Index" class="@GetClassForButton("Role")"> Roles </a>
     <a asp-controller="Course" asp-action="Index" class="@GetClassForButton("Course")">Courses</a>

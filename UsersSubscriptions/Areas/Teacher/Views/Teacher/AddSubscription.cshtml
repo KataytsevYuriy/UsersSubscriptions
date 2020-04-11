@@ -1,23 +1,61 @@
-﻿@model SubscriptionTeatcherViewModel
+﻿@model AddSubscriptionViewModel
 @{
-    ViewData["Title"] = "AddSubscription";
     Layout = "_TeacherLayout";
+    var curDate = DateTime.Now;
+    Course selectedCourse = Model.TeacherCourses.FirstOrDefault();
 }
 
-<div class="bg-primary text-info text-center"><h2>Add to Course @Model.Course.Name</h2></div>
-<form asp-action="AddSubscription" method="post">
-    <p> Course name: @Model.Course.Name</p>
-    <input type="hidden" name="Course.Id" value="@Model.Course.Id" />
-    <input type="hidden" name="Subscriptions.Id" value="" />
-    <input type="hidden" name="Student.Id" value="@Model.Student.Id" />
-    <div class="form-group">
-        <label asp-for="Subscription.DayStart"></label>
-        <input type="month" name="Subscription.DayStart" />
-    </div>
-    <div class="form-group">
-        <label asp-for="Subscription.Price"></label>
-        <input type="number" name="Subscription.Price" value="@Model.Course.Price" />
-    </div>
-    <button type="submit" class="btn btn-primary">Add to Course</button>
-</form>
-<a asp-action="StudentInfo" asp-route-studentQR="@Model.Student.Id"class="btn btn-info">Back</a>
+<div class="bg-primary text-info text-center"><h2>Добавити підписку для @Model.Student.FullName</h2></div>
+@if (Model.TeacherCourses.Count() > 0)
+{
+    <form asp-action="AddSubscription" method="post">
+        <input type="hidden" name="Student.Id" value="@Model.Student.Id" />
+        <div class="form-group">
+            <select class="form-control" name="Month">
+                @if (curDate.Month == Model.Month.Month)
+                { 
+                    <option selected value="@curDate">@curDate.ToString("MMMM:yyyy")</option>
+                    <option value="@curDate.AddMonths(1)">@curDate.AddMonths(1).ToString("MMMM:yyyy")</option>
+                }
+                else
+                {
+                    <option value="@curDate">@curDate.ToString("MMMM:yyyy")</option>
+                    <option selected value="@curDate.AddMonths(1)">@curDate.AddMonths(1).ToString("MMMM:yyyy")</option>
+                }
+            </select>
+        </div>
+        <div class="form-group">
+            <select class="form-control" id="CourseSelect" name="SelectedCours.Id"  onchange="ChangeCourse(this)">
+                @foreach (var cours in Model.TeacherCourses)
+                {
+                    @if (selectedCourse == cours)
+                    {
+                        <option value="@cours.Id" selected data-price="@cours.Price">@cours.Name</option>
+                    }
+                    else
+                    {
+                        <option value="@cours.Id" data-price="@cours.Price">@cours.Name</option>
+                    }
+                }
+            </select>
+        </div>
+        <div class="form-group">
+            <label asp-for="@selectedCourse.Price">Ціна: </label>
+            <input id="Price" asp-for="@selectedCourse.Price" class="form-control" name="SelectedCours.Price" value="@selectedCourse.Price" />
+        </div>
+        <button type="submit" class="btn btn-primary">Додати </button>
+    </form>
+}
+else
+{
+    <div class="bg-danger text-info text-center"><h2>У вас немає активних курсів</h2></div>
+
+}
+<a asp-action="StudentInfo" asp-route-studentQR="@Model.Student.Id" class="btn btn-info">Back</a>
+<p id="test"></p>
+<script>
+    function ChangeCourse(a) {
+        var val = a.options[a.selectedIndex].dataset.price;
+        $("#Price").val(val);
+    }
+</script>

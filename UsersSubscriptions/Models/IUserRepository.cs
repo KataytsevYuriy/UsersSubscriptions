@@ -10,11 +10,5 @@ namespace UsersSubscriptions.Models
     public interface IUserRepository
     {
         Task<AppUser> GetCurentUser(HttpContext context);
-        IEnumerable<Course> GetAllCourses();
-        Task<Course> GetCourse(string id);
-        AppUser GetUserCourses(string id);
-        Task<IdentityResult> CreateSubscription(Subscription subscription);
-        Task<Subscription> GetSubscriptionAsync(string id);
-        Task DeleteSubscription(string id);
     }
 }

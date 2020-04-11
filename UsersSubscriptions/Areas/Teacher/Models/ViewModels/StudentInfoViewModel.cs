@@ -9,6 +9,7 @@ namespace UsersSubscriptions.Areas.Teacher.Models.ViewModels
     public class StudentInfoViewModel
     {
         public AppUser Student { get; set; }
-        public IEnumerable<Course> Courses { get; set; }
+        public IEnumerable<Subscription> Subscriptions { get; set; }
+        public DateTime Month { get; set; }
     }
 }

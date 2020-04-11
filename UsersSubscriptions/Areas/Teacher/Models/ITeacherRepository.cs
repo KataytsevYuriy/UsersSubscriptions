@@ -5,21 +5,19 @@ using System.Linq;
 using System.Threading.Tasks;
 using UsersSubscriptions.Models;
 using UsersSubscriptions.Areas.Teacher.Models.ViewModels;
+using Microsoft.AspNetCore.Identity;
 
 namespace UsersSubscriptions.Areas.Teacher.Models
 {
     public interface ITeacherRepository
     {
         Task<AppUser> GetCurrentUserAsync(HttpContext context);
+        Task<IEnumerable<Subscription>> GetUserSubscriptionsAsync(string userId, DateTime month);
         Task<AppUser> GetUserAsync(string id);
         Task<IEnumerable<Course>> GetTeacherCoursesAsync(AppUser teacher);
+        Task<IdentityResult> CreateSubscriptionAsync(Subscription subscription);
+        Task<IEnumerable<Student>> GetTeacherMonthStudentsAsync(string courseId, DateTime month);
+
         Task<Course> GetCoursInfoAsync(string id);
-        Task<Subscription> GetSubscriptionAsync(string id);
-        Task ConfirmSubscriptionAsync(AppUser teacher, string id);
-        Task ConfirmPayedSubscriptionAsync(AppUser teacher, string id, int price);
-        Task RemoveSubscriptionAsync(string id);
-        IEnumerable<Subscription> GetStudentSubscriptionsOfCourse(string userId, string coursId);
-        CourseCalculate CourseCalculateGetSum (string courseId, DateTime month);
-        Task<Course> CourseCalculateDetailsAsync(string courseId, DateTime month);
     }
 }

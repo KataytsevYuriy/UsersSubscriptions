@@ -9,66 +9,40 @@ using UsersSubscriptions.Data;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Authorization;
 using System.Security.Principal;
+using UsersSubscriptions.Services;
 
 namespace UsersSubscriptions.Controllers
 {
+    [Authorize]
     public class HomeController : Controller
     {
-        private ApplicationDbContext _context;
-        private UserManager<AppUser> _userManager;
-        private RoleManager<IdentityRole> _roleManager;
-        public HomeController(ApplicationDbContext ctx,
-                                UserManager<AppUser> manager,
-                                RoleManager<IdentityRole> roleManager)
+        private readonly SignInManager<AppUser> _signInManager;
+        private IUserRepository repository;
+        public HomeController(IUserRepository repo, SignInManager<AppUser> signInManager)
         {
-            _userManager = manager;
-            _roleManager = roleManager;
-            _context = ctx;
+            repository = repo;
+            _signInManager = signInManager;
         }
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            return View();
-        }
-
-        [HttpPost]
-        public IActionResult Send(DateTime month)
-        {
-            DateTime dateTime = month;
-            return RedirectToAction(nameof(Index));
-        }
-        //public IActionResult AdminCabinet()
-        //{
-        //   // IEnumerable<AppUser> res = context.Users as IEnumerable<AppUser>;
-        //    return View(context.Users);
-        //}
-        //[Authorize(Policy = "onlyAdmin")]
-        public IActionResult About()
-        {
-            ViewData["Message"] = "Your application description page.";
-            return View();
+            AppUser currentUser = await repository.GetCurentUser(HttpContext);
+            if (currentUser != null)
+            {
+                Byte[] imgBytes = Qrcoder.GenerateQRCode(currentUser.Id);
+                ViewBag.Image = imgBytes;
+                Qrcoder.CreateQrFile(currentUser.Id);
+                Byte[] qrFromFile = Qrcoder.GetQrFile(currentUser.Id);
+                ViewBag.LoadedQrFile = qrFromFile;
+            }
+            else
+            {
+               await _signInManager.SignOutAsync();
+                return RedirectToAction(nameof(Index));
+            }
+            return View(currentUser);
         }
 
-        public async Task<IActionResult> CreateRoles()
-        {
-            await SeedData.CreateRolesAsync(_roleManager);
-            await SeedData.CreateUsersAsync(_userManager);
-            await SeedData.CreateCoursesAsync(_context, _userManager);
-            await SeedData.CreateSubscriptionsAsync(_context, _userManager);
-            return RedirectToAction(nameof(Index));
-        }
-
-        public IActionResult Contact()
-        {
-            ViewData["Message"] = "Your contact page.";
-
-            return View();
-        }
-
-        public IActionResult Privacy()
-        {
-            return View();
-        }
-
+        
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {

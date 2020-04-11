@@ -3,33 +3,17 @@
     Layout = "_TeacherLayout";
 }
 
-<div class="bg-primary text-center text-info"><h3> Your Courses</h3></div>
+<div class="bg-primary text-center text-info"><h3> Ваші курси</h3></div>
 <table class="table table-bordered table-striped">
-    <tr><th>Name</th><th>Teachers</th><th>Active</th><th>Unconfirmed</th><th></th></tr>
+    <tr><th>Назва</th></tr>
         @foreach (Course course in Model)
         {
-    <tr>
-        <td>@course.Name</td>
-        <td>
-            @foreach (var teacher in course.CourseAppUsers)
+            @if (course.IsActive)
             {
-                <span> @teacher.AppUser.FullName  </span> <br>
+                <tr>
+                    <td><a asp-action="CourseInfo" asp-route-Id="@course.Id">@course.Name</a></td>
+                </tr>
             }
-        </td>
-        <td> @(course.IsActive == true ? "YES" : "NO")</td>
-        @{int unconfSubscriptions = course.Subscriptions.Where(sub => sub.ConfirmedBy == null).ToList().Count();}
-        <td>
-            @if(unconfSubscriptions > 0)
-            {
-                <span class="text-danger">@unconfSubscriptions Subscription(s)</span>
-            } else
-            {
-                <span>There is no Unconfirmed</span>
-            }
-        </td>
-        <td>
-            <a asp-action="CourseInfo" asp-route-Id="@course.Id" class="btn btn-primary">Info</a>
-        </td>
-    </tr>
+    
         }
 </table>

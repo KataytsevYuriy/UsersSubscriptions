@@ -1,41 +1,56 @@
 ﻿@model StudentInfoViewModel
 @{
     Layout = "_TeacherLayout";
+    DateTime curDate = DateTime.Now;
 }
 
-<div class="bg-primary text-center text-info"><h3> Student @Model.Student.FullName</h3></div>
-<div class="text-info"> Student name : @Model.Student.UserName</div>
+<div class="bg-primary text-center text-info"><h3> Учень @Model.Student.FullName</h3></div>
 @if (string.IsNullOrEmpty(Model.Student.PhoneNumber))
 {
-    <div class="text-danger"> There is not added phone</div>
+    <div class="text-danger"> Немає телефона</div>
 }
-else {
-    <div class="text-info"> Student Phone : @Model.Student.PhoneNumber</div>
+else
+{
+    <div class="text-info"> Телефон Учня : @Model.Student.PhoneNumber</div>
 }
 @if (Model.Student.IsActive)
 {
+    <form asp-action="StudentInfo">
+        <select asp-for="Month" name="Month" onchange="this.form.submit()">
+            @if (curDate.Month == Model.Month.Month)
+            {
+                <option selected value="@curDate">@curDate.ToString("MMMM:yyyy")</option>
+                <option value="@curDate.AddMonths(1)">@curDate.AddMonths(1).ToString("MMMM:yyyy")</option>
+            }
+            else
+            {
+                <option value="@curDate">@curDate.ToString("MMMM:yyyy")</option>
+                <option selected value="@curDate.AddMonths(1)">@curDate.AddMonths(1).ToString("MMMM:yyyy")</option>
+            }
+        </select>
+        <input type="hidden" name="studentQR" value="@Model.Student.Id" />
+    </form>
+    <p>Список усіх підписок учня</p>
     <table class=" table table-bordered table-striped">
-        <tr><th>Course name</th><th></th><th></th></tr>
-        @if (Model.Courses.Count() > 0)
+        <tr><th>Назва курсу</th></tr>
+        @if (Model.Subscriptions.Count() > 0)
         {
-            @foreach (Course course in Model.Courses)
+            @foreach (var subs in Model.Subscriptions)
             {
                 <tr>
-                     <td>@course.Name</td>
-                     <td>
-  <a class="btn btn-primary" asp-action="CourseStudentInfo" asp-route-studentId="@Model.Student.Id" asp-route-courseId="@course.Id">Info</a>
-                    </td>
-                    <td>
-  <a class="btn btn-info" asp-action="AddSubscription" asp-route-studentId="@Model.Student.Id" asp-route-courseId="@course.Id">Add subscription</a>
-                    </td>
+                    <td>@subs.Course.Name</td>
                 </tr>
-
             }
-        } else { <tr><td colspan="2"><h3 class="text-danger">There are no active courses</h3></td></tr>}
+        }
+        else
+        {
+            <tr><td><h3 class="text-danger">Немає активних підписок</h3></td></tr>
+        }
     </table>
+    <a class="btn btn-primary" asp-action="AddSubscription" asp-route-Id="@Model.Student.Id" asp-route-month="@Model.Month.ToUniversalTime()">Додати підписку</a>
 
 }
 else
 {
-    <div class="bg-danger text-center"> <h2>This accaunt is blocked. Please contact the admin.</h2></div>
+    <div class="bg-danger text-center"> <h2>Цей аккаунт блокований. Будьласка зв'яжіться з адміністрацією.</h2></div>
 }
