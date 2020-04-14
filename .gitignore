@@ -10,6 +10,8 @@
 *.dll.config
 *.cache
 *.suo
+*.config
+qrr
 desktop.ini
 # Include dlls if they’re in the NuGet packages directory
 !/packages/*/lib/*.dll
