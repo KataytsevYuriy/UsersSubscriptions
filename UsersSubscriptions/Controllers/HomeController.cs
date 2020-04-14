@@ -10,6 +10,8 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Authorization;
 using System.Security.Principal;
 using UsersSubscriptions.Services;
+using System.IO;
+using System.Drawing;
 
 namespace UsersSubscriptions.Controllers
 {
@@ -28,8 +30,6 @@ namespace UsersSubscriptions.Controllers
             AppUser currentUser = await repository.GetCurentUser(HttpContext);
             if (currentUser != null)
             {
-                Byte[] imgBytes = Qrcoder.GenerateQRCode(currentUser.Id);
-                ViewBag.Image = imgBytes;
                 Qrcoder.CreateQrFile(currentUser.Id);
                 Byte[] qrFromFile = Qrcoder.GetQrFile(currentUser.Id);
                 ViewBag.LoadedQrFile = qrFromFile;
@@ -47,6 +47,13 @@ namespace UsersSubscriptions.Controllers
         public IActionResult Error()
         {
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+        }
+
+        public FileContentResult DownloadFile(string id)
+        {
+            Byte[] bytes = Qrcoder.GetQrFile(id);
+
+            return File(bytes, "image/png");
         }
     }
 }

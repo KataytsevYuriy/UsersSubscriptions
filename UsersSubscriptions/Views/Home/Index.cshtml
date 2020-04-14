@@ -10,17 +10,15 @@
     {
         <div class="text-danger"> Будьласка додайте телефонний номер</div>
     }
-    @*else
-    {
-        <div class="text-info"> Ваш телефон : @Model.PhoneNumber</div>
-
-    }*@
+ 
 }
 else
 {
     <div class="bg-danger text-center"> <h2>Ваш акаунт блоковано. Будьласка зв'яжiться з адмiністріцією</h2></div>
 }
 <div>
-    <img src="@String.Format("data:image/png;base64,{0}", Convert.ToBase64String(ViewBag.Image))" />
     <img src="@String.Format("data:image/png;base64,{0}", Convert.ToBase64String(ViewBag.LoadedQrFile))" />
+</div>
+<div>
+    <a asp-action="DownloadFile"  asp-route-id="@Model.Id" class="btn btn-primary">Завантажити</a>
 </div>

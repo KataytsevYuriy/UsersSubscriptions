@@ -83,7 +83,7 @@ namespace UsersSubscriptions.Areas.Teacher.Controllers
             IdentityResult result = await repository.CreateSubscriptionAsync(subscription);
             if (result.Succeeded)
             {
-                TempData["Result"] = result.Succeeded;
+                TempData["SuccessMessage"] ="Підписку додано";
             }
             if (result.Errors.Count() > 0)
             {
@@ -92,7 +92,7 @@ namespace UsersSubscriptions.Areas.Teacher.Controllers
                 {
                     erorMessage += error.Description;
                 }
-                TempData["ErorMessage"] = erorMessage;
+                TempData["ErrorMessage"] = erorMessage;
             }
             return RedirectToAction(nameof(StudentInfo), new { studentQR = model.Student.Id, Month = model.Month});
         }

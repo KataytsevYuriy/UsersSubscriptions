@@ -37,7 +37,7 @@
     </environment>
 </head>
 <body>
-    @*<nav class="navbar navbar-inverse navbar-fixed-top">
+    <nav class="navbar navbar-default navbar-fixed-top">
         <div class="container">
             <div class="navbar-header">
                 <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
@@ -50,21 +50,30 @@
             </div>
             <div class="navbar-collapse collapse">
                 <ul class="nav navbar-nav">
-                    <li><a asp-area="" asp-controller="Home" asp-action="Index">Home</a></li>
-                    <li><a asp-area="" asp-controller="Home" asp-action="About">Seed Data</a></li>
-                    <li><a asp-area="" asp-controller="Home" asp-action="Contact">Contact</a></li>
-                    <li><a asp-area="" asp-controller="Student" asp-action="Index">Student</a></li>
-                    <li><a asp-area="Teacher" asp-controller="Teacher" asp-action="Index">Teacher</a></li>
-                    <li><a asp-area="Admin" asp-controller="User" asp-action="Index">Admin Panel</a></li>
+                    @if (User.IsInRole(Common.UsersConstants.user))
+                    {
+                        <li><a asp-area="" asp-controller="Home" asp-action="Index">Кабінет учня</a></li>
+                    }
+                    @if (User.IsInRole(Common.UsersConstants.teacher))
+                    {
+                        <li><a asp-area="Teacher" asp-controller="Teacher" asp-action="Index">Кабінет вчителя</a></li>
+                    }
+
+                    @if (User.IsInRole(Common.UsersConstants.admin))
+                    {
+                        <li><a asp-area="Admin" asp-controller="User" asp-action="Index">Кабінет адміна</a></li>
+                    }
                 </ul>
                 <partial name="_LoginPartial" />
             </div>
         </div>
     </nav>
 
-    <partial name="_CookieConsentPartial" />*@
+    <partial name="_CookieConsentPartial" />
 
     <div class="container body-content">
+        <partial name="_FlashMessage" />
+        @*@Html.Partial("_FlashMessage")*@
         @RenderBody()
         <hr />
         <footer>

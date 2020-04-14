@@ -17,7 +17,7 @@ namespace UsersSubscriptions.Services
             QRCodeData qrCodeData = generator.CreateQrCode(code, QRCodeGenerator.ECCLevel.Q);
             QRCode qrCode = new QRCode(qrCodeData);
             Bitmap qrCodeImage = qrCode.GetGraphic(UsersConstants.qrCodeImageSize);
-            Bitmap qrCodeImage1 = qrCode.GetGraphic(20);
+           // Bitmap qrCodeImage1 = qrCode.GetGraphic(20);
             return BitmapToBytes(qrCodeImage);
         }
         private static Byte[] BitmapToBytes(Bitmap img)
