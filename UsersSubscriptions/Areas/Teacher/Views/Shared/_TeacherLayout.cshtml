@@ -2,14 +2,13 @@
     Layout = "_Layout";
 }
 
-<div>
-    <a asp-controller="Teacher" asp-action="Index" class="@GetClassForButton("Index")"> Відсканувати учня </a>
-    <a asp-controller="Teacher" asp-action="TeacherCourses" class="@GetClassForButton("TeacherCourses")"> Ваші активні курси </a>
-    
-</div>
-<div>
+<div style="text-align:center;">
     @RenderBody()
+    <br />
+    <br />
+    <a asp-controller="Teacher" asp-action="TeacherCourses" class="@GetClassForButton("TeacherCourses")"> Статистика курсів</a>
 </div>
+
 @functions{
     string GetClassForButton(string action)
     {

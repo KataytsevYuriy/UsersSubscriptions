@@ -27,9 +27,9 @@ namespace UsersSubscriptions.Areas.Teacher.Controllers
         }
 
         // [HttpPost]
-        public async Task<IActionResult> StudentInfo(string studentQR, DateTime Month)
+        public async Task<IActionResult> StudentInfo(string studentId, DateTime Month)
         {
-            AppUser student = await repository.GetUserAsync(studentQR);
+            AppUser student = await repository.GetUserAsync(studentId);
             DateTime curDate = DateTime.Now;
             if (student == null)
             {

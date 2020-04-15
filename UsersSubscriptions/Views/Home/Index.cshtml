@@ -2,8 +2,6 @@
 @{
     Layout = "_StudentLayout";
 }
-
-<div class="bg-primary text-center text-info"><h3> Добрий день @Model.FullName</h3></div>
 @if (Model.IsActive)
 {
     @if (string.IsNullOrEmpty(Model.PhoneNumber))
@@ -16,9 +14,14 @@ else
 {
     <div class="bg-danger text-center"> <h2>Ваш акаунт блоковано. Будьласка зв'яжiться з адмiністріцією</h2></div>
 }
-<div>
-    <img src="@String.Format("data:image/png;base64,{0}", Convert.ToBase64String(ViewBag.LoadedQrFile))" />
+<div style="text-align:center;">
+    <br />
+    <p style="font-size:1.2em;">Ваш QR код для перевірки абонементу</p>
+    <p>
+        <a asp-action="DownloadFile" asp-route-id="@Model.Id" class="btn btn-primary">Завантажити</a>
+    </p>
+    <div>
+        <img style="width:100%" src="@String.Format("data:image/png;base64,{0}", Convert.ToBase64String(ViewBag.LoadedQrFile))" />
+    </div>
 </div>
-<div>
-    <a asp-action="DownloadFile"  asp-route-id="@Model.Id" class="btn btn-primary">Завантажити</a>
-</div>
+

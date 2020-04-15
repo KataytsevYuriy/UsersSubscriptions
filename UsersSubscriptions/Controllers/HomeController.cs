@@ -52,7 +52,8 @@ namespace UsersSubscriptions.Controllers
         public FileContentResult DownloadFile(string id)
         {
             Byte[] bytes = Qrcoder.GetQrFile(id);
-
+            Response.Headers.Add("Content-Disposition", "attachment; filename=\"abonement.png\"");
+            Response.Headers.Add("Content-Type", "application/force-download");
             return File(bytes, "image/png");
         }
     }

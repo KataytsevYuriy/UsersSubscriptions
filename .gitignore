@@ -11,7 +11,8 @@
 *.cache
 *.suo
 *.config
-qrr
+*.qrr
+FolderProfile.pubxml
 desktop.ini
 # Include dlls if they’re in the NuGet packages directory
 !/packages/*/lib/*.dll
