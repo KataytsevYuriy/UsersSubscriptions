@@ -43,29 +43,24 @@ namespace UsersSubscriptions.Areas.Identity.Pages.Account
 
         public class InputModel
         {
-            [Required]
-            [Display(Name ="FullName")]
+            [Required(ErrorMessage = "Введіть ім'я та прізвище")]
+            [Display(Name = "FullName")]
             public string FullName { get; set; }
 
-            [Required]
-            [EmailAddress]
+            [Required(ErrorMessage = "Введіть Email")]
+            [EmailAddress(ErrorMessage = "Невірний формат Email")]
             [Display(Name = "Email")]
             public string Email { get; set; }
 
-            [Required]
-            [Phone(ErrorMessage ="Enter correct phone number")]
+            [Required(ErrorMessage = "Введіть номер телефону")]
+            [Phone(ErrorMessage = "Невірний формат телефону")]
             public string PhoneNumber { get; set; }
 
-            [Required]
-            [StringLength(100, ErrorMessage = "The {0} must be at least {2} and at max {1} characters long.", MinimumLength = 6)]
+            [Required(ErrorMessage = "Введіть пароль")]
+            [StringLength(16, ErrorMessage = "The {0} must be at least {2} and at max {1} characters long.", MinimumLength = 6)]
             [DataType(DataType.Password)]
             [Display(Name = "Password")]
             public string Password { get; set; }
-
-            [DataType(DataType.Password)]
-            [Display(Name = "Confirm password")]
-            [Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
-            public string ConfirmPassword { get; set; }
         }
 
         public void OnGet(string returnUrl = null)
@@ -78,9 +73,14 @@ namespace UsersSubscriptions.Areas.Identity.Pages.Account
             returnUrl = returnUrl ?? Url.Content("~/");
             if (ModelState.IsValid)
             {
-                var user = new AppUser { UserName = Input.Email,
-                    FullName =Input.FullName, Email = Input.Email,
-                    IsActive=true, PhoneNumber=Input.PhoneNumber};
+                var user = new AppUser
+                {
+                    UserName = Input.Email,
+                    FullName = Input.FullName,
+                    Email = Input.Email,
+                    IsActive = true,
+                    PhoneNumber = Input.PhoneNumber
+                };
                 var result = await _userManager.CreateAsync(user, Input.Password);
                 if (result.Succeeded)
                 {
@@ -103,9 +103,12 @@ namespace UsersSubscriptions.Areas.Identity.Pages.Account
                     await _signInManager.SignInAsync(user, isPersistent: false);
                     return LocalRedirect(returnUrl);
                 }
-                foreach (var error in result.Errors)
+                else
                 {
-                    ModelState.AddModelError(string.Empty, error.Description);
+                    foreach (var error in result.Errors)
+                    {
+                        ModelState.AddModelError("Password", error.Description);
+                    }
                 }
             }
 

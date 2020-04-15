@@ -48,6 +48,14 @@ namespace UsersSubscriptions
                 .AddDefaultUI()
                 .AddDefaultTokenProviders()
                 .AddEntityFrameworkStores<ApplicationDbContext>();
+            services.Configure<IdentityOptions>(options =>
+            {
+                options.Password.RequireDigit = false;
+                options.Password.RequiredLength = 6;
+                options.Password.RequireNonAlphanumeric = false;
+                options.Password.RequireUppercase = false;
+                options.Password.RequireLowercase = false;
+            });
             //services.AddDefaultIdentity<AppUser>()
             //    .AddRoles<IdentityRole>()
             //    .AddRoleManager<RoleManager<IdentityRole>>()
@@ -59,7 +67,7 @@ namespace UsersSubscriptions
             //    option.DefaultSignInScheme = IdentityConstants.ExternalScheme;
             //});
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
-            services.AddAuthentication().AddFacebook(facebookOptions =>
+            services.AddAuthentication().AddCookie().AddFacebook(facebookOptions =>
             {
                 facebookOptions.AppId = Configuration["Authentication:Facebook:AppId"];
                 facebookOptions.AppSecret = Configuration["Authentication:Facebook:AppSecret"];

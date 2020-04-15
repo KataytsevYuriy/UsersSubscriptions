@@ -2,18 +2,6 @@
 @{
     Layout = "_StudentLayout";
 }
-@if (Model.IsActive)
-{
-    @if (string.IsNullOrEmpty(Model.PhoneNumber))
-    {
-        <div class="text-danger"> Будьласка додайте телефонний номер</div>
-    }
- 
-}
-else
-{
-    <div class="bg-danger text-center"> <h2>Ваш акаунт блоковано. Будьласка зв'яжiться з адмiністріцією</h2></div>
-}
 <div style="text-align:center;">
     <br />
     <p style="font-size:1.2em;">Ваш QR код для перевірки абонементу</p>
