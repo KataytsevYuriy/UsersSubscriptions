@@ -34,7 +34,8 @@ namespace UsersSubscriptions.Areas.Teacher.Models
 
         public async Task<IEnumerable<Subscription>> GetUserSubscriptionsAsync(string userId, DateTime month)
         {
-            return await _context.Subscriptions.Include(cour => cour.Course)
+            return await _context.Subscriptions
+                .Include(cour => cour.Course).ThenInclude(us => us.CourseAppUsers).ThenInclude(use => use.AppUser)
                         .Where(sub =>
                             sub.AppUserId == userId
                             && sub.DayStart.Year == month.Year
@@ -82,7 +83,7 @@ namespace UsersSubscriptions.Areas.Teacher.Models
         {
             IEnumerable<Subscription> TeacherSubscriptions = await _context.Subscriptions
                     .Include(us => us.AppUser)
-                    .Where(cour => cour.CourseId==courseId
+                    .Where(cour => cour.CourseId == courseId
                         && cour.DayStart.Year == month.Year
                         && cour.DayStart.Month == month.Month)
                     .ToListAsync();
@@ -101,7 +102,7 @@ namespace UsersSubscriptions.Areas.Teacher.Models
 
         public async Task<Course> GetCoursInfoAsync(string id)
         {
-            return await _context.Courses.FirstOrDefaultAsync(cour => cour.Id == id);;
+            return await _context.Courses.FirstOrDefaultAsync(cour => cour.Id == id); ;
         }
 
     }
