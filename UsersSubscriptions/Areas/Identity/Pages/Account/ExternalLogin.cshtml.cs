@@ -18,13 +18,16 @@ namespace UsersSubscriptions.Areas.Identity.Pages.Account
     {
         private readonly SignInManager<AppUser> _signInManager;
         private readonly UserManager<AppUser> _userManager;
+        private readonly RoleManager<IdentityRole> _roleManager;
         private readonly ILogger<ExternalLoginModel> _logger;
 
         public ExternalLoginModel(
             SignInManager<AppUser> signInManager,
             UserManager<AppUser> userManager,
-            ILogger<ExternalLoginModel> logger)
+            ILogger<ExternalLoginModel> logger,
+            RoleManager<IdentityRole> roleManager)
         {
+            _roleManager = roleManager;
             _signInManager = signInManager;
             _userManager = userManager;
             _logger = logger;
@@ -137,6 +140,10 @@ namespace UsersSubscriptions.Areas.Identity.Pages.Account
                 var result = await _userManager.CreateAsync(user);
                 if (result.Succeeded)
                 {
+                    if (await _roleManager.FindByNameAsync("Student") != null)
+                    {
+                        await _userManager.AddToRoleAsync(user, "Student");
+                    }
                     result = await _userManager.AddLoginAsync(user, info);
                     if (result.Succeeded)
                     {
