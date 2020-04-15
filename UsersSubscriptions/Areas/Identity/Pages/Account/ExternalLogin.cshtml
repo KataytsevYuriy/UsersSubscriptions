@@ -1,0 +1,45 @@
+﻿@page
+@model ExternalLoginModel
+@{
+    ViewData["Title"] = "Register";
+}
+
+<h2>@ViewData["Title"]</h2>
+<h4>Associate your @Model.LoginProvider account.</h4>
+<hr />
+
+<p class="text-info">
+    Ви авторизувались через <strong>@Model.LoginProvider</strong>.
+    Будь ласка, заповніть всі дані та завершіть реєстрацію.
+</p>
+
+<div class="row">
+    <div class="col-md-4">
+        <form asp-page-handler="Confirmation" asp-route-returnUrl="@Model.ReturnUrl" method="post">
+            <div class="form-group">
+                <label asp-for="Input.FullName">Ім'я та прізвище</label>
+                <input asp-for="Input.FullName" class="form-control" required />
+                <span asp-validation-for="Input.FullName" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Input.Email"></label>
+                <input asp-for="Input.Email" class="form-control" type="email" required />
+                <span asp-validation-for="Input.Email" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Input.PhoneNumber">Номер телефону</label>
+                <input asp-for="Input.PhoneNumber" class="form-control phone-input" type="tel" required placeholder="+38(___)___-__-__" />
+                <span asp-validation-for="Input.PhoneNumber" class="text-danger"></span>
+            </div>
+            <button type="submit" class="btn btn-default">Зареєструватись</button>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script src="~/js/jquery.mask.min.js"></script>
+    <script>
+        $('.phone-input').mask("+38(000)000-00-00", { placeholder: "+38(___)___-__-__" });
+    </script>
+}

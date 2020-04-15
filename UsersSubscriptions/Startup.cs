@@ -71,7 +71,6 @@ namespace UsersSubscriptions
             {
                 facebookOptions.AppId = Configuration["Authentication:Facebook:AppId"];
                 facebookOptions.AppSecret = Configuration["Authentication:Facebook:AppSecret"];
-                facebookOptions.CallbackPath = "/externalauthentication/externallogincallback";
             });
         }
 
