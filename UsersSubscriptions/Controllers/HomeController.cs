@@ -33,16 +33,20 @@ namespace UsersSubscriptions.Controllers
                 Qrcoder.CreateQrFile(currentUser.Id);
                 Byte[] qrFromFile = Qrcoder.GetQrFile(currentUser.Id);
                 ViewBag.LoadedQrFile = qrFromFile;
+                if (!currentUser.IsActive)
+                {
+                    ViewBag.ErrorMessage = "Ваш акаунт заблоковано. Будь ласка зв'яжiться з адмiністріцією.";
+                }
             }
             else
             {
-               await _signInManager.SignOutAsync();
+                await _signInManager.SignOutAsync();
                 return RedirectToAction(nameof(Index));
             }
             return View(currentUser);
         }
 
-        
+
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {

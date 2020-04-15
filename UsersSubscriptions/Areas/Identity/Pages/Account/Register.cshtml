@@ -1,49 +1,43 @@
 ﻿@page
 @model RegisterModel
 @{
-    ViewData["Title"] = "Register";
+    ViewData["Title"] = "Реєстрація";
 }
 
 <h2>@ViewData["Title"]</h2>
 
 <div class="row">
-    <div class="col-md-4">
+    <div class="col-md-4" style="text-align:center;">
         <form asp-route-returnUrl="@Model.ReturnUrl" method="post">
-            <h4>Create a new account.</h4>
-            <hr />
-            <div asp-validation-summary="All" class="text-danger"></div>
             <div class="form-group">
-                <label asp-for="Input.FullName"></label>
-                <input asp-for="Input.FullName" class="form-control" />
+                <label asp-for="Input.FullName">Ім'я та прізвище</label>
+                <input asp-for="Input.FullName" class="form-control" required />
                 <span asp-validation-for="Input.FullName" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="Input.Email"></label>
-                <input asp-for="Input.Email" class="form-control" />
+                <input asp-for="Input.Email" class="form-control" type="email" required />
                 <span asp-validation-for="Input.Email" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="Input.PhoneNumber"></label>
-                <input asp-for="Input.PhoneNumber" class="form-control" />
+                <label asp-for="Input.PhoneNumber">Номер телефону</label>
+                <input asp-for="Input.PhoneNumber" class="form-control phone-input" type="tel" required placeholder="+38(___)___-__-__" />
                 <span asp-validation-for="Input.PhoneNumber" class="text-danger"></span>
             </div>
-
-            <h5>Testing</h5>
             <div class="form-group">
-                <label asp-for="Input.Password"></label>
-                <input asp-for="Input.Password" class="form-control" />
+                <label asp-for="Input.Password">Пароль</label>
+                <input asp-for="Input.Password" class="form-control" type="password" required />
                 <span asp-validation-for="Input.Password" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <label asp-for="Input.ConfirmPassword"></label>
-                <input asp-for="Input.ConfirmPassword" class="form-control" />
-                <span asp-validation-for="Input.ConfirmPassword" class="text-danger"></span>
-            </div>
-            <button type="submit" class="btn btn-default">Register</button>
+            <button type="submit" class="btn btn-default">Зареєструватись</button>
         </form>
     </div>
 </div>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <script src="~/js/jquery.mask.min.js"></script>
+    <script>
+        $('.phone-input').mask("+38(000)000-00-00", { placeholder: "+38(___)___-__-__" });
+    </script>
 }
