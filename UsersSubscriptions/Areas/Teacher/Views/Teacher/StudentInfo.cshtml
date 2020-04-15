@@ -1,21 +1,21 @@
 ﻿@model StudentInfoViewModel
 @{
-    Layout = "_TeacherLayout";
+    Layout = "_Layout";
     DateTime curDate = DateTime.Now;
 }
 
-<div class="bg-primary text-center text-info"><h3> Учень @Model.Student.FullName</h3></div>
+<div class="text-center text-info"><h3>@Model.Student.FullName.ToUpper()</h3></div>
 @if (string.IsNullOrEmpty(Model.Student.PhoneNumber))
 {
-    <div class="text-danger"> Немає телефона</div>
+    <div class="text-danger text-center"> Немає телефона</div>
 }
 else
 {
-    <div class="text-info"> Телефон Учня : @Model.Student.PhoneNumber</div>
+    <div class="text-info text-center"> Телефон: @Model.Student.PhoneNumber</div>
 }
 @if (Model.Student.IsActive)
 {
-    <form asp-action="StudentInfo">
+    <form asp-action="StudentInfo" class="text-center">
         <select asp-for="Month" name="Month" onchange="this.form.submit()">
             @if (curDate.Month == Model.Month.Month)
             {
@@ -28,17 +28,20 @@ else
                 <option selected value="@curDate.AddMonths(1)">@curDate.AddMonths(1).ToString("MMMM:yyyy")</option>
             }
         </select>
-        <input type="hidden" name="studentQR" value="@Model.Student.Id" />
+        <input type="hidden" name="studentId" value="@Model.Student.Id" />
     </form>
-    <p>Список усіх підписок учня</p>
     <table class=" table table-bordered table-striped">
-        <tr><th>Назва курсу</th></tr>
         @if (Model.Subscriptions.Count() > 0)
         {
             @foreach (var subs in Model.Subscriptions)
             {
                 <tr>
                     <td>@subs.Course.Name</td>
+                    <td>
+                        @foreach(var user in subs.Course.CourseAppUsers) {
+                            <span>@user.AppUser.FullName</span><br />
+                        }
+                    </td>
                 </tr>
             }
         }

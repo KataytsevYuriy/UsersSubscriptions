@@ -1,7 +1,8 @@
 ﻿
 @{
-    Layout = "_TeacherLayout";
+    Layout = "_Layout";
 }
+
 <br />
 <p style="font-size:1.2em">
     Відскануйте QR код абонементу
@@ -9,13 +10,14 @@
 <div id="area-cameras-list">
 </div>
 <video id="preview" style="width:100%;height:50%;"></video>
-<script type="text/javascript">
+@section Scripts{
+    <script type="text/javascript">
     var getUserInfoUrl = '@Url.Action("StudentInfo")';
     var cameras;
     var scanner;
 
     $(function () {
-        $.getScript("/js/instascan.min.js", function (data) {
+        $.getScript("/js/instascan.min.js", function () {
             scanner = new Instascan.Scanner({ video: document.getElementById('preview'), mirror: false });
             scanner.addListener('scan', function (content) {
                 window.location.href = getUserInfoUrl + "?studentId=" + content;
@@ -51,4 +53,5 @@
             scanner.start(activeCamera);
         });
     });
-</script>
+    </script>
+}

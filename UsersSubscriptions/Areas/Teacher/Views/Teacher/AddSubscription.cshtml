@@ -1,11 +1,13 @@
 ﻿@model AddSubscriptionViewModel
 @{
-    Layout = "_TeacherLayout";
+    Layout = "_Layout";
     var curDate = DateTime.Now;
     Course selectedCourse = Model.TeacherCourses.FirstOrDefault();
+ 
 }
 
-<div class="bg-primary text-info text-center"><h2>Добавити підписку для @Model.Student.FullName</h2></div>
+<div class="text-info text-center"><h2>Додати підписку </h2></div>
+<div class=" text-info text-center"><h2>@Model.Student.FullName.ToUpper()</h2></div>
 @if (Model.TeacherCourses.Count() > 0)
 {
     <form asp-action="AddSubscription" method="post">
@@ -13,7 +15,7 @@
         <div class="form-group">
             <select class="form-control" name="Month">
                 @if (curDate.Month == Model.Month.Month)
-                { 
+                {
                     <option selected value="@curDate">@curDate.ToString("MMMM:yyyy")</option>
                     <option value="@curDate.AddMonths(1)">@curDate.AddMonths(1).ToString("MMMM:yyyy")</option>
                 }
@@ -25,7 +27,7 @@
             </select>
         </div>
         <div class="form-group">
-            <select class="form-control" id="CourseSelect" name="SelectedCours.Id"  onchange="ChangeCourse(this)">
+            <select class="form-control" id="CourseSelect" name="SelectedCours.Id" onchange="ChangeCourse(this)">
                 @foreach (var cours in Model.TeacherCourses)
                 {
                     @if (selectedCourse == cours)
@@ -39,11 +41,12 @@
                 }
             </select>
         </div>
+       
         <div class="form-group">
             <label asp-for="@selectedCourse.Price">Ціна: </label>
             <input id="Price" asp-for="@selectedCourse.Price" class="form-control" name="SelectedCours.Price" value="@selectedCourse.Price" />
         </div>
-        <button type="submit" class="btn btn-primary">Додати </button>
+        <div class="text-center"><button type="submit" class="btn btn-primary">Додати </button></div>
     </form>
 }
 else
@@ -51,11 +54,12 @@ else
     <div class="bg-danger text-info text-center"><h2>У вас немає активних курсів</h2></div>
 
 }
-<a asp-action="StudentInfo" asp-route-studentQR="@Model.Student.Id" class="btn btn-info">Back</a>
-<p id="test"></p>
-<script>
-    function ChangeCourse(a) {
-        var val = a.options[a.selectedIndex].dataset.price;
-        $("#Price").val(val);
-    }
-</script>
+<div class="text-center"><a asp-action="StudentInfo" asp-route-studentQR="@Model.Student.Id" class="text-info">Back</a></div>
+@section Scripts{
+    <script>
+        function ChangeCourse(a) {
+            var val = a.options[a.selectedIndex].dataset.price;
+            $("#Price").val(val);
+        }
+    </script>
+}
