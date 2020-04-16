@@ -41,7 +41,7 @@
                         @if (User.IsInRole(Common.UsersConstants.teacher))
                         {
                             <li><a asp-area="Teacher" asp-controller="Teacher" asp-action="Index">Відсканувати Учня</a></li>
-                            <li><a asp-area="Teacher" asp-controller="Teacher" asp-action="TeacherCourses">Список ваших курсів</a></li>
+                            <li><a asp-area="Teacher" asp-controller="Teacher" asp-action="TeacherCourses">Список курсів</a></li>
                         }
 
                         @if (User.IsInRole(Common.UsersConstants.admin))
