@@ -4,19 +4,20 @@
     DateTime curDate = DateTime.Now;
 }
 
-<div class="text-center text-info"><h3>@Model.Student.FullName.ToUpper()</h3></div>
+<div class="text-center"><h3>@Model.Student.FullName.ToUpper()</h3></div>
 @if (string.IsNullOrEmpty(Model.Student.PhoneNumber))
 {
     <div class="text-danger text-center"> Немає телефона</div>
 }
 else
 {
-    <div class="text-info text-center"> Телефон: @Model.Student.PhoneNumber</div>
+    <div class="text-center" style="font-size:1.2em;">@Model.Student.PhoneNumber</div>
 }
 @if (Model.Student.IsActive)
 {
+    <br />
     <form asp-action="StudentInfo" class="text-center">
-        <select asp-for="Month" name="Month" onchange="this.form.submit()">
+        <select class="form-control" asp-for="Month" name="Month" onchange="this.form.submit()">
             @if (curDate.Month == Model.Month.Month)
             {
                 <option selected value="@curDate">@curDate.ToString("MMMM:yyyy")</option>
@@ -30,13 +31,14 @@ else
         </select>
         <input type="hidden" name="studentId" value="@Model.Student.Id" />
     </form>
-    <table class=" table table-bordered table-striped">
+    <br />
+    <table class="text-center table table-bordered table-striped">
         @if (Model.Subscriptions.Count() > 0)
         {
             @foreach (var subs in Model.Subscriptions)
             {
                 <tr>
-                    <td>@subs.Course.Name</td>
+                    <td style="vertical-align:middle; font-weight:bold;">@subs.Course.Name</td>
                     <td>
                         @foreach(var user in subs.Course.CourseAppUsers) {
                             <span>@user.AppUser.FullName</span><br />
@@ -47,11 +49,12 @@ else
         }
         else
         {
-            <tr><td><h3 class="text-danger">Немає активних підписок</h3></td></tr>
+            <tr><td><h3 class="text-danger">Немає абонементів</h3></td></tr>
         }
     </table>
-    <a class="btn btn-primary" asp-action="AddSubscription" asp-route-Id="@Model.Student.Id" asp-route-month="@Model.Month.ToUniversalTime()">Додати підписку</a>
-
+    <div class="text-center">
+        <a class="btn btn-primary" asp-action="AddSubscription" asp-route-Id="@Model.Student.Id" asp-route-month="@Model.Month.ToUniversalTime()">Додати абонемент</a>
+    </div>
 }
 else
 {

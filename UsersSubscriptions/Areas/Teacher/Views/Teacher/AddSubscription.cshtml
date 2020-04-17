@@ -5,7 +5,7 @@
     Course selectedCourse = Model.TeacherCourses.FirstOrDefault();
 }
 
-<div class="text-info text-center"><h2>Додати підписку </h2></div>
+<div class="text-info text-center"><h2>Абонемент для</h2></div>
 <div class=" text-info text-center"><h2>@Model.Student.FullName.ToUpper()</h2></div>
 @if (Model.TeacherCourses.Count() > 0)
 {
@@ -51,7 +51,6 @@
 else
 {
     <div class="bg-danger text-info text-center"><h2>У вас немає активних курсів</h2></div>
-
 }
 <div class="text-center"><a asp-action="StudentInfo" asp-route-studentId="@Model.Student.Id" class="text-info">Назад</a></div>
 @section Scripts{

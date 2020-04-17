@@ -7,41 +7,46 @@
     var monthes = new List<string>{"Січень", "Лютий", "Березень", "Квітень", "Травень", "Червень",
            "Липень", "Серпень", "Вересень", "Жовтень", "Грудень", "Листопад" };
 }
-
+<h3 style="text-align:center;">@Model.CurrentCourse.Name</h3>
 <form asp-action="CourseInfo" class="fm-date">
-   <input name="Id" value="@Model.CurrentCourse.Id" type="hidden" />
+    <input name="Id" value="@Model.CurrentCourse.Id" type="hidden" />
     <input type="hidden" name="month" value="@Model.Month" id="month" />
- 
-    <div>
-        <select class="selectDate" id="selectMonth" onchange="changeDate(this)">
-            @for (var i = 0; i < 12; i++)
-            {
-                @if (Model.Month.Month == i + 1)
-                {
-                    <option selected value="@i">@monthes[i]</option>
-                }
-                else
-                {
-                    <option value="@i">@monthes[i]</option>
-                }
-            }
-        </select>
-        <select class="selectDate" id="selectYear" onchange="changeDate(this), this.form.submit()">
-            @for (var i = startYear; i <= DateTime.Now.Year; i++)
-            {
-                if (DateTime.Now.Year == i)
-                {
-                    <option selected value="@i">@i</option>
-                }
-                else
-                {
-                    <option value="@i">@i</option>
-                }
-            }
-        </select>
 
+    <div class="row">
+        <br />
+        <div class="col-xs-8">
+            <select class="selectDate form-control" id="selectMonth" onchange="changeDate(this)">
+                @for (var i = 0; i < 12; i++)
+                {
+                    @if (Model.Month.Month == i + 1)
+                    {
+                        <option selected value="@i">@monthes[i]</option>
+                    }
+                    else
+                    {
+                        <option value="@i">@monthes[i]</option>
+                    }
+                }
+            </select>
+        </div>
+        <div class="col-xs-4">
+            <select class="selectDate form-control" id="selectYear" onchange="changeDate(this), this.form.submit()">
+                @for (var i = startYear; i <= DateTime.Now.Year; i++)
+                {
+                    if (DateTime.Now.Year == i)
+                    {
+                        <option selected value="@i">@i</option>
+                    }
+                    else
+                    {
+                        <option value="@i">@i</option>
+                    }
+                }
+            </select>
+        </div>
     </div>
 </form>
+<br />
 <table class="table table-striped table-bordered">
     <tr><th>Ім'я</th><th>Телефон</th><th>Сума</th></tr>
     @foreach (var stud in Model.Students)
@@ -55,12 +60,12 @@
     }
     <tr><td colspan="2" class="text-right">Разом</td><td>@sum</td></tr>
 </table>
-@section Scripts{ 
+@section Scripts{
     <script>
-            function changeDate (th) {
-                var newDate = new Date($("#selectYear").val(), $("#selectMonth").val());
-                $("#month").val(newDate.toUTCString());
-                $(".fm-date").submit();
-            }
+        function changeDate(th) {
+            var newDate = new Date($("#selectYear").val(), $("#selectMonth").val());
+            $("#month").val(newDate.toUTCString());
+            $(".fm-date").submit();
+        }
     </script>
 }

@@ -10,6 +10,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Logging;
 using UsersSubscriptions.Models;
+using Microsoft.AspNetCore.Builder;
+using System.Security.Claims;
 
 namespace UsersSubscriptions.Areas.Identity.Pages.Account
 {
@@ -18,9 +20,11 @@ namespace UsersSubscriptions.Areas.Identity.Pages.Account
     {
         private readonly SignInManager<AppUser> _signInManager;
         private readonly ILogger<LoginModel> _logger;
+        private readonly UserManager<AppUser> _userManager;
 
-        public LoginModel(SignInManager<AppUser> signInManager, ILogger<LoginModel> logger)
+        public LoginModel(SignInManager<AppUser> signInManager, ILogger<LoginModel> logger, UserManager<AppUser> userManager)
         {
+            _userManager = userManager;
             _signInManager = signInManager;
             _logger = logger;
         }
@@ -78,6 +82,12 @@ namespace UsersSubscriptions.Areas.Identity.Pages.Account
                 if (result.Succeeded)
                 {
                     _logger.LogInformation("User logged in.");
+                    var user = await _userManager.FindByNameAsync(Input.Email);
+                    var roles = await _userManager.GetRolesAsync(user);
+                    if (roles.Contains("Teacher"))
+                    {
+                        return RedirectToAction("Index", "Teacher", new { area = "Teacher" });
+                    }
                     return LocalRedirect(returnUrl);
                 }
                 if (result.RequiresTwoFactor)
@@ -91,12 +101,14 @@ namespace UsersSubscriptions.Areas.Identity.Pages.Account
                 }
                 else
                 {
-                    ModelState.AddModelError(string.Empty, "Invalid login attempt.");
+                    TempData["ErrorMessage"] = "Невірний логін чи пароль";
+                    await HttpContext.SignOutAsync(IdentityConstants.ExternalScheme);
+                    ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
+                    ReturnUrl = returnUrl;
                     return Page();
                 }
             }
-
-            // If we got this far, something failed, redisplay form
+            ReturnUrl = returnUrl;
             return Page();
         }
     }
