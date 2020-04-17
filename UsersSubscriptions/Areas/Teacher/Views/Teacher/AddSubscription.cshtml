@@ -3,7 +3,6 @@
     Layout = "_Layout";
     var curDate = DateTime.Now;
     Course selectedCourse = Model.TeacherCourses.FirstOrDefault();
- 
 }
 
 <div class="text-info text-center"><h2>Додати підписку </h2></div>
@@ -54,7 +53,7 @@ else
     <div class="bg-danger text-info text-center"><h2>У вас немає активних курсів</h2></div>
 
 }
-<div class="text-center"><a asp-action="StudentInfo" asp-route-studentQR="@Model.Student.Id" class="text-info">Back</a></div>
+<div class="text-center"><a asp-action="StudentInfo" asp-route-studentId="@Model.Student.Id" class="text-info">Назад</a></div>
 @section Scripts{
     <script>
         function ChangeCourse(a) {

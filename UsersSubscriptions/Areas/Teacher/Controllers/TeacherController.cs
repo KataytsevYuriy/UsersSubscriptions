@@ -54,6 +54,7 @@ namespace UsersSubscriptions.Areas.Teacher.Controllers
         {
             DateTime Month;
             DateTime.TryParse(month,out Month);
+           // Course curCours;
             if (Month.Year < 2000) { Month = DateTime.Now; }
             AddSubscriptionViewModel model = new AddSubscriptionViewModel
             {
@@ -84,6 +85,7 @@ namespace UsersSubscriptions.Areas.Teacher.Controllers
             if (result.Succeeded)
             {
                 TempData["SuccessMessage"] ="Підписку додано";
+                return RedirectToAction(nameof(StudentInfo), new { studentId = model.Student.Id, Month = model.Month });
             }
             if (result.Errors.Count() > 0)
             {
@@ -94,7 +96,7 @@ namespace UsersSubscriptions.Areas.Teacher.Controllers
                 }
                 TempData["ErrorMessage"] = erorMessage;
             }
-            return RedirectToAction(nameof(StudentInfo), new { studentQR = model.Student.Id, Month = model.Month});
+            return RedirectToAction(nameof(AddSubscription), new { Id = model.Student.Id, month = model.Month.ToString()});
         }
 
         public async Task<IActionResult> TeacherCourses()

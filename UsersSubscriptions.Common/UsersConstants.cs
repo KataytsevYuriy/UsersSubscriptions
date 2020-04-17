@@ -10,6 +10,7 @@ namespace UsersSubscriptions.Common
         public const string user = "Student";
         public const string admin = "Admin";
         public const string teacher = "Teacher";
+        public const string schoolOwner = "SchoolOwner";
 
         //QRCode
         public const int qrCodeImageSize = 10;
