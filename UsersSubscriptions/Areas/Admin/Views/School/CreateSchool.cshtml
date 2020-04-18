@@ -1,0 +1,27 @@
+﻿@model School
+@{
+    ViewData["Title"] = "CreateSchool";
+    Layout = "_AdminLayout";
+}
+
+<div class="text-center"><h3>Додати школу</h3></div>
+<form asp-action="CreateSchool" method="post">
+    <div class="form-group">
+        <label asp-for="Name"></label>
+        <input asp-for="Name" />
+    </div>
+    <div class="form-group">
+        <select name="OwnerId" class="form-control">
+            <option value="" selected disabled hidden>Виберіть власника школи</option>
+            @if (ViewBag.owners != null)
+            {
+                foreach (var owner in ViewBag.owners)
+                {
+                    <option value="@owner.Id">@owner.FullName</option>
+                }
+            }
+        </select>
+    </div>
+    <button class="btn btn-primary" type="submit">Додати</button>
+</form>
+<a asp-action="Index" class="btn">Назад</a> 

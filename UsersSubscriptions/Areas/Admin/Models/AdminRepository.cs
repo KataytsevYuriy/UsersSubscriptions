@@ -248,5 +248,37 @@ namespace UsersSubscriptions.Areas.Admin.Models
                             .FirstOrDefaultAsync(subs => subs.Id == id);
             return subscription;
         }
+
+
+
+        //School
+
+  public IEnumerable<School> GetAllSchools()
+        {
+            return _context.Schools.Include(usr => usr.Owner).ToList();
+        }
+
+        public async Task<IdentityResult> CreateSchoolAsync(School school)
+        {
+            if (string.IsNullOrEmpty(school.Name))
+            {
+                return IdentityResult.Failed(new IdentityError { Description = "Введіть назву школи" });
+            }
+            var state = await _context.Schools.AddAsync(school);
+            if (state.State != EntityState.Added)
+            {
+                return IdentityResult.Failed(new IdentityError { Description = "Школа на додана" });
+            }
+            await _context.SaveChangesAsync();
+            return IdentityResult.Success;
+        }
+
+        public async Task<School> GetSchoolAsync(string id)
+        {
+            return await _context.Schools
+                .Include(sch=>sch.Courses)
+                .Include(sch=>sch.Owner)
+                .FirstOrDefaultAsync(sch => sch.Id == id);
+        }
     }
 }

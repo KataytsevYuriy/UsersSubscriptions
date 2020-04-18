@@ -1,0 +1,30 @@
+﻿@model School
+@{
+    Layout = "_AdminLayout";
+}
+
+<div class="container">
+    <h2>School</h2>
+    <div class="list-group">
+        <a href="#" class="list-group-item">
+            <p>Назва школи</p>
+            <h4>@Model.Name</h4>
+        </a>
+        <a href="#" class="list-group-item">
+            <p>Власник школи</p>
+            <h4>@Model.Owner.FullName</h4>
+        </a>
+        <p href="#" class="list-group-item">
+            <p>Курси</p>
+            @if (Model.Courses != null && Model.Courses.Count() > 0)
+            {
+                <div class="list-group">
+                    @foreach (var cours in Model.Courses)
+                    {
+                        <p class="list-group-item">@cours.Name</p>
+                    }
+                </div>
+            }
+        </a>
+    </div>
+</div>

@@ -19,5 +19,8 @@ namespace UsersSubscriptions.Areas.Teacher.Models
         Task<IEnumerable<Student>> GetTeacherMonthStudentsAsync(string courseId, DateTime month);
 
         Task<Course> GetCoursInfoAsync(string id);
+        IEnumerable<School> GetUsersSchools(string userId);
+        Task<School> GetSchoolAsync(string schoolId);
+        Task<IdentityResult> AddCourseAsync(Course course);
     }
 }

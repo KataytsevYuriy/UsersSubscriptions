@@ -43,7 +43,10 @@
                             <li><a asp-area="Teacher" asp-controller="Teacher" asp-action="Index">Відсканувати Учня</a></li>
                             <li><a asp-area="Teacher" asp-controller="Teacher" asp-action="TeacherCourses">Список курсів</a></li>
                         }
-
+                        @if (User.IsInRole(Common.UsersConstants.schoolOwner))
+                        {
+                            <li><a asp-area="Teacher" asp-controller="Owner" asp-action="Index">Кабінет директора школи</a></li>
+                        }
                         @if (User.IsInRole(Common.UsersConstants.admin))
                         {
                             <li><a asp-area="Admin" asp-controller="User" asp-action="Index">Кабінет адміна</a></li>

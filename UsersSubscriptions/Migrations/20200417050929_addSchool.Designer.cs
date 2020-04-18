@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using UsersSubscriptions.Data;
 
 namespace UsersSubscriptions.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20200417050929_addSchool")]
+    partial class addSchool
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -249,7 +251,7 @@ namespace UsersSubscriptions.Migrations
 
                     b.HasIndex("OwnerId");
 
-                    b.ToTable("Schools");
+                    b.ToTable("School");
                 });
 
             modelBuilder.Entity("UsersSubscriptions.Models.Subscription", b =>

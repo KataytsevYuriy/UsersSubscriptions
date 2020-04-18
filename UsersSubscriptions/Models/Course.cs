@@ -23,6 +23,9 @@ namespace UsersSubscriptions.Models
         public IEnumerable<Subscription> Subscriptions { get; set; }
         public IEnumerable<CourseAppUser> CourseAppUsers { get; set; }
 
+        public School School { get; set; }
+        [StringLength(64)]
+        public string SchoolId { get; set; }
     }
 
     public class CourseAppUser

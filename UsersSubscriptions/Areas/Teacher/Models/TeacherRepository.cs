@@ -102,8 +102,40 @@ namespace UsersSubscriptions.Areas.Teacher.Models
 
         public async Task<Course> GetCoursInfoAsync(string id)
         {
-            return await _context.Courses.FirstOrDefaultAsync(cour => cour.Id == id); ;
+            return await _context.Courses
+                .Include(cour=>cour.CourseAppUsers).ThenInclude(appu=>appu.AppUser)
+                .FirstOrDefaultAsync(cour => cour.Id == id); ;
         }
 
+        public IEnumerable<School> GetUsersSchools(string userId)
+        {
+            return _context.Schools.Where(sch => sch.OwnerId == userId).ToList();
+        }
+
+        public async Task<School> GetSchoolAsync(string schoolId)
+        {
+            return await _context.Schools
+                .Include(sch => sch.Courses)
+                .FirstOrDefaultAsync(sch => sch.Id == schoolId);
+        }
+
+        public async Task<IdentityResult> AddCourseAsync(Course course)
+        {
+            if (string.IsNullOrEmpty(course.Name))
+            {
+                return IdentityResult.Failed(new IdentityError { Description = "Введіть назву курсу" });
+            }
+            if (string.IsNullOrEmpty(course.SchoolId))
+            {
+                return IdentityResult.Failed(new IdentityError { Description = "Курс не додано" });
+            }
+            var state = await _context.Courses.AddAsync(course);
+            if (state.State != EntityState.Added)
+            {
+                return IdentityResult.Failed(new IdentityError { Description = "Курс не додано" });
+            }
+            await _context.SaveChangesAsync();
+            return IdentityResult.Success;
+        }
     }
 }

@@ -33,5 +33,9 @@ namespace UsersSubscriptions.Areas.Admin.Models
         IEnumerable<Subscription> GetAllSubscriptions();
         Task RemoveSubscriptionAsync(string id);
         Task<Subscription> GetSubscription(string id);
+        //Schools
+        IEnumerable<School> GetAllSchools();
+        Task<IdentityResult> CreateSchoolAsync(School school);
+        Task<School> GetSchoolAsync(string id);
     }
 }

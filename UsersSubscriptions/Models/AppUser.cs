@@ -21,5 +21,6 @@ namespace UsersSubscriptions.Models
         public IEnumerable<Subscription> Subscriptions { get; set; }
         public IEnumerable<Subscription> SubscriptionConfirmedBy { get; set; }
         public IEnumerable<Subscription> SubscriptionPayedTo { get; set; }
+        public IEnumerable<School> Schools { get; set; }
     }
 }
