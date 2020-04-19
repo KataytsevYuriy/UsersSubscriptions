@@ -23,5 +23,6 @@ namespace UsersSubscriptions.Areas.Teacher.Models
         Task<School> GetSchoolAsync(string schoolId);
         Task<IdentityResult> AddCourseAsync(Course course);
         Task<IdentityResult> UpdateCourseAsync(Course course, IList<string> TeachersId);
+        Task<AppUser> GetUserByPhone(string phone);
     }
 }

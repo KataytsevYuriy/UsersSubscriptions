@@ -51,7 +51,7 @@ namespace UsersSubscriptions.Data
                     UserName="yuriy.kataytsev@gmail.com",
                     Email="yuriy.kataytsev@gmail.com",
                     FullName="Юрий Катайцев",
-                    PhoneNumber="0950413008",
+                    PhoneNumber="+38(095)041-30-08",
                     IsActive=true,
                 },
                 new AppUser
@@ -59,7 +59,7 @@ namespace UsersSubscriptions.Data
                     UserName="faraon.ua@gmail.com",
                     Email="faraon.ua@gmail.com",
                     FullName="Дубровський Олександр",
-                    PhoneNumber="0630517004",
+                    PhoneNumber="+38(063)051-70-04",
                     IsActive=true,
                 },
                 new AppUser
@@ -67,7 +67,7 @@ namespace UsersSubscriptions.Data
                     UserName="kataytseva.irina@gmail.com",
                     Email="kataytseva.irina@gmail.com",
                     FullName="Катайцева Ирина",
-                    PhoneNumber="0950413008",
+                    PhoneNumber="+38(095)041-30-08",
                     IsActive=true,
                 },
                 new AppUser
@@ -75,21 +75,21 @@ namespace UsersSubscriptions.Data
                     UserName="ivanov.petr@mail.com",
                     Email="ivanov.petr@mail.com",
                     FullName="Іванов",
-                    PhoneNumber="09500000001",
+                    PhoneNumber="+38(095)000-00-01",
                     IsActive=true,
                 },new AppUser
                 {
                     UserName="moroz@mail.com",
                     Email="moroz@mail.com",
                     FullName="Иван Мороз",
-                    PhoneNumber="09500000002",
+                    PhoneNumber="+38(095)000-00-02",
                     IsActive=true,
                 },new AppUser
                 {
                     UserName="tester@mail.com",
                     Email="tester@gmail.com",
                     FullName="Зайцева Ирина",
-                    PhoneNumber="0950000003",
+                    PhoneNumber="+38(095)000-00-03",
                     IsActive=true,
                 },
 

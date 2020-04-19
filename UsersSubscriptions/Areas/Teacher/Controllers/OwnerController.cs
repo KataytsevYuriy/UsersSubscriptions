@@ -131,12 +131,30 @@ namespace UsersSubscriptions.Areas.Teacher.Controllers
                 Description = model.Description,
                 IsActive = model.IsActive,
                 Price = model.Price,
-            }, model.Teachers);
+            }, model.Teachers.Distinct<string>().ToList());
             if (result.Succeeded)
             {
                 TempData["SuccessMessage"] = "Курс оновлено";
             }
             return RedirectToAction(nameof(CourseInfo), new { id = course.Id, schoolId = course.SchoolId });
+        }
+
+        [HttpPost]
+        public async Task<JsonResult> GetUserByPhone(string id)
+        {
+            AppUser user = await repository.GetUserByPhone(id);
+            if (user == null) { return Json(""); }
+            string result = "<input type=\"checkbox\" name=\"Teachers\" value=\"" + user.Id + "\" checked />" + user.FullName +"<br/>";
+            return Json(result);
+        }
+
+        [HttpPost]
+        public async Task<JsonResult> GetUserById(string id)
+        {
+            AppUser user = await repository.GetUserAsync(id);
+            if (user == null) { return Json(""); }
+            string result = "<input type=\"checkbox\" name=\"Teachers\" value=\"" + user.Id + "\" checked />" + user.FullName + "<br/>";
+            return Json(result);
         }
 
     }

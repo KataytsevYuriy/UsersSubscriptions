@@ -9,6 +9,7 @@ using UsersSubscriptions.Areas.Teacher.Models.ViewModels;
 using UsersSubscriptions.Data;
 using System.Security.Principal;
 using Microsoft.EntityFrameworkCore;
+using System.Text.RegularExpressions;
 
 namespace UsersSubscriptions.Areas.Teacher.Models
 {
@@ -166,6 +167,11 @@ namespace UsersSubscriptions.Areas.Teacher.Models
             }
             await _context.SaveChangesAsync();
             return IdentityResult.Success;
+        }
+
+        public async Task<AppUser> GetUserByPhone(string phone)
+        {
+            return await _context.Users.FirstOrDefaultAsync(us => Regex.Replace(us.PhoneNumber, @"[^\d]+", "")==(phone));
         }
     }
 }

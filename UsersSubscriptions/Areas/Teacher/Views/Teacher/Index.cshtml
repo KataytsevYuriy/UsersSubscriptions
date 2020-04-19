@@ -22,6 +22,7 @@
             scanner.addListener('scan', function (content) {
                 window.location.href = getUserInfoUrl + "?studentId=" + content;
             });
+            debugger;
             Instascan.Camera.getCameras().then(function (camerasList) {
                 cameras = camerasList;
                 if (cameras.length > 0) {
@@ -47,9 +48,11 @@
 
         $("body").on('click', '#area-cameras-list a', function () {
             $(".list-group-item").removeClass("active");
+            debugger;
             $(this).addClass('active');
             var cameraId = $(this).attr('data-camera-id');
             var activeCamera = cameras.find(x => x.id === cameraId);
+            debugger;
             scanner.start(activeCamera);
         });
     });
