@@ -7,13 +7,13 @@
       "sslPort": 0
     },
     "iisExpress": {
-      "applicationUrl": "http://localhost:5000",
-      "sslPort": 44357
+      "applicationUrl": "http://bdsl.eventus.local:5000",
+      "sslPort": 0
     }
   },
   "profiles": {
     "IIS Express": {
-      "commandName": "IISExpress",
+      "commandName": "Project",
       "launchBrowser": true,
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"

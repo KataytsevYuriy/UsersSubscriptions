@@ -15,6 +15,7 @@ using Microsoft.Extensions.DependencyInjection;
 using UsersSubscriptions.Models;
 using UsersSubscriptions.Areas.Admin.Models;
 using UsersSubscriptions.Areas.Teacher.Models;
+using UsersSubscriptions.Filters;
 
 namespace UsersSubscriptions
 {
@@ -66,7 +67,10 @@ namespace UsersSubscriptions
             //    option.DefaultChallengeScheme = IdentityConstants.ApplicationScheme;
             //    option.DefaultSignInScheme = IdentityConstants.ExternalScheme;
             //});
-            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
+            services.AddMvc(config =>
+            {
+                config.Filters.Add(new SubdomainFilterAttribute());
+            }).SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
             services.AddAuthentication().AddCookie().AddFacebook(facebookOptions =>
             {
                 facebookOptions.AppId = Configuration["Authentication:Facebook:AppId"];
