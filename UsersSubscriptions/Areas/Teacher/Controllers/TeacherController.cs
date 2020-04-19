@@ -72,11 +72,9 @@ namespace UsersSubscriptions.Areas.Teacher.Controllers
             Subscription subscription = new Subscription
             {
                 AppUserId = model.Student.Id,
-                ConfirmedDatetime = DateTime.Now,
                 CreatedDatetime = DateTime.Now,
-                ConfirmedById = teacher.Id,
                 CourseId = model.SelectedCours.Id,
-                DayStart = model.Month,
+                Month = model.Month,
                 PayedDatetime = DateTime.Now,
                 PayedToId = teacher.Id,
                 Price = model.SelectedCours.Price,

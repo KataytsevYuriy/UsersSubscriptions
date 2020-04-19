@@ -22,5 +22,6 @@ namespace UsersSubscriptions.Areas.Teacher.Models
         IEnumerable<School> GetUsersSchools(string userId);
         Task<School> GetSchoolAsync(string schoolId);
         Task<IdentityResult> AddCourseAsync(Course course);
+        Task<IdentityResult> UpdateCourseAsync(Course course, IList<string> TeachersId);
     }
 }

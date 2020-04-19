@@ -238,8 +238,6 @@ namespace UsersSubscriptions.Migrations
                         .ValueGeneratedOnAdd()
                         .HasMaxLength(64);
 
-                    b.Property<string>("Description");
-
                     b.Property<string>("Name");
 
                     b.Property<string>("OwnerId")
@@ -261,19 +259,12 @@ namespace UsersSubscriptions.Migrations
                     b.Property<string>("AppUserId")
                         .HasMaxLength(64);
 
-                    b.Property<string>("ConfirmedById")
-                        .HasMaxLength(64);
-
-                    b.Property<DateTime>("ConfirmedDatetime");
-
                     b.Property<string>("CourseId")
                         .HasMaxLength(64);
 
                     b.Property<DateTime>("CreatedDatetime");
 
-                    b.Property<DateTime>("DayFinish");
-
-                    b.Property<DateTime>("DayStart");
+                    b.Property<DateTime>("Month");
 
                     b.Property<DateTime>("PayedDatetime");
 
@@ -282,13 +273,9 @@ namespace UsersSubscriptions.Migrations
 
                     b.Property<int>("Price");
 
-                    b.Property<bool>("WasPayed");
-
                     b.HasKey("Id");
 
                     b.HasIndex("AppUserId");
-
-                    b.HasIndex("ConfirmedById");
 
                     b.HasIndex("CourseId");
 
@@ -372,11 +359,6 @@ namespace UsersSubscriptions.Migrations
                     b.HasOne("UsersSubscriptions.Models.AppUser", "AppUser")
                         .WithMany("SubscriptionPayedTo")
                         .HasForeignKey("AppUserId");
-
-                    b.HasOne("UsersSubscriptions.Models.AppUser", "ConfirmedBy")
-                        .WithMany("SubscriptionConfirmedBy")
-                        .HasForeignKey("ConfirmedById")
-                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.HasOne("UsersSubscriptions.Models.Course", "Course")
                         .WithMany("Subscriptions")

@@ -38,8 +38,8 @@ namespace UsersSubscriptions.Areas.Teacher.Models
                 .Include(cour => cour.Course).ThenInclude(us => us.CourseAppUsers).ThenInclude(use => use.AppUser)
                         .Where(sub =>
                             sub.AppUserId == userId
-                            && sub.DayStart.Year == month.Year
-                            && sub.DayStart.Month == month.Month
+                            && sub.Month.Year == month.Year
+                            && sub.Month.Month == month.Month
                         )
                         .ToListAsync();
         }
@@ -65,7 +65,7 @@ namespace UsersSubscriptions.Areas.Teacher.Models
             if ((_context.Subscriptions.FirstOrDefault(sub =>
                 sub.AppUserId == subscription.AppUserId
                 && sub.CourseId == subscription.CourseId
-                && sub.DayStart.Year == subscription.DayStart.Year && sub.DayStart.Month == subscription.DayStart.Month
+                && sub.Month.Year == subscription.Month.Year && sub.Month.Month == subscription.Month.Month
             )) != null)
             {
                 return IdentityResult.Failed(new IdentityError { Description = "Така підписка вже існує" });
@@ -84,8 +84,8 @@ namespace UsersSubscriptions.Areas.Teacher.Models
             IEnumerable<Subscription> TeacherSubscriptions = await _context.Subscriptions
                     .Include(us => us.AppUser)
                     .Where(cour => cour.CourseId == courseId
-                        && cour.DayStart.Year == month.Year
-                        && cour.DayStart.Month == month.Month)
+                        && cour.Month.Year == month.Year
+                        && cour.Month.Month == month.Month)
                     .ToListAsync();
             IList<Student> students = new List<Student>();
             foreach (var subscr in TeacherSubscriptions)
@@ -103,7 +103,8 @@ namespace UsersSubscriptions.Areas.Teacher.Models
         public async Task<Course> GetCoursInfoAsync(string id)
         {
             return await _context.Courses
-                .Include(cour=>cour.CourseAppUsers).ThenInclude(appu=>appu.AppUser)
+                .Include(cour => cour.School).ThenInclude(sch => sch.Owner)
+                .Include(cour => cour.CourseAppUsers).ThenInclude(appu => appu.AppUser)
                 .FirstOrDefaultAsync(cour => cour.Id == id); ;
         }
 
@@ -133,6 +134,35 @@ namespace UsersSubscriptions.Areas.Teacher.Models
             if (state.State != EntityState.Added)
             {
                 return IdentityResult.Failed(new IdentityError { Description = "Курс не додано" });
+            }
+            await _context.SaveChangesAsync();
+            return IdentityResult.Success;
+        }
+
+        public async Task<IdentityResult> UpdateCourseAsync(Course course, IList<string> TeachersId)
+        {
+            Course dbCourse = await _context.Courses.Include(cour => cour.CourseAppUsers)
+                .FirstOrDefaultAsync(cour => cour.Id == course.Id);
+            if (dbCourse == null)
+            {
+                return IdentityResult.Failed(new IdentityError { Description = "Курс не знайдено" });
+            }
+            IList<string> coursTeachersId = dbCourse.CourseAppUsers.Select(usr => usr.AppUserId).ToList();
+            IEnumerable<string> addedTeachers = TeachersId.Except(coursTeachersId);
+            IEnumerable<string> removedTeachers = coursTeachersId.Except(TeachersId);
+            dbCourse.Name = course.Name;
+            dbCourse.Description = course.Description;
+            dbCourse.IsActive = course.IsActive;
+            dbCourse.Price = course.Price;
+            dbCourse.CourseAppUsers = TeachersId.Select(su => new CourseAppUser
+            {
+                CourseId = dbCourse.Id,
+                AppUserId = su,
+            }).ToList();
+            var state = _context.Courses.Update(dbCourse);
+            if (state.State != EntityState.Modified)
+            {
+                return IdentityResult.Failed(new IdentityError { Description = "Курс не оновлено" });
             }
             await _context.SaveChangesAsync();
             return IdentityResult.Success;

@@ -22,14 +22,14 @@ namespace UsersSubscriptions.Data
             var userManager = serviceProvider.GetRequiredService<UserManager<AppUser>>();
             await CreateRolesAsync(roleManager);
             await CreateUsersAsync(userManager);
-            await CreateCoursesAsync(_context, userManager);
-            await CreateSubscriptionsAsync(_context, userManager);
+            await CreateSchoolAsync(_context, userManager);
+            //await CreateSubscriptionsAsync(_context, userManager);
         }
-        
+
         public static async Task CreateRolesAsync(RoleManager<IdentityRole> _roleManager)
         {
             List<string> roles = new List<string>
-                { UsersConstants.admin, UsersConstants.teacher, UsersConstants.user};
+                { UsersConstants.admin, UsersConstants.teacher, UsersConstants.user, UsersConstants.schoolOwner};
 
             foreach (string role in roles)
             {
@@ -44,23 +44,62 @@ namespace UsersSubscriptions.Data
         public static async Task CreateUsersAsync(UserManager<AppUser> _userManager)
         {
             string password = "Kat-123";
-
-            List<string> users = new List<string>
-                    { "Admin", "Teacher", "Teacher1", "Tester", "Student", "Student1" };
-            foreach (string user in users)
+            List<AppUser> appUsers = new List<AppUser>
             {
-                if (await _userManager.FindByNameAsync(user) == null)
+                new AppUser
                 {
-                    string newUserName = user + "@mail.com";
-                    await _userManager.CreateAsync(new AppUser
-                    {
-                        FullName = user,
-                        UserName = newUserName,
-                        Email = user+"@mail.com",
-                        IsActive=true,
-                        PhoneNumber="0001234567",
-                    }, password);
-                    await AddRolesToUsers(_userManager, newUserName);
+                    UserName="yuriy.kataytsev@gmail.com",
+                    Email="yuriy.kataytsev@gmail.com",
+                    FullName="Юрий Катайцев",
+                    PhoneNumber="0950413008",
+                    IsActive=true,
+                },
+                new AppUser
+                {
+                    UserName="faraon.ua@gmail.com",
+                    Email="faraon.ua@gmail.com",
+                    FullName="Дубровський Олександр",
+                    PhoneNumber="0630517004",
+                    IsActive=true,
+                },
+                new AppUser
+                {
+                    UserName="kataytseva.irina@gmail.com",
+                    Email="kataytseva.irina@gmail.com",
+                    FullName="Катайцева Ирина",
+                    PhoneNumber="0950413008",
+                    IsActive=true,
+                },
+                new AppUser
+                {
+                    UserName="ivanov.petr@mail.com",
+                    Email="ivanov.petr@mail.com",
+                    FullName="Іванов",
+                    PhoneNumber="09500000001",
+                    IsActive=true,
+                },new AppUser
+                {
+                    UserName="moroz@mail.com",
+                    Email="moroz@mail.com",
+                    FullName="Иван Мороз",
+                    PhoneNumber="09500000002",
+                    IsActive=true,
+                },new AppUser
+                {
+                    UserName="tester@mail.com",
+                    Email="tester@gmail.com",
+                    FullName="Зайцева Ирина",
+                    PhoneNumber="0950000003",
+                    IsActive=true,
+                },
+
+            };
+            foreach (AppUser user in appUsers)
+            {
+                if (await _userManager.FindByNameAsync(user.UserName) == null)
+                {
+                    await _userManager.CreateAsync(user, password);
+                    await AddRolesToUsers(_userManager, user.UserName);
                 }
             }
         }
@@ -71,6 +110,14 @@ namespace UsersSubscriptions.Data
             if (user != null)
             {
                 await _userManager.AddToRoleAsync(user, UsersConstants.user);
+                if (userName.ToLower().Contains("faraon.ua") || userName.ToLower().Contains("yuriy.kataytsev"))
+                {
+                    await _userManager.AddToRoleAsync(user, UsersConstants.teacher);
+                    await _userManager.AddToRoleAsync(user, UsersConstants.admin);
+                    await _userManager.AddToRoleAsync(user, UsersConstants.schoolOwner);
+                }
+
+
                 if (userName.ToLower().Contains(UsersConstants.teacher.ToLower()))
                 {
                     await _userManager.AddToRoleAsync(user, UsersConstants.teacher);
@@ -83,13 +130,34 @@ namespace UsersSubscriptions.Data
                 if (userName.ToLower().Contains("tester"))
                 {
                     await _userManager.AddToRoleAsync(user, UsersConstants.teacher);
-                    await _userManager.AddToRoleAsync(user, UsersConstants.admin);
+                    //await _userManager.AddToRoleAsync(user, UsersConstants.admin);
                 }
             }
         }
 
-        public static async Task CreateCoursesAsync(ApplicationDbContext _context,
-                                                    UserManager<AppUser> _userManager)
+        public static async Task CreateSchoolAsync(ApplicationDbContext _context, UserManager<AppUser> _userManager)
+        {
+            string schoolName = "Best dance school";
+            School school = _context.Schools.FirstOrDefault(sch => sch.Name == schoolName);
+            if (school == null)
+            {
+                AppUser user = await _userManager.FindByNameAsync("faraon.ua@gmail.com");
+                School newSchool = new School
+                {
+                    Name = schoolName,
+                    OwnerId = user.Id,
+                };
+                await _context.Schools.AddAsync(newSchool);
+                await _context.SaveChangesAsync();
+                school = _context.Schools.FirstOrDefault(sch => sch.Name == schoolName);
+                await CreateCoursesAsync(_context, _userManager, school.Id);
+            }
+
+        }
+
+        static async Task CreateCoursesAsync(ApplicationDbContext _context,
+                                                    UserManager<AppUser> _userManager,
+                                                    string schoolId)
         {
             List<Course> courses = new List<Course>
             {
@@ -99,6 +167,7 @@ namespace UsersSubscriptions.Data
                     IsActive=true,
                     Description="Dancing",
                     Price=800,
+                    SchoolId=schoolId,
                 },
                 new Course
                 {
@@ -106,78 +175,81 @@ namespace UsersSubscriptions.Data
                     IsActive=true,
                     Description="Dancing",
                     Price=500,
-                },
+                     SchoolId=schoolId,
+               },
                 new Course
                 {
                     Name="Street Dancing",
                     IsActive=true,
                     Description="Dancing",
+                    SchoolId=schoolId,
                     Price=400,
                 },
             };
-            List<string> teachers = new List<string> {"Teacher", "Teacher1", "Tester"};
-            List<string> teachersId = new List<string>();
-            foreach(string id in teachers)
-            {
-                AppUser user = await _userManager.FindByNameAsync(id + "@mail.com");
-                if (user != null)
-                {
-                teachersId.Add(user.Id);
-                }
-            }
-            foreach (Course newCourse in courses)
-            {
-                Course course = _context.Courses.FirstOrDefault(cour=>cour.Name==newCourse.Name);
-                if (course == null)
-                {
-                    await _context.AddAsync(newCourse);
-                    await _context.SaveChangesAsync();
-                    Course curCourse = _context.Courses.Include(p => p.CourseAppUsers)
-                            .FirstOrDefault(cour => cour.Name == newCourse.Name);
-                    curCourse.CourseAppUsers = teachersId.Select(teachId => new CourseAppUser
-                    {
-                        AppUserId = teachId,
-                        CourseId = curCourse.Id,
-                    }).ToList();
-                    await _context.SaveChangesAsync();
-                }
-            }
-            
-        }
-        public static async Task CreateSubscriptionsAsync(ApplicationDbContext _context,
 
-                                                            UserManager<AppUser> _userManager)
-        {
-            if (_context.Subscriptions.FirstOrDefault() == null)
+            List<AppUser> teachers = new List<AppUser> {
+                await _userManager.FindByNameAsync("yuriy.kataytsev@gmail.com"),
+                await _userManager.FindByNameAsync("faraon.ua@gmail.com"),
+            };
+            foreach (Course curCours in courses)
             {
-                List<string> users = new List<string> { "Tester", "Student", "Student1" };
-                List<AppUser> appUsers = new List<AppUser>();
-                foreach (string userName in users)
+                Course dbCourse = await _context.Courses
+                     .FirstOrDefaultAsync(cour => cour.Name == curCours.Name && cour.SchoolId == curCours.SchoolId);
+                if (dbCourse == null)
                 {
-                    AppUser appUser = await _userManager.FindByNameAsync(userName + "@mail.com");
-                    if (appUser != null)
+                    await _context.Courses.AddAsync(curCours);
+                    await _context.SaveChangesAsync();
+                    dbCourse = await _context.Courses
+                     .FirstOrDefaultAsync(cour => cour.Name == curCours.Name && cour.SchoolId == curCours.SchoolId);
+                    IList<CourseAppUser> courseAppUsers = teachers.Select(teach => new CourseAppUser
                     {
-                        appUsers.Add(appUser);
-                    }
+                        AppUserId = teach.Id,
+                        CourseId = dbCourse.Id,
+                    }).ToList();
+                    dbCourse.CourseAppUsers = courseAppUsers;
+                    _context.Courses.Update(dbCourse);
+                    await _context.SaveChangesAsync();
+                    await CreateSubscriptionsAsync(_context, _userManager, dbCourse);
                 }
-                Course course = await _context.Courses.FirstOrDefaultAsync(cour => cour.Name == "Bachata");
-                if (course != null && appUsers.Count > 0)
+            }
+        }
+
+
+        static async Task CreateSubscriptionsAsync(ApplicationDbContext _context,
+                                                           UserManager<AppUser> _userManager,
+                                                           Course dbCourse)
+        {
+            List<string> studentNames = new List<string>
+            { "kataytseva.irina@gmail.com","ivanov.petr@mail.com","moroz@mail.com","tester@mail.com" };
+            string teacherId = dbCourse.CourseAppUsers.FirstOrDefault().AppUserId;
+            List<AppUser> students = new List<AppUser>();
+            foreach (string studentName in studentNames)
+            {
+                AppUser student = await _userManager.FindByNameAsync(studentName);
+                if (student != null)
                 {
-                    foreach (AppUser user in appUsers)
+                    students.Append(student);
+                    Subscription subscription = new Subscription
                     {
-                        Subscription newSubscription = new Subscription
-                        {
-                            AppUserId = user.Id,
-                            CourseId = course.Id,
-                            Price = course.Price,
-                            CreatedDatetime = DateTime.Now,
-                            DayStart = DateTime.Now,
-                        };
-                        _context.Subscriptions.Add(newSubscription);
-                        //await _context.Subscriptions.AddAsync(newSubscription);
-                        //await _context.SaveChangesAsync();
-                    }
-                    _context.SaveChanges();
+                        AppUserId = student.Id,
+                        Month = DateTime.Now,
+                        CourseId = dbCourse.Id,
+                        PayedToId = teacherId,
+                        PayedDatetime = DateTime.Now,
+                        Price = dbCourse.Price,
+                    };
+                    await _context.Subscriptions.AddAsync(subscription);
+                    Subscription prewSubscription = new Subscription
+                    {
+                        AppUserId = student.Id,
+                        Month = DateTime.Now.AddMonths(1),
+                        CourseId = dbCourse.Id,
+                        PayedToId = teacherId,
+                        PayedDatetime = DateTime.Now,
+                        Price = dbCourse.Price,
+                    };
+                    await _context.Subscriptions.AddAsync(prewSubscription);
+                    await _context.SaveChangesAsync();
                 }
             }
         }

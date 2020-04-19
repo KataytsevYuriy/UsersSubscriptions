@@ -12,8 +12,8 @@ namespace UsersSubscriptions.Models
     {
         [StringLength(64)]
         public string Id { get; set; }
-        public DateTime DayStart { get; set; }
-        public DateTime DayFinish { get; set; }
+        public DateTime Month { get; set; }
+        //public DateTime DayFinish { get; set; }
 
         [StringLength(64)]
         public string CourseId { get; set; }
@@ -23,13 +23,13 @@ namespace UsersSubscriptions.Models
         public string AppUserId { get; set; }
         public AppUser AppUser { get; set; }
 
-        public bool WasPayed { get; set; }
+        //public bool WasPayed { get; set; }
         public int Price { get; set; }
 
-        [StringLength(64)]
-        public string ConfirmedById { get; set; }
-        public AppUser ConfirmedBy { get; set; }
-        public DateTime ConfirmedDatetime { get; set; }
+        //[StringLength(64)]
+        //public string ConfirmedById { get; set; }
+        //public AppUser ConfirmedBy { get; set; }
+        //public DateTime ConfirmedDatetime { get; set; }
         public DateTime CreatedDatetime { get; set; }
 
         [StringLength(64)]
@@ -43,8 +43,8 @@ namespace UsersSubscriptions.Models
         public void Configure(EntityTypeBuilder<Subscription> builder)
         {
             builder.HasOne(s => s.PayedTo).WithMany(s => s.Subscriptions);
-            builder.HasOne(s => s.ConfirmedBy).WithMany(ap => ap.SubscriptionConfirmedBy)
-                .OnDelete(DeleteBehavior.SetNull);
+            //builder.HasOne(s => s.ConfirmedBy).WithMany(ap => ap.SubscriptionConfirmedBy)
+                //.OnDelete(DeleteBehavior.SetNull);
         }
     }
 }

@@ -17,7 +17,7 @@ namespace UsersSubscriptions.Models
         public bool IsActive { get; set; }
         public string Description { get; set; }
         public int Price { get; set; }
-        //public DateTime DayStart { get; set; }
+        //public DateTime Month { get; set; }
         //public DateTime DayFinish { get; set; }
 
         public IEnumerable<Subscription> Subscriptions { get; set; }

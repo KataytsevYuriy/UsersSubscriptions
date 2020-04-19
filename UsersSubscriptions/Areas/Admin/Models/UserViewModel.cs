@@ -10,7 +10,6 @@ namespace UsersSubscriptions.Areas.Admin.Models
 {
     public class UserViewModel 
     {
-        //public AppUser User { get; set; }
         [StringLength(64)]
         public string  Id { get; set; }
         [StringLength(50)]

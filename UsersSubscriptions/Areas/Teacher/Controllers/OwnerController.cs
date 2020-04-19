@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using UsersSubscriptions.Models;
 using UsersSubscriptions.Areas.Teacher.Models;
+using UsersSubscriptions.Areas.Teacher.Models.ViewModels;
 using Microsoft.AspNetCore.Identity;
 
 namespace UsersSubscriptions.Areas.Teacher.Controllers
@@ -47,20 +48,23 @@ namespace UsersSubscriptions.Areas.Teacher.Controllers
         }
         public async Task<IActionResult> CourseInfo(string id, string schoolId)
         {
+            AppUser curUser = await repository.GetCurrentUserAsync(HttpContext);
             if (string.IsNullOrEmpty(id))
             {
                 return RedirectToAction(nameof(SchoolInfo), new { id = schoolId });
             }
             Course course = await repository.GetCoursInfoAsync(id);
-            if (course==null)
+            if (course == null)
             {
                 TempData["ErrorMessage"] = "Курс не знайдено";
                 return RedirectToAction(nameof(SchoolInfo), new { id = schoolId });
             }
+            if (course.School.OwnerId != curUser.Id)
+            {
+                return StatusCode(403);
+            }
             return View(course);
         }
-
-        //public IActionResult EditCourse()
 
         public IActionResult AddCourse(string schoolId)
         {
@@ -80,6 +84,60 @@ namespace UsersSubscriptions.Areas.Teacher.Controllers
             return RedirectToAction(nameof(AddCourse), new { schoolId = course.SchoolId });
         }
 
+        public async Task<IActionResult> EditCourse(string id, string schoolId)
+        {
+            AppUser curUser = await repository.GetCurrentUserAsync(HttpContext);
+            Course course = await repository.GetCoursInfoAsync(id);
+            if (course == null)
+            {
+                TempData["ErrorMessage"] = "Курс не знайдено";
+                return RedirectToAction(nameof(SchoolInfo), new { id = schoolId });
+            }
+            if (course.School.OwnerId != curUser.Id)
+            {
+                return StatusCode(403);
+            }
+            OwnerCourseViewModel model = new OwnerCourseViewModel
+            {
+                Id = course.Id,
+                Name = course.Name,
+                Description = course.Description,
+                IsActive = course.IsActive,
+                Price = course.Price,
+                CourseAppUsers = course.CourseAppUsers,
+                SchoolId = course.SchoolId,
+            };
+            return View(model);
+        }
+        [HttpPost]
+        public async Task<IActionResult> EditCourse(OwnerCourseViewModel model)
+        {
+            IdentityResult result;
+            AppUser curUser = await repository.GetCurrentUserAsync(HttpContext);
+            Course course = await repository.GetCoursInfoAsync(model.Id);
+            if (course == null)
+            {
+                TempData["ErrorMessage"] = "Курс не знайдено";
+                return RedirectToAction(nameof(SchoolInfo), new { id = model.SchoolId });
+            }
+            if (course.School.OwnerId != curUser.Id)
+            {
+                return StatusCode(403);
+            }
+            result = await repository.UpdateCourseAsync(new Course
+            {
+                Id = model.Id,
+                Name = model.Name,
+                Description = model.Description,
+                IsActive = model.IsActive,
+                Price = model.Price,
+            }, model.Teachers);
+            if (result.Succeeded)
+            {
+                TempData["SuccessMessage"] = "Курс оновлено";
+            }
+            return RedirectToAction(nameof(CourseInfo), new { id = course.Id, schoolId = course.SchoolId });
+        }
 
     }
 }

@@ -29,17 +29,17 @@ namespace UsersSubscriptions.Areas.Admin.Models
             return _context.Users.ToList();
         }
 
-        public async Task<AppUser> GetUserAsync (string id)
+        public async Task<AppUser> GetUserAsync(string id)
         {
             return await _userManager.FindByIdAsync(id);
         }
 
-       //public async Task<IEnumerable<AppUser>> GetTeachersInCourse(string courseId)
-       // {
-       //     var teachersId = _context.Set<CourseAppUser>.
-       //     return await _context.Users.Include(cour => cour.CourseAppUsers).ThenInclude(usr => usr.Course).Where(c=>c.CourseAppUsers.each)
-       //         Select(p => p.CourseAppUsers.Appuser);
-       // }
+        //public async Task<IEnumerable<AppUser>> GetTeachersInCourse(string courseId)
+        // {
+        //     var teachersId = _context.Set<CourseAppUser>.
+        //     return await _context.Users.Include(cour => cour.CourseAppUsers).ThenInclude(usr => usr.Course).Where(c=>c.CourseAppUsers.each)
+        //         Select(p => p.CourseAppUsers.Appuser);
+        // }
 
 
         public async Task UpdateUserAsync(AppUser user, IList<string> newUserRoles)
@@ -67,36 +67,32 @@ namespace UsersSubscriptions.Areas.Admin.Models
             AppUser user = await _context.Users
                                 .Include(s => s.CourseAppUsers)
                                 .Include(s => s.Subscriptions)
-                                .Include(s => s.SubscriptionConfirmedBy)
                                 .Include(s => s.SubscriptionPayedTo)
                                 .FirstOrDefaultAsync(us => us.Id == id);
             //AppUser user = await GetUserAsync(id);
             if (user != null)
             {
-                if (user.CourseAppUsers.Count() ==0)
+                if (user.CourseAppUsers.Count() == 0)
                 {
                     if (user.Subscriptions.Count() == 0)
                     {
-                        if(user.SubscriptionConfirmedBy.Count() == 0)
+                        if (user.SubscriptionPayedTo.Count() == 0)
                         {
-                            if (user.SubscriptionPayedTo.Count() == 0)
+                            IList<string> roles = await GetUserRolesAsync(id);
+                            if (roles.Count > 0)
                             {
-                                IList<string> roles = await GetUserRolesAsync(id);
-                                if (roles.Count > 0)
-                                {
-                                    await _userManager.RemoveFromRolesAsync(user, roles);
-                                }
-                              result=   await _userManager.DeleteAsync(user);
+                                await _userManager.RemoveFromRolesAsync(user, roles);
                             }
-          // Trow exception if Payed to this user, confirmed...                  
+                            result = await _userManager.DeleteAsync(user);
                         }
+                        // Trow exception if Payed to this user, confirmed...                  
                     }
                 }
                 else   //user.CourseAppUsers.Count() >0
                 {
                     result = IdentityResult.Failed(new IdentityError { Description = "CourseAppUsers.Count() >0" });
                 }
-                
+
             }
         }
 
@@ -147,7 +143,7 @@ namespace UsersSubscriptions.Areas.Admin.Models
             {
                 if ((await GetRoleUsersAsync(role.Name)).Count == 0)
                 {
-                 await _roleManager.DeleteAsync(role);
+                    await _roleManager.DeleteAsync(role);
                 }
             }
         }
@@ -158,7 +154,7 @@ namespace UsersSubscriptions.Areas.Admin.Models
             return _context.Courses.Include(p => p.CourseAppUsers).ThenInclude(usr => usr.AppUser).ToList();
         }
 
-        public async Task CreateCourseAsync (CourseViewModel model)
+        public async Task CreateCourseAsync(CourseViewModel model)
         {
             Course course = await _context.Courses.FindAsync(model.Name);
             if (course == null)
@@ -177,7 +173,7 @@ namespace UsersSubscriptions.Areas.Admin.Models
                     AppUserId = teachId,
                     CourseId = newCourse.Id
                 }).ToList();
-                 _context.Courses.Update(newCourse);
+                _context.Courses.Update(newCourse);
                 await _context.SaveChangesAsync();
             }
         }
@@ -198,16 +194,16 @@ namespace UsersSubscriptions.Areas.Admin.Models
             dbCourse.CourseAppUsers = course.CourseAppUsers;
             await _context.SaveChangesAsync();
         }
-         public async Task DeleteCourse (string Id)
+        public async Task DeleteCourse(string Id)
         {
             Course course = _context.Courses
-                .Include(sub => sub.Subscriptions).Include(teach=>teach.CourseAppUsers)
+                .Include(sub => sub.Subscriptions).Include(teach => teach.CourseAppUsers)
                 .FirstOrDefault(co => co.Id == Id);
             if (course.Subscriptions.Count() == 0)
             {
                 course.CourseAppUsers = null;
                 _context.SaveChanges();
-                 _context.Courses.Remove(course);
+                _context.Courses.Remove(course);
                 await _context.SaveChangesAsync();
             }
         }
@@ -216,9 +212,8 @@ namespace UsersSubscriptions.Areas.Admin.Models
         public IEnumerable<Subscription> GetAllSubscriptions()
         {
             return _context.Subscriptions.Include(cour => cour.Course)
-                                        .Include(confirm=>confirm.ConfirmedBy)
-                                        .Include(payed=>payed.PayedTo)
-                                        .Include(user=>user.AppUser)
+                                        .Include(payed => payed.PayedTo)
+                                        .Include(user => user.AppUser)
                                         .ToList();
         }
 
@@ -226,13 +221,13 @@ namespace UsersSubscriptions.Areas.Admin.Models
         {
             Subscription subscription = await _context.Subscriptions
                                                 .Include(pay => pay.PayedTo)
-                                                .Include(confirm => confirm.ConfirmedBy)
                                                 .FirstOrDefaultAsync(subs => subs.Id == id);
             if (subscription != null)
             {
                 _context.Subscriptions.Remove(subscription);
                 await _context.SaveChangesAsync();
-            } else
+            }
+            else
             {
                 //Not found Exception
             }
@@ -241,10 +236,9 @@ namespace UsersSubscriptions.Areas.Admin.Models
         public async Task<Subscription> GetSubscription(string id)
         {
             Subscription subscription = await _context.Subscriptions
-                            .Include(usr=>usr.AppUser)
-                            .Include(pay => pay.PayedTo)//.ThenInclude(use => use.AppUser)
-                            .Include(confirm => confirm.ConfirmedBy)//.ThenInclude(use=>use.AppUser)
-                            .Include(cour=>cour.Course)
+                            .Include(usr => usr.AppUser)
+                            .Include(pay => pay.PayedTo)
+                            .Include(cour => cour.Course)
                             .FirstOrDefaultAsync(subs => subs.Id == id);
             return subscription;
         }
@@ -253,7 +247,7 @@ namespace UsersSubscriptions.Areas.Admin.Models
 
         //School
 
-  public IEnumerable<School> GetAllSchools()
+        public IEnumerable<School> GetAllSchools()
         {
             return _context.Schools.Include(usr => usr.Owner).ToList();
         }
@@ -276,8 +270,8 @@ namespace UsersSubscriptions.Areas.Admin.Models
         public async Task<School> GetSchoolAsync(string id)
         {
             return await _context.Schools
-                .Include(sch=>sch.Courses)
-                .Include(sch=>sch.Owner)
+                .Include(sch => sch.Courses)
+                .Include(sch => sch.Owner)
                 .FirstOrDefaultAsync(sch => sch.Id == id);
         }
     }

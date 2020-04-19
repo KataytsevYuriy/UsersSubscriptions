@@ -50,20 +50,6 @@ namespace UsersSubscriptions.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Courses",
-                columns: table => new
-                {
-                    Id = table.Column<string>(maxLength: 64, nullable: false),
-                    Name = table.Column<string>(maxLength: 50, nullable: true),
-                    IsActive = table.Column<bool>(nullable: false),
-                    Description = table.Column<string>(nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Courses", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "AspNetRoleClaims",
                 columns: table => new
                 {
@@ -109,8 +95,8 @@ namespace UsersSubscriptions.Migrations
                 name: "AspNetUserLogins",
                 columns: table => new
                 {
-                    LoginProvider = table.Column<string>(maxLength: 128, nullable: false),
-                    ProviderKey = table.Column<string>(maxLength: 128, nullable: false),
+                    LoginProvider = table.Column<string>(nullable: false),
+                    ProviderKey = table.Column<string>(nullable: false),
                     ProviderDisplayName = table.Column<string>(nullable: true),
                     UserId = table.Column<string>(nullable: false)
                 },
@@ -154,8 +140,8 @@ namespace UsersSubscriptions.Migrations
                 columns: table => new
                 {
                     UserId = table.Column<string>(nullable: false),
-                    LoginProvider = table.Column<string>(maxLength: 128, nullable: false),
-                    Name = table.Column<string>(maxLength: 128, nullable: false),
+                    LoginProvider = table.Column<string>(nullable: false),
+                    Name = table.Column<string>(nullable: false),
                     Value = table.Column<string>(nullable: true)
                 },
                 constraints: table =>
@@ -167,6 +153,47 @@ namespace UsersSubscriptions.Migrations
                         principalTable: "AspNetUsers",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Schools",
+                columns: table => new
+                {
+                    Id = table.Column<string>(maxLength: 64, nullable: false),
+                    Name = table.Column<string>(nullable: true),
+                    OwnerId = table.Column<string>(maxLength: 64, nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Schools", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Schools_AspNetUsers_OwnerId",
+                        column: x => x.OwnerId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Courses",
+                columns: table => new
+                {
+                    Id = table.Column<string>(maxLength: 64, nullable: false),
+                    Name = table.Column<string>(maxLength: 50, nullable: true),
+                    IsActive = table.Column<bool>(nullable: false),
+                    Description = table.Column<string>(nullable: true),
+                    Price = table.Column<int>(nullable: false),
+                    SchoolId = table.Column<string>(maxLength: 64, nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Courses", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Courses_Schools_SchoolId",
+                        column: x => x.SchoolId,
+                        principalTable: "Schools",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -199,13 +226,10 @@ namespace UsersSubscriptions.Migrations
                 columns: table => new
                 {
                     Id = table.Column<string>(maxLength: 64, nullable: false),
-                    DayStart = table.Column<DateTime>(nullable: false),
-                    DayFinish = table.Column<DateTime>(nullable: false),
+                    Month = table.Column<DateTime>(nullable: false),
                     CourseId = table.Column<string>(maxLength: 64, nullable: true),
                     AppUserId = table.Column<string>(maxLength: 64, nullable: true),
-                    WasPayed = table.Column<bool>(nullable: false),
-                    ConfirmedById = table.Column<string>(maxLength: 64, nullable: true),
-                    ConfirmedDatetime = table.Column<DateTime>(nullable: false),
+                    Price = table.Column<int>(nullable: false),
                     CreatedDatetime = table.Column<DateTime>(nullable: false),
                     PayedToId = table.Column<string>(maxLength: 64, nullable: true),
                     PayedDatetime = table.Column<DateTime>(nullable: false)
@@ -219,12 +243,6 @@ namespace UsersSubscriptions.Migrations
                         principalTable: "AspNetUsers",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_Subscriptions_AspNetUsers_ConfirmedById",
-                        column: x => x.ConfirmedById,
-                        principalTable: "AspNetUsers",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.SetNull);
                     table.ForeignKey(
                         name: "FK_Subscriptions_Courses_CourseId",
                         column: x => x.CourseId,
@@ -289,14 +307,19 @@ namespace UsersSubscriptions.Migrations
                 column: "CourseId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Courses_SchoolId",
+                table: "Courses",
+                column: "SchoolId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Schools_OwnerId",
+                table: "Schools",
+                column: "OwnerId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Subscriptions_AppUserId",
                 table: "Subscriptions",
                 column: "AppUserId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Subscriptions_ConfirmedById",
-                table: "Subscriptions",
-                column: "ConfirmedById");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Subscriptions_CourseId",
@@ -336,10 +359,13 @@ namespace UsersSubscriptions.Migrations
                 name: "AspNetRoles");
 
             migrationBuilder.DropTable(
-                name: "AspNetUsers");
+                name: "Courses");
 
             migrationBuilder.DropTable(
-                name: "Courses");
+                name: "Schools");
+
+            migrationBuilder.DropTable(
+                name: "AspNetUsers");
         }
     }
 }
