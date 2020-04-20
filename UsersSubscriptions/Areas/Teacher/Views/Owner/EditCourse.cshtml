@@ -2,6 +2,11 @@
 @{
     Layout = "_Layout";
 }
+<div class="hidden" id="cameraVideo" >
+    <div id="area-cameras-list">
+    </div>
+    <video id="preview" style="width:100%;height:50%;"></video>
+</div>
 
 <div>
     <form asp-action="EditCourse" method="post">
@@ -51,9 +56,9 @@
         <br />
         <span class=" text-danger" id="erorInfoId"></span>
         <br />
-        <div id="area-cameras-list">
+        @*<div id="area-cameras-list">
         </div>
-        <video id="preview" style="width:100%;height:50%;"></video>
+        <video id="preview" style="width:100%;height:50%;"></video>*@
     </div>
 </div>
 
@@ -98,11 +103,13 @@
 
         $(function () {
             $("#scanQR").click(function () {
+                $("#cameraVideo").removeClass("hidden");
                 $.getScript("/js/instascan.min.js", function () {
                     scanner = new Instascan.Scanner({ video: document.getElementById('preview'), mirror: false });
                     scanner.addListener('scan', function (content) {
-                        //window.location.href = getUserInfoUrl + "?id=" + content;
                         sendId(content);
+                        $("#cameraVideo").addClass("hidden");
+                        scanner.stop();
                     });
                     Instascan.Camera.getCameras().then(function (camerasList) {
                         cameras = camerasList;

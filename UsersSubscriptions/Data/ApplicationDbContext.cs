@@ -22,6 +22,7 @@ namespace UsersSubscriptions.Data
         {
             base.OnModelCreating(builder);
             builder.ApplyConfiguration(new SubscriptionConfiguration());
+            builder.ApplyConfiguration(new SchoolConfiguration());
          }
     }
 }

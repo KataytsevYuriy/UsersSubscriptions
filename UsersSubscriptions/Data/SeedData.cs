@@ -138,6 +138,7 @@ namespace UsersSubscriptions.Data
         public static async Task CreateSchoolAsync(ApplicationDbContext _context, UserManager<AppUser> _userManager)
         {
             string schoolName = "Best dance school";
+            string schoolUrl = "bdscool";
             School school = _context.Schools.FirstOrDefault(sch => sch.Name == schoolName);
             if (school == null)
             {
@@ -145,6 +146,7 @@ namespace UsersSubscriptions.Data
                 School newSchool = new School
                 {
                     Name = schoolName,
+                    UrlName=schoolUrl,
                     OwnerId = user.Id,
                 };
                 await _context.Schools.AddAsync(newSchool);
