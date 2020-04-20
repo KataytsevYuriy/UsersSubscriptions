@@ -41,7 +41,7 @@
                     <br />
                 }
             </div>
-            <button class="btn" type="button" onclick="showSearch()">Додати вчителя</button>
+            <button class="btn" type="button" onclick="showSearch()">Додати викладача</button>
         </div>
         <button class="btn btn-primary" type="submit">Зберегти</button>
     </form>
@@ -73,7 +73,6 @@
             var PhoneSend = $("#phoneInput").val().toString();
             $("#erorInfo").empty();
             PhoneSend = PhoneSend.replace(/[^\d]/g, '');
-            console.log(PhoneSend);
             $.post("/Teacher/Owner/GetUserByPhone/" + PhoneSend, function (data) {
                 if (data == "") {
                     $("#erorInfo").append("За номером телефона користувача не знайдено");

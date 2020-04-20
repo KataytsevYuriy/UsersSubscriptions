@@ -45,7 +45,7 @@
                         }
                         @if (User.IsInRole(Common.UsersConstants.schoolOwner))
                         {
-                            <li><a asp-area="Teacher" asp-controller="Owner" asp-action="Index">Кабінет директора школи</a></li>
+                            <li><a asp-area="Teacher" asp-controller="Owner" asp-action="Index">Управління школою</a></li>
                         }
                         @if (User.IsInRole(Common.UsersConstants.admin))
                         {
