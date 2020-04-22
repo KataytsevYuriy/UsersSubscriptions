@@ -1,4 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -21,5 +23,12 @@ namespace UsersSubscriptions.Models
         public IEnumerable<Subscription> Subscriptions { get; set; }
         public IEnumerable<Subscription> SubscriptionPayedTo { get; set; }
         public IEnumerable<School> Schools { get; set; }
+    }
+    public class AppUserConfiguration : IEntityTypeConfiguration<AppUser>
+    {
+        public void Configure(EntityTypeBuilder<AppUser> builder)
+        {
+            builder.HasIndex(b => b.PhoneNumber).IsUnique();
+        }
     }
 }

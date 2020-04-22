@@ -19,7 +19,6 @@
   <ItemGroup>
     <Folder Include="Areas\Admin\Data\" />
     <Folder Include="Areas\Identity\Services\" />
-    <Folder Include="Areas\Teacher\Data\" />
     <Folder Include="wwwroot\qrr\" />
   </ItemGroup>
 
@@ -40,16 +39,10 @@
     <Content Update="Areas\Admin\Views\Subscription\Index.cshtml">
       <Pack>$(IncludeRazorContentInPack)</Pack>
     </Content>
-    <Content Update="Areas\Teacher\Views\Shared\_TeacherLayout.cshtml">
+    <Content Update="Views\Teacher\StudentInfo.cshtml">
       <Pack>$(IncludeRazorContentInPack)</Pack>
     </Content>
-    <Content Update="Areas\Teacher\Views\Teacher\StudentInfo.cshtml">
-      <Pack>$(IncludeRazorContentInPack)</Pack>
-    </Content>
-    <Content Update="Areas\Teacher\Views\Teacher\Index.cshtml">
-      <Pack>$(IncludeRazorContentInPack)</Pack>
-    </Content>
-    <Content Update="Areas\Teacher\Views\_ViewImports.cshtml">
+    <Content Update="Views\Teacher\Index.cshtml">
       <Pack>$(IncludeRazorContentInPack)</Pack>
     </Content>
   </ItemGroup>

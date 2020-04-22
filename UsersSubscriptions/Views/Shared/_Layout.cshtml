@@ -15,47 +15,43 @@
               asp-fallback-test-class="sr-only" asp-fallback-test-property="position" asp-fallback-test-value="absolute" />
         <link rel="stylesheet" href="~/css/site.min.css" asp-append-version="true" />
     </environment>
-    
+    <script src="https://kit.fontawesome.com/074d995d01.js" crossorigin="anonymous"></script> @*Font-Avesome*@
+
 </head>
 <body>
     @if (User.Identity.IsAuthenticated)
     {
-        <nav class="navbar navbar-default navbar-fixed-top">
-            <div class="container">
-                <div class="navbar-header">
-                    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
-                        <span class="sr-only">Toggle navigation</span>
-                        <span class="icon-bar"></span>
-                        <span class="icon-bar"></span>
-                        <span class="icon-bar"></span>
-                    </button>
-                    <a asp-area="" asp-controller="Home" asp-action="Index" class="navbar-brand">UsersSubscriptions</a>
-                </div>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <div class="container">
+        <a class="navbar-brand" asp-action="Index" asp-area="" asp-controller="Home">School name</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
 
-                <div class="navbar-collapse collapse">
-                    <ul class="nav navbar-nav">
-                        @if (User.IsInRole(Common.UsersConstants.user))
-                        {
-                            <li><a asp-area="" asp-controller="Home" asp-action="Index">Кабінет учня</a></li>
-                        }
-                        @if (User.IsInRole(Common.UsersConstants.teacher))
-                        {
-                            <li><a asp-area="Teacher" asp-controller="Teacher" asp-action="Index">Відсканувати Учня</a></li>
-                            <li><a asp-area="Teacher" asp-controller="Teacher" asp-action="TeacherCourses">Список курсів</a></li>
-                        }
-                        @if (User.IsInRole(Common.UsersConstants.schoolOwner))
-                        {
-                            <li><a asp-area="Teacher" asp-controller="Owner" asp-action="Index">Управління школою</a></li>
-                        }
-                        @if (User.IsInRole(Common.UsersConstants.admin))
-                        {
-                            <li><a asp-area="Admin" asp-controller="User" asp-action="Index">Кабінет адміна</a></li>
-                        }
-                    </ul>
-                    <partial name="_LoginPartial" />
-                </div>
+            <div class="navbar-collapse collapse" id="navbarNav">
+                <ul class=" navbar-nav">
+                    @if (User.IsInRole(Common.UsersConstants.user))
+                    {
+                        <li class="nav-item"><a class=" nav-link" asp-area="" asp-controller="Home" asp-action="Index">Кабінет учня</a></li>
+                    }
+                    @if (User.IsInRole(Common.UsersConstants.teacher))
+                    {
+                        <li class="nav-item"><a class=" nav-link" asp-area="" asp-controller="Teacher" asp-action="Index">Відсканувати Учня</a></li>
+                        <li class="nav-item"><a class=" nav-link" asp-area="" asp-controller="Teacher" asp-action="TeacherCourses">Список курсів</a></li>
+                    }
+                    @if (User.IsInRole(Common.UsersConstants.schoolOwner))
+                    {
+                        <li class="nav-item"><a class=" nav-link" asp-area="" asp-controller="Owner" asp-action="Index">Управління школою</a></li>
+                    }
+                    @if (User.IsInRole(Common.UsersConstants.admin))
+                    {
+                        <li class="nav-item"><a class=" nav-link" asp-area="Admin" asp-controller="User" asp-action="Index">Кабінет адміна</a></li>
+                    }
+                </ul>
+                <partial name="_LoginPartial" />
             </div>
-        </nav>
+        </div>
+    </nav>
     }
     else
     {

@@ -1,21 +1,20 @@
 ﻿@model IdentityRole
 @{
     Layout = "_AdminLayout";
+    ViewData["DescriptionDanger"] = "Видалення ролі - " +Model.Name;
 }
-<div class="bg-danger text-center"><h3>You are deletimg Role - @Model.Name </h3></div>
 @if (ViewBag.roleUsers.Count > 0)
 {
-    <h2 class="text-danger"> Role @Model.Name has users:</h2>
+    <h2 class="text-danger"> Роль @Model.Name міє користувачів:</h2>
     @foreach (AppUser user in ViewBag.roleUsers)
     {
-    <p><a asp-controller="User" asp-action="UserDetails" asp-route-id="@user.Id">User: @user.FullName   Email: @user.Email</a></p> <br />
+    <p><a asp-controller="User" asp-action="UserDetails" asp-route-id="@user.Id">User: @user.FullName </a></p> <br />
     }
-    <h2> Please, remove this(these) users from Role</h2>
+    <h2> Будьласка спочатку видаліть корстувачів з ролі</h2>
 }
 else {
     <form asp-action="DeleteRole" method="post">
         <input type="hidden" name="Id" value="@Model.Id" />
-        <button type="submit" class="btn btn-danger">Delete</button>
+        <button type="submit" class="btn btn-danger">Видалити</button>
     </form>
 }
-<a asp-action="Index" class="btn btn-primary">Back to Roles</a>

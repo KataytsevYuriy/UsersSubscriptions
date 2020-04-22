@@ -1,8 +1,8 @@
 ﻿@model AppUser
 @{
     Layout = "_Layout";
+    ViewData["DescriptionDanger"] = "Видалити користувача -" + Model.FullName;
 }
-<div class="bg-danger text-center"><h2>Confirm Deleting User @Model.UserName @Model.FullName</h2></div>
 <div>
     <table class="table table-bordered table-striped">
         <tr><th>FullName</th><td>@Model.FullName</td></tr>
@@ -18,9 +18,8 @@
             }
             </td></tr>
     </table>
-    <a asp-action="Index" class="btn btn-primary">To List Users</a>
     <form asp-action="DeleteUser" method="post">
         <input type="hidden" name="Id" value="@Model.Id" />
-        <button type="submit" class="btn btn-danger">Delete</button>
+        <button type="submit" class="btn btn-danger">Видалити</button>
     </form>
 </div>

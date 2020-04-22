@@ -1,19 +1,20 @@
 ﻿@model Subscription
 @{
     Layout = "_AdminLayout";
+    ViewData["DescriptionDanger"] = "Видалити абонемент";
 }
 
-<div class="bg-danger text-center"><h3>Remove Subscription</h3></div>
 <div>
-    Remove Subscription from Course:<span>@Model.Course.Name</span>
+    Назва курсу:<span>@Model.Course.Name</span>
+    <label asp-for="Course.Name"></label>
+    <input asp-for="Course.Name" disabled />
     <br />
-    Date: <span>@Model.Month.ToString("MMMM/yyyy")</span>
+    Місяць: <span>@Model.Month.ToString("MMMM/yyyy")</span>
     <br />
-    Student: <span>@Model.AppUser.FullName </span> <span> @Model.AppUser.UserName</span>
+    Учень: <span>@Model.AppUser.FullName </span> 
 </div>
 <br />
 <form asp-action="RemoveSubscription" method="post">
     <input type="hidden" name="Id" value="@Model.Id" />
-    <button type="submit" class="btn btn-danger">Delete</button>
+    <button type="submit" class="btn btn-danger">Видалити</button>
 </form>
-<a asp-action="Index" class="btn btn-default">Back</a>

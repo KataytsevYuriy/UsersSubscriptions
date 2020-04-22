@@ -1,8 +1,8 @@
 ﻿@model IEnumerable<School>
 @{
     Layout = "_AdminLayout";
+    ViewData["Description"] = "Школи";
 }
-<div class="text-center"><h2>Школи</h2></div>
 <div class="text-danger" asp-validation-summary="ModelOnly"></div>
 <div>
     <table class="table table-bordered table-striped">

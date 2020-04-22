@@ -76,5 +76,9 @@ namespace UsersSubscriptions.Areas.Admin.Controllers
             await repository.DeleteRoleAsync(model.Id);
             return RedirectToAction(nameof(Index));
         }
+        public IActionResult test()
+        {
+            return View();
+        }
     }
 }

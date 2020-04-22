@@ -1,23 +1,22 @@
 ﻿@model IEnumerable<IdentityRole>
 @{
     Layout = "_AdminLayout";
+    ViewData["Description"] = "Ролі";
 }
 
-<div class="bg-primary text-center"><h2>Roles</h2></div>
 <div class="text-danger" asp-validation-summary="ModelOnly"></div>
 <div>
     <table class="table table-bordered table-striped">
-        <tr><th>Name</th><th></th></tr>
+        <tr><th>Назва</th><th></th></tr>
         @foreach(IdentityRole role in Model)
         {
             <tr>
-                <td>@role.Name</td>
+                <td><a asp-action="RoleDetails" asp-route-id="@role.Id" class="">@role.Name</a></td>
                 <td>
-                    <a asp-action="RoleDetails" asp-route-id="@role.Id" class="btn btn-primary">Details</a>
-                    <a asp-action="DeleteRole" asp-route-id="@role.Id" class="btn btn-danger">Delete a Role</a>
+                    <a asp-action="DeleteRole" asp-route-id="@role.Id" class="btn btn-outline-danger">Видалити</a>
                 </td>
             </tr>
         }
     </table>
 </div>
-<a asp-action="CreateRole" class="btn btn-primary">Create a Role</a>
+<a asp-action="CreateRole" class="btn btn-primary">Додати роль</a>

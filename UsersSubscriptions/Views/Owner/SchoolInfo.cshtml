@@ -1,0 +1,18 @@
+﻿@model School
+@{
+    Layout = "_Layout";
+}
+
+<div class="container">
+    <h2>Курси школи @Model.Name</h2>
+    @if (Model.Courses.Count() > 0)
+    {
+            <div class="list-group">
+            @foreach (var course in Model.Courses)
+            {
+                <a asp-action="EditCourse" asp-route-id="@course.Id" asp-route-schoolId="@Model.Id" class="list-group-item">@course.Name</a>
+            }
+        </div>
+    }
+</div>
+<a asp-action="AddCourse" asp-route-schoolId="@Model.Id"  class="btn btn-primary">Додати курс</a>

@@ -1,9 +1,8 @@
 ﻿@model CourseViewModel
 @{
     Layout = "_AdminLayout";
+    ViewData["Description"] = "Курс " + Model.Name;
 }
-<div class="bg-primary text-center"><h3>Course @Model.Name  Details</h3></div>
-
 <div>
     <form asp-action="ChangeCourse" method="post">
         <div class="form-group">
@@ -26,16 +25,15 @@
             </div>
 
             <div class="form-group">
-                <label>Teachers:</label> <br />
+                <label>Вчителі:</label> <br />
                 @foreach (var teacher in Model.AllTeachers)
                 {
                     <input type="checkbox" name="NewTeachers" value="@teacher.Id"
                            @(Model.Teachers.Contains(teacher) ? "checked=\"checked\"" : "")>
-                      @teacher.FullName <br />
+                    @teacher.FullName <br />
                 }
             </div>
         </div>
-        <button type="submit" class="btn btn-default">Save changes</button>
+        <button type="submit" class="btn btn-default">Зберегти</button>
     </form>
-    <a asp-action="Index" class="btn btn-primary">Back to Courses List</a>
 </div>

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using UsersSubscriptions.Models;
+using UsersSubscriptions.Areas.Admin.Models.ViewModels;
 
 namespace UsersSubscriptions.Areas.Admin.Models
 {
@@ -13,7 +14,6 @@ namespace UsersSubscriptions.Areas.Admin.Models
         IEnumerable<AppUser> GetAllUsers();
         Task<AppUser> GetUserAsync(string id);
         Task<IList<string>> GetUserRolesAsync(string id);
-        //Task<IEnumerable<AppUser>> GetTeachersInCourse(string courseId);
         Task UpdateUserAsync(AppUser user, IList<string> newUserRoles);
         Task DeleteUseAsyncr(string id);
         //Roles
@@ -26,9 +26,10 @@ namespace UsersSubscriptions.Areas.Admin.Models
         //Courses
         IEnumerable<Course> GetAllCourses();
         Task CreateCourseAsync(CourseViewModel model);
-        Task<Course> GetCourse(string id);
-        Task UpdateCourseAsync(Course course);
-        Task DeleteCourse(string Id);
+        Task<Course> GetCourseAsync(string id);
+        Task<IdentityResult> UpdateCourseAsync(CourseDetailsViewModel course);
+        Task<IdentityResult> DeleteCourse(string Id);
+        Task<bool> CourseHasSubscriptions(string id);
         //Subscriptions
         IEnumerable<Subscription> GetAllSubscriptions();
         Task RemoveSubscriptionAsync(string id);
@@ -37,5 +38,6 @@ namespace UsersSubscriptions.Areas.Admin.Models
         IEnumerable<School> GetAllSchools();
         Task<IdentityResult> CreateSchoolAsync(School school);
         Task<School> GetSchoolAsync(string id);
+        Task<IdentityResult> UpdateSchoolAsync(School school);
     }
 }

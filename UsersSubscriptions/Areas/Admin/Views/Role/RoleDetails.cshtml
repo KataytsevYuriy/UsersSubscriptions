@@ -1,7 +1,9 @@
 ﻿@model IdentityRole
 @{
     Layout = "_AdminLayout";
+    ViewData["Description"] = "Детальніше";
 }
+
 <div>
     <form asp-action="ChangeRole" method="post">
         <div class="form-group">
@@ -9,19 +11,16 @@
             <label asp-for="Name"></label>
             <input asp-for="Name" />
         </div>
-        <button type="submit" class="btn btn-default">Save chenges</button>
+        <button type="submit" class="btn btn-default">Зберегти</button>
     </form>
     <div>
-        <h4> Users:</h4><br>
-                        <p>
-                            
-                            @foreach (AppUser user in ViewBag.roleUsers)
-                            {
-                            <a asp-controller="User" asp-action="UserDetails" asp-route-id="@user.Id">
-                                 User: @user.FullName   Email: @user.Email
-                             </a><br />
-                            }
-                            </p>
+        <h4> Користувачі:</h4>
+
+            @foreach (AppUser user in ViewBag.roleUsers)
+            {
+                <a asp-controller="User" asp-action="UserDetails" asp-route-id="@user.Id">
+                    @user.FullName  
+                </a><br />
+            }
+    </div>
 </div>
-</div>
-<a asp-action="Index" class="btn btn-primary">Back to Roles</a>

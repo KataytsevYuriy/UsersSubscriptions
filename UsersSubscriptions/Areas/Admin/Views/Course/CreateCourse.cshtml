@@ -1,9 +1,8 @@
 ﻿@model CourseViewModel
 @{
     Layout = "_AdminLayout";
+    ViewData["Description"] = "Create Course";
 }
-<div class="bg-primary text-center"><h3>Create Course</h3></div>
-
 <div>
     <form asp-action="CreateCourse" method="post">
         <div class="form-group">

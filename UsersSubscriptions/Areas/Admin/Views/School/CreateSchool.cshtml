@@ -1,10 +1,9 @@
 ﻿@model School
 @{
-    ViewData["Title"] = "CreateSchool";
+    ViewData["Description"] = "Додати школу";
     Layout = "_AdminLayout";
 }
 
-<div class="text-center"><h3>Додати школу</h3></div>
 <form asp-action="CreateSchool" method="post">
     <div class="form-group">
         <label asp-for="Name"></label>
@@ -24,4 +23,3 @@
     </div>
     <button class="btn btn-primary" type="submit">Додати</button>
 </form>
-<a asp-action="Index" class="btn">Назад</a> 

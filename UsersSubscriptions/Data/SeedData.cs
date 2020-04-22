@@ -48,6 +48,14 @@ namespace UsersSubscriptions.Data
             {
                 new AppUser
                 {
+                    UserName="admin@mail.com",
+                    Email="admin@mail.com",
+                    FullName="Администратор",
+                    PhoneNumber="+38(099)000-00-00",
+                    IsActive=true,
+                },
+               new AppUser
+                {
                     UserName="yuriy.kataytsev@gmail.com",
                     Email="yuriy.kataytsev@gmail.com",
                     FullName="Юрий Катайцев",
@@ -67,8 +75,7 @@ namespace UsersSubscriptions.Data
                     UserName="kataytseva.irina@gmail.com",
                     Email="kataytseva.irina@gmail.com",
                     FullName="Катайцева Ирина",
-                    PhoneNumber="+38(095)041-30-08",
-                    IsActive=true,
+                    PhoneNumber="+38(099)796-29-96"
                 },
                 new AppUser
                 {
@@ -77,19 +84,29 @@ namespace UsersSubscriptions.Data
                     FullName="Іванов",
                     PhoneNumber="+38(095)000-00-01",
                     IsActive=true,
-                },new AppUser
+                },
+                new AppUser
                 {
                     UserName="moroz@mail.com",
                     Email="moroz@mail.com",
                     FullName="Иван Мороз",
                     PhoneNumber="+38(095)000-00-02",
                     IsActive=true,
-                },new AppUser
+                },
+                new AppUser
                 {
                     UserName="tester@mail.com",
                     Email="tester@gmail.com",
                     FullName="Зайцева Ирина",
                     PhoneNumber="+38(095)000-00-03",
+                    IsActive=true,
+                },
+                new AppUser
+                {
+                    UserName="teacher@mail.com",
+                    Email="teacher@mail.com",
+                    FullName="Коуч",
+                    PhoneNumber="+38(095)000-00-04",
                     IsActive=true,
                 },
 
@@ -113,32 +130,33 @@ namespace UsersSubscriptions.Data
                 if (userName.ToLower().Contains("faraon.ua") || userName.ToLower().Contains("yuriy.kataytsev"))
                 {
                     await _userManager.AddToRoleAsync(user, UsersConstants.teacher);
-                    await _userManager.AddToRoleAsync(user, UsersConstants.admin);
+                    //await _userManager.AddToRoleAsync(user, UsersConstants.admin);
                     await _userManager.AddToRoleAsync(user, UsersConstants.schoolOwner);
                 }
-
-
-                if (userName.ToLower().Contains(UsersConstants.teacher.ToLower()))
+                if (userName.ToLower().Contains("admin@mail.com") )
                 {
-                    await _userManager.AddToRoleAsync(user, UsersConstants.teacher);
-                }
-                if (userName.ToLower().Contains(UsersConstants.admin.ToLower()))
-                {
-                    await _userManager.AddToRoleAsync(user, UsersConstants.teacher);
+                    //await _userManager.AddToRoleAsync(user, UsersConstants.teacher);
                     await _userManager.AddToRoleAsync(user, UsersConstants.admin);
+                    //await _userManager.AddToRoleAsync(user, UsersConstants.schoolOwner);
+                }
+
+                if (userName.ToLower().Contains("teacher@mail.com"))
+                {
+                    await _userManager.AddToRoleAsync(user, UsersConstants.teacher);
                 }
                 if (userName.ToLower().Contains("tester"))
                 {
                     await _userManager.AddToRoleAsync(user, UsersConstants.teacher);
-                    //await _userManager.AddToRoleAsync(user, UsersConstants.admin);
+                    await _userManager.AddToRoleAsync(user, UsersConstants.admin);
+                    await _userManager.AddToRoleAsync(user, UsersConstants.schoolOwner);
                 }
             }
         }
 
         public static async Task CreateSchoolAsync(ApplicationDbContext _context, UserManager<AppUser> _userManager)
         {
-            string schoolName = "Best dance school";
-            string schoolUrl = "bdscool";
+            string schoolName = "Львів бачата";
+            string schoolUrl = "lvivBachata";
             School school = _context.Schools.FirstOrDefault(sch => sch.Name == schoolName);
             if (school == null)
             {
@@ -149,12 +167,28 @@ namespace UsersSubscriptions.Data
                     UrlName=schoolUrl,
                     OwnerId = user.Id,
                 };
-                await _context.Schools.AddAsync(newSchool);
-                await _context.SaveChangesAsync();
+                 _context.Schools.Add(newSchool);
+                 _context.SaveChanges();
                 school = _context.Schools.FirstOrDefault(sch => sch.Name == schoolName);
                 await CreateCoursesAsync(_context, _userManager, school.Id);
             }
-
+             schoolName = "Просто лучшая";
+             schoolUrl = "bestschool";
+             school = _context.Schools.FirstOrDefault(sch => sch.Name == schoolName);
+            if (school == null)
+            {
+                AppUser user = await _userManager.FindByNameAsync("tester@mail.com");
+                School newSchool = new School
+                {
+                    Name = schoolName,
+                    UrlName = schoolUrl,
+                    OwnerId = user.Id,
+                };
+                _context.Schools.Add(newSchool);
+                _context.SaveChanges();
+                school = _context.Schools.FirstOrDefault(sch => sch.Name == schoolName);
+                await CreateCoursesAsync(_context, _userManager, school.Id);
+            }
         }
 
         static async Task CreateCoursesAsync(ApplicationDbContext _context,
@@ -192,17 +226,18 @@ namespace UsersSubscriptions.Data
             List<AppUser> teachers = new List<AppUser> {
                 await _userManager.FindByNameAsync("yuriy.kataytsev@gmail.com"),
                 await _userManager.FindByNameAsync("faraon.ua@gmail.com"),
+                await _userManager.FindByNameAsync("tester@mail.com"),
             };
             foreach (Course curCours in courses)
             {
-                Course dbCourse = await _context.Courses
-                     .FirstOrDefaultAsync(cour => cour.Name == curCours.Name && cour.SchoolId == curCours.SchoolId);
+                Course dbCourse =  _context.Courses
+                     .FirstOrDefault(cour => cour.Name == curCours.Name && cour.SchoolId == curCours.SchoolId);
                 if (dbCourse == null)
                 {
-                    await _context.Courses.AddAsync(curCours);
-                    await _context.SaveChangesAsync();
-                    dbCourse = await _context.Courses
-                     .FirstOrDefaultAsync(cour => cour.Name == curCours.Name && cour.SchoolId == curCours.SchoolId);
+                     _context.Courses.Add(curCours);
+                     _context.SaveChanges();
+                    dbCourse =  _context.Courses
+                     .FirstOrDefault(cour => cour.Name == curCours.Name && cour.SchoolId == curCours.SchoolId);
                     IList<CourseAppUser> courseAppUsers = teachers.Select(teach => new CourseAppUser
                     {
                         AppUserId = teach.Id,
@@ -210,7 +245,7 @@ namespace UsersSubscriptions.Data
                     }).ToList();
                     dbCourse.CourseAppUsers = courseAppUsers;
                     _context.Courses.Update(dbCourse);
-                    await _context.SaveChangesAsync();
+                     _context.SaveChanges();
                     await CreateSubscriptionsAsync(_context, _userManager, dbCourse);
                 }
             }
@@ -240,18 +275,21 @@ namespace UsersSubscriptions.Data
                         PayedDatetime = DateTime.Now,
                         Price = dbCourse.Price,
                     };
-                    await _context.Subscriptions.AddAsync(subscription);
-                    Subscription prewSubscription = new Subscription
+                     _context.Subscriptions.Add(subscription);
+                    if (studentName == "kataytseva.irina@gmail.com")
                     {
-                        AppUserId = student.Id,
-                        Month = DateTime.Now.AddMonths(1),
-                        CourseId = dbCourse.Id,
-                        PayedToId = teacherId,
-                        PayedDatetime = DateTime.Now,
-                        Price = dbCourse.Price,
-                    };
-                    await _context.Subscriptions.AddAsync(prewSubscription);
-                    await _context.SaveChangesAsync();
+                        Subscription prewSubscription = new Subscription
+                        {
+                            AppUserId = student.Id,
+                            Month = DateTime.Now.AddMonths(1),
+                            CourseId = dbCourse.Id,
+                            PayedToId = teacherId,
+                            PayedDatetime = DateTime.Now,
+                            Price = dbCourse.Price,
+                        };
+                      _context.Subscriptions.Add(prewSubscription);
+                   }
+                     _context.SaveChanges();
                 }
             }
         }

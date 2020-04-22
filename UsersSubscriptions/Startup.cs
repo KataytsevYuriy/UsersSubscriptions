@@ -14,7 +14,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using UsersSubscriptions.Models;
 using UsersSubscriptions.Areas.Admin.Models;
-using UsersSubscriptions.Areas.Teacher.Models;
 using UsersSubscriptions.Filters;
 
 namespace UsersSubscriptions

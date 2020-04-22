@@ -183,6 +183,10 @@ namespace UsersSubscriptions.Migrations
                         .HasName("UserNameIndex")
                         .HasFilter("[NormalizedUserName] IS NOT NULL");
 
+                    b.HasIndex("PhoneNumber")
+                        .IsUnique()
+                        .HasFilter("[PhoneNumber] IS NOT NULL");
+
                     b.ToTable("AspNetUsers");
                 });
 
@@ -229,7 +233,7 @@ namespace UsersSubscriptions.Migrations
 
                     b.HasIndex("CourseId");
 
-                    b.ToTable("CourseAppUser");
+                    b.ToTable("courseAppUsers");
                 });
 
             modelBuilder.Entity("UsersSubscriptions.Models.School", b =>

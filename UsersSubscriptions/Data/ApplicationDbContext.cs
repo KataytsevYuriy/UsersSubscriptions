@@ -18,11 +18,13 @@ namespace UsersSubscriptions.Data
         public DbSet<Subscription> Subscriptions { get; set; }
         public DbSet<Course> Courses { get; set; }
         public DbSet<School> Schools { get; set; }
+        public DbSet<CourseAppUser> courseAppUsers { get; set; }
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
             builder.ApplyConfiguration(new SubscriptionConfiguration());
             builder.ApplyConfiguration(new SchoolConfiguration());
+            builder.ApplyConfiguration(new AppUserConfiguration());
          }
     }
 }

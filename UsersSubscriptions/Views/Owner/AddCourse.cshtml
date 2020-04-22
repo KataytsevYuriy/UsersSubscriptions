@@ -1,0 +1,18 @@
+﻿@model Course
+@{
+    Layout = "_Layout";
+}
+
+<form asp-action="AddCourse" method="post">
+    <input type="hidden" name="SchoolId" value="@Model.SchoolId" />
+    <div class=" form-group">
+        <label asp-for="Name"></label>
+        <input asp-for="Name" class="form-control" />
+    </div>
+     <div class="form-group">
+        <label asp-for="Price"></label>
+        <input asp-for="Price" class="form-control" />
+    </div>
+    <button type="submit" class="btn btn-primary">Додати</button>
+</form>
+<a asp-action="SchoolInfo" asp-route-id="@Model.SchoolId" class="btn">Назад</a>

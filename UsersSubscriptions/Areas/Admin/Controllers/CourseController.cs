@@ -42,7 +42,7 @@ namespace UsersSubscriptions.Areas.Admin.Controllers
 
         public async Task<IActionResult> CourseDetails(string id)
         {
-            Course course = await repository.GetCourse(id);
+            Course course = await repository.GetCourseAsync(id);
             IList<AppUser> appUsers = course.CourseAppUsers.Select(i=>i.AppUser).ToList();
             IList<AppUser> allTeachers = await repository.GetRoleUsersAsync(UsersConstants.teacher);
              CourseViewModel model = new CourseViewModel
@@ -57,27 +57,6 @@ namespace UsersSubscriptions.Areas.Admin.Controllers
             };
             return View(model);
         }
-
-        [HttpPost]
-        public async Task<IActionResult> ChangeCourse(CourseViewModel model)
-        {
-            Course course = new Course
-            {
-                Id = model.Id,
-                Name = model.Name,
-                Description = model.Description,
-                IsActive = model.IsActive,
-                Price = model.Price,
-                CourseAppUsers = model.NewTeachers.Select(us => new CourseAppUser
-                {
-                    CourseId = model.Id,
-                    AppUserId = us
-                }).ToList()
-            };
-            await repository.UpdateCourseAsync(course);
-            return RedirectToAction(nameof(Index));
-        }
-
 
         public async Task<IActionResult> DeleteCourse(string Id)
         {

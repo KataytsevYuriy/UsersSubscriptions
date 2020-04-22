@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using UsersSubscriptions.Models;
+using UsersSubscriptions.Areas.Admin.Models.ViewModels;
 using UsersSubscriptions.Data;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -161,7 +162,6 @@ namespace UsersSubscriptions.Areas.Admin.Models
             {
                 course = new Course();
                 course.Name = model.Name;
-                course.Description = model.Description;
                 course.IsActive = model.IsActive;
                 course.Price = model.Price;
                 await _context.Courses.AddAsync(course);
@@ -178,34 +178,67 @@ namespace UsersSubscriptions.Areas.Admin.Models
             }
         }
 
-        public async Task<Course> GetCourse(string id)
+        public async Task<Course> GetCourseAsync(string id)
         {
             return await _context.Courses.Include(p => p.CourseAppUsers).ThenInclude(u => u.AppUser)
                 .FirstOrDefaultAsync(i => i.Id == id);
         }
 
-        public async Task UpdateCourseAsync(Course course)
+        public async Task<IdentityResult> UpdateCourseAsync(CourseDetailsViewModel course)
         {
-            Course dbCourse = await GetCourse(course.Id);
+            Course dbCourse = await GetCourseAsync(course.Id);
+            if (dbCourse == null)
+            {
+                return IdentityResult.Failed(new IdentityError { Description = "Курс не знайдено" });
+            }
             dbCourse.Name = course.Name;
             dbCourse.IsActive = course.IsActive;
-            dbCourse.Description = course.Description;
             dbCourse.Price = course.Price;
-            dbCourse.CourseAppUsers = course.CourseAppUsers;
+            dbCourse.CourseAppUsers = course.TeachersId.Select(tech => new CourseAppUser
+            {
+                AppUserId = tech,
+                CourseId = course.Id,
+            }).ToList();
+            var state = _context.Courses.Update(dbCourse);
+            if (state.State != EntityState.Modified)
+            {
+                return IdentityResult.Failed(new IdentityError { Description = "Курс не оновлений" });
+            }
             await _context.SaveChangesAsync();
+            return IdentityResult.Success;
         }
-        public async Task DeleteCourse(string Id)
+
+        public async Task<IdentityResult> DeleteCourse(string Id)
         {
             Course course = _context.Courses
-                .Include(sub => sub.Subscriptions).Include(teach => teach.CourseAppUsers)
+                .Include(sub => sub.Subscriptions)
+                .Include(teach => teach.CourseAppUsers)
                 .FirstOrDefault(co => co.Id == Id);
             if (course.Subscriptions.Count() == 0)
             {
                 course.CourseAppUsers = null;
                 _context.SaveChanges();
-                _context.Courses.Remove(course);
-                await _context.SaveChangesAsync();
+                var state = _context.Courses.Remove(course);
+                if (state.State == EntityState.Deleted)
+                {
+                    await _context.SaveChangesAsync();
+                    return IdentityResult.Success;
+                }
+                return IdentityResult.Failed(new IdentityError { Description = "Курс не видалений" });
             }
+            return IdentityResult.Failed(new IdentityError { Description = "Курс не видалений, курс має абонементи" });
+        }
+
+        public async Task<bool> CourseHasSubscriptions(string id)
+        {
+            if ((await _context.Courses
+                .Include(cour => cour.Subscriptions)
+                .FirstOrDefaultAsync(cour => cour.Id == id))
+                .Subscriptions.Count() > 0)
+            {
+                return true;
+            }
+            return false;
         }
 
         //Subscriptions
@@ -261,7 +294,7 @@ namespace UsersSubscriptions.Areas.Admin.Models
             var state = await _context.Schools.AddAsync(school);
             if (state.State != EntityState.Added)
             {
-                return IdentityResult.Failed(new IdentityError { Description = "Школа на додана" });
+                return IdentityResult.Failed(new IdentityError { Description = "Школа не додана" });
             }
             await _context.SaveChangesAsync();
             return IdentityResult.Success;
@@ -274,5 +307,26 @@ namespace UsersSubscriptions.Areas.Admin.Models
                 .Include(sch => sch.Owner)
                 .FirstOrDefaultAsync(sch => sch.Id == id);
         }
+
+        public async Task<IdentityResult> UpdateSchoolAsync(School school)
+        {
+            School dbSchool = await _context.Schools.FirstOrDefaultAsync(sch => sch.Id == school.Id);
+            if (dbSchool == null)
+            {
+                return IdentityResult.Failed(new IdentityError { Description = "Школа на знайдена" });
+            }
+            dbSchool.Name = school.Name;
+            dbSchool.OwnerId = school.OwnerId;
+            dbSchool.UrlName = school.UrlName;
+            var state = _context.Schools.Update(dbSchool);
+            if (state.State != EntityState.Modified)
+            {
+                return IdentityResult.Failed(new IdentityError { Description = "Школа не оновлена" });
+            }
+            await _context.SaveChangesAsync();
+            return IdentityResult.Success;
+        }
+
+
     }
 }
