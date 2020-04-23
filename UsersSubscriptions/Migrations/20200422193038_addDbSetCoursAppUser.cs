@@ -20,26 +20,26 @@ namespace UsersSubscriptions.Migrations
 
             migrationBuilder.RenameTable(
                 name: "CourseAppUser",
-                newName: "courseAppUsers");
+                newName: "CourseAppUsers");
 
             migrationBuilder.RenameIndex(
                 name: "IX_CourseAppUser_CourseId",
-                table: "courseAppUsers",
+                table: "CourseAppUsers",
                 newName: "IX_courseAppUsers_CourseId");
 
             migrationBuilder.RenameIndex(
                 name: "IX_CourseAppUser_AppUserId",
-                table: "courseAppUsers",
+                table: "CourseAppUsers",
                 newName: "IX_courseAppUsers_AppUserId");
 
             migrationBuilder.AddPrimaryKey(
                 name: "PK_courseAppUsers",
-                table: "courseAppUsers",
+                table: "CourseAppUsers",
                 column: "Id");
 
             migrationBuilder.AddForeignKey(
                 name: "FK_courseAppUsers_AspNetUsers_AppUserId",
-                table: "courseAppUsers",
+                table: "CourseAppUsers",
                 column: "AppUserId",
                 principalTable: "AspNetUsers",
                 principalColumn: "Id",
@@ -47,7 +47,7 @@ namespace UsersSubscriptions.Migrations
 
             migrationBuilder.AddForeignKey(
                 name: "FK_courseAppUsers_Courses_CourseId",
-                table: "courseAppUsers",
+                table: "CourseAppUsers",
                 column: "CourseId",
                 principalTable: "Courses",
                 principalColumn: "Id",
@@ -58,18 +58,18 @@ namespace UsersSubscriptions.Migrations
         {
             migrationBuilder.DropForeignKey(
                 name: "FK_courseAppUsers_AspNetUsers_AppUserId",
-                table: "courseAppUsers");
+                table: "CourseAppUsers");
 
             migrationBuilder.DropForeignKey(
                 name: "FK_courseAppUsers_Courses_CourseId",
-                table: "courseAppUsers");
+                table: "CourseAppUsers");
 
             migrationBuilder.DropPrimaryKey(
                 name: "PK_courseAppUsers",
-                table: "courseAppUsers");
+                table: "CourseAppUsers");
 
             migrationBuilder.RenameTable(
-                name: "courseAppUsers",
+                name: "CourseAppUsers",
                 newName: "CourseAppUser");
 
             migrationBuilder.RenameIndex(

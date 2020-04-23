@@ -233,7 +233,7 @@ namespace UsersSubscriptions.Migrations
 
                     b.HasIndex("CourseId");
 
-                    b.ToTable("courseAppUsers");
+                    b.ToTable("CourseAppUsers");
                 });
 
             modelBuilder.Entity("UsersSubscriptions.Models.School", b =>

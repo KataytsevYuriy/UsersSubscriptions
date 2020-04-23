@@ -13,6 +13,6 @@
                 <a asp-action="EditCourse" asp-route-id="@course.Id" asp-route-schoolId="@Model.Id" class="list-group-item">@course.Name</a>
             }
         </div>
-    }
+             }
+            <a asp-action="AddCourse" asp-route-schoolId="@Model.Id" class="btn btn-primary mt-1">Додати курс</a>
 </div>
-<a asp-action="AddCourse" asp-route-schoolId="@Model.Id"  class="btn btn-primary">Додати курс</a>

@@ -10,8 +10,8 @@ using UsersSubscriptions.Data;
 namespace UsersSubscriptions.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20200420063028_AddUrlNameToSchool2")]
-    partial class AddUrlNameToSchool2
+    [Migration("20200420063028_AddUrlNameToSchool")]
+    partial class AddUrlNameToSchool
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {

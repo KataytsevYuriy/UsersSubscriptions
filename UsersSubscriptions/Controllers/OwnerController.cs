@@ -121,6 +121,7 @@ namespace UsersSubscriptions.Controllers
         [HttpPost]
         public async Task<JsonResult> GetUserByPhone(string id)
         {
+            
             AppUser user = await repository.GetUserByPhone(id);
             if (user == null) { return Json(""); }
             string result = "<input type=\"checkbox\" name=\"Teachers\" value=\"" + user.Id + "\" checked />" + user.FullName +"<br/>";

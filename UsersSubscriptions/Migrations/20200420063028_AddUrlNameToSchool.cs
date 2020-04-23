@@ -2,7 +2,7 @@
 
 namespace UsersSubscriptions.Migrations
 {
-    public partial class AddUrlNameToSchool2 : Migration
+    public partial class AddUrlNameToSchool : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {

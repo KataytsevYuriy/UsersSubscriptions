@@ -7,13 +7,13 @@
 <div class="text-danger" asp-validation-summary="ModelOnly"></div>
 <div>
     <table class="table table-sm table-striped table-bordered text-center">
-        <tr><th>Ім'я<br />Email</th><th>Телефон</th><th></th></tr>
+        <tr><th>Ім'я</th><th>Телефон</th><th></th></tr>
         @foreach (var usr in Model)
         {
             <tr>
                 <td>
                     <a asp-action="UserDetails" asp-route-Id="@usr.Id" class="btn btn-default">
-                        @usr.FullName <br /> @usr.Email
+                        @usr.FullName 
                     </a>
                     <br />
                     @if (usr.IsActive)

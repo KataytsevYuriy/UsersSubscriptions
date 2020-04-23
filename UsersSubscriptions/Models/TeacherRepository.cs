@@ -53,10 +53,7 @@ namespace UsersSubscriptions.Models
         public async Task<IEnumerable<Course>> GetTeacherCoursesAsync(AppUser teacher)
         {
             IEnumerable<Course> courses = await _context.Courses
-                //.Include(sub => sub.Subscriptions)
-                //.Include(cu => cu.Subscriptions).ThenInclude(cus => cus.ConfirmedBy)
-                // .Include(cu => cu.Subscriptions).ThenInclude(cus => cus.PayedTo)
-                .Include(cu => cu.CourseAppUsers)//.ThenInclude(te => te.AppUser)
+                .Include(cu => cu.CourseAppUsers)
                     .Where(cap => cap.CourseAppUsers.Any(dd => dd.AppUserId == teacher.Id)).ToListAsync();
             return courses;
         }
@@ -167,7 +164,7 @@ namespace UsersSubscriptions.Models
                 AppUser user = await _userManager.FindByIdAsync(teacher);
                 if (user != null)
                 {
-                    await _context.courseAppUsers.AddAsync(new CourseAppUser
+                    await _context.CourseAppUsers.AddAsync(new CourseAppUser
                     {
                         AppUserId = user.Id,
                         CourseId = dbCourse.Id,
@@ -180,12 +177,12 @@ namespace UsersSubscriptions.Models
             }
             foreach(string teacher in removedTeachers)
             {
-                CourseAppUser courseAppUser = _context.courseAppUsers
+                CourseAppUser courseAppUser = _context.CourseAppUsers
                     .FirstOrDefault(cau => cau.AppUserId == teacher && cau.CourseId == dbCourse.Id);
                 if (courseAppUser != null)
                 {
-                    _context.courseAppUsers.Remove(courseAppUser);
-                    if (_context.courseAppUsers.Where(teach => teach.AppUserId == teacher).Count() == 1)
+                    _context.CourseAppUsers.Remove(courseAppUser);
+                    if (_context.CourseAppUsers.Where(teach => teach.AppUserId == teacher).Count() == 1)
                     {
                         AppUser user = await _userManager.FindByIdAsync(teacher);
                         if (user != null)

@@ -1,40 +1,10 @@
 ﻿@{
     Layout = "_Layout";
 }
-<nav class="navbar navbar-expand-lg navbar-light" style="background-color:bisque">
-    <a class="navbar-brand" href="#">Admin Menu</a>
-    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse" id="navbarNavDropdown">
-        <ul class="navbar-nav">
-            <li class="@GetClassForButton("User")">
-                <a class="nav-link" asp-controller="User" asp-action="Index">Користувачі <span class="sr-only">(current)</span></a>
-            </li>
-            <li class="@GetClassForButton("Role")">
-                <a class="nav-link" asp-controller="Role" asp-action="Index"> Ролі </a>
-            </li>
-            <li class="@GetClassForButton("Course")">
-                <a class="nav-link" asp-controller="Course" asp-action="Index"> Курси </a>
-            </li>
-            <li class="@GetClassForButton("School")">
-                <a class="nav-link" asp-controller="School" asp-action="Index"> Школи </a>
-            </li>
-            <li class="@GetClassForButton("Subscription")">
-                <a class="nav-link" asp-controller="Subscription" asp-action="Index"> Абонементи </a>
-            </li>
-        </ul>
-    </div>
-</nav>
+
 <div class=" text-center"><h2>@ViewData["Description"]</h2></div>
 <div class="bg-danger text-center"><h2>@ViewData["DescriptionDanger"]</h2></div>
 
 <div>
     @RenderBody()
 </div>
-@functions{
-    string GetClassForButton(string controller)
-    {
-        return "nav-item " + (ViewContext.RouteData.Values["controller"] as string == controller ? "active" : "");
-    }
-}
