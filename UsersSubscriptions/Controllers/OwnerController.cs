@@ -8,28 +8,59 @@ using Microsoft.AspNetCore.Mvc;
 using UsersSubscriptions.Models;
 using UsersSubscriptions.Models.ViewModels;
 using Microsoft.AspNetCore.Identity;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Routing;
 
 namespace UsersSubscriptions.Controllers
 {
     [Authorize(Roles = Common.UsersConstants.schoolOwner)]
     public class OwnerController : Controller
     {
+        private readonly SignInManager<AppUser> _signInManager;
         private ITeacherRepository repository;
-        public OwnerController(ITeacherRepository repo)
+        public OwnerController(ITeacherRepository repo, SignInManager<AppUser> signInManager)
         {
             repository = repo;
+            _signInManager = signInManager;
         }
 
         public async Task<IActionResult> Index()
         {
-            AppUser curUser = await repository.GetCurrentUserAsync(HttpContext);
-            IEnumerable<School> schools = repository.GetUsersSchools(curUser.Id);
+            string ownerId = HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (ownerId == null || string.IsNullOrEmpty(ownerId))
+            {
+                await _signInManager.SignOutAsync();
+                return RedirectToAction(nameof(Index));
+            }
+            AppUser curOwner = await repository.GetCurrentOwnerAsync(ownerId);
+            if (curOwner == null)
+            {
+                await _signInManager.SignOutAsync();
+                return RedirectToAction(nameof(Index));
+            }
+            IEnumerable<School> schools = curOwner.Schools;
+            if (schools.Count() == 0)
+            {
+                return View(schools);
+            }
+            string subdomain = (HttpContext.GetRouteData().Values["subdomain"]??"").ToString();
+            if (subdomain != null && !string.IsNullOrEmpty(subdomain))
+            {
+                School school = schools.FirstOrDefault(sch => sch.UrlName == subdomain);
+                if (school == null)
+                {
+                    return View(new List<School>());
+                }
+                return RedirectToAction(nameof(SchoolInfo), new { id = school.Id });
+            }
             if (schools.Count() == 1)
             {
                 return RedirectToAction(nameof(SchoolInfo), new { id = schools.First().Id });
             }
             return View(schools);
         }
+
+
 
         public async Task<IActionResult> SchoolInfo(string id)
         {
@@ -115,17 +146,21 @@ namespace UsersSubscriptions.Controllers
             {
                 TempData["SuccessMessage"] = "Курс оновлено";
             }
+            if (model.Teachers.Distinct<string>().ToList()
+                .Except(course.CourseAppUsers.Select(cour => cour.AppUserId).ToList())
+                .Count() > 0)    //If teacher was added
+            {
+                return RedirectToAction(nameof(EditCourse), new { id = course.Id, schoolId = model.SchoolId });
+            }
             return RedirectToAction(nameof(SchoolInfo), new { id = model.SchoolId });
         }
-
         [HttpPost]
         public async Task<JsonResult> GetUserByPhone(string id)
         {
-            
+
             AppUser user = await repository.GetUserByPhone(id);
             if (user == null) { return Json(""); }
-            string result = "<input type=\"checkbox\" name=\"Teachers\" value=\"" + user.Id + "\" checked />" + user.FullName +"<br/>";
-            return Json(result);
+            return Json(new { id = user.Id, name = user.FullName });
         }
 
         [HttpPost]
@@ -133,9 +168,33 @@ namespace UsersSubscriptions.Controllers
         {
             AppUser user = await repository.GetUserAsync(id);
             if (user == null) { return Json(""); }
-            string result = "<input type=\"checkbox\" name=\"Teachers\" value=\"" + user.Id + "\" checked />" + user.FullName + "<br/>";
-            return Json(result);
+            return Json(new { id = user.Id, name = user.FullName });
         }
-
+        [HttpPost]
+        public async Task<JsonResult> AddTeacherToCourseAsync(string id, string courseId)
+        {
+            if (id == null || string.IsNullOrEmpty(id) || courseId == null || string.IsNullOrEmpty(courseId))
+            {
+                return Json("");
+            }
+            if (await repository.GetUserAsync(id) == null)
+            {
+                return Json("");
+            }
+            if (await repository.GetCoursInfoAsync(courseId) == null)
+            {
+                return Json("");
+            }
+            await repository.AddTeacherToCourse(id, courseId);
+            Course course = await repository.GetCoursInfoAsync(courseId);
+            List<AppUser> teachers = course.CourseAppUsers.Select(capu => capu.AppUser).ToList();
+            string res = "";
+            foreach (AppUser teacher in teachers)
+            {
+                res += " <input type=\"checkbox\" name=\"Teachers\" value=\"" + teacher.Id
+                     + "\" checked > " + teacher.FullName + "<br>";
+            }
+            return Json(res);
+        }
     }
 }

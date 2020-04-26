@@ -27,9 +27,8 @@ namespace UsersSubscriptions.Areas.Admin.Controllers
             return View(repository.GetAllSchools());
         }
 
-        public async Task<IActionResult> CreateSchool()
+        public IActionResult CreateSchool()
         {
-            ViewBag.owners = await repository.GetRoleUsersAsync(UsersConstants.schoolOwner);
             return View();
         }
 
@@ -54,7 +53,6 @@ namespace UsersSubscriptions.Areas.Admin.Controllers
                 TempData["ErrorMessage"] = "Школа не знайдена";
                 return RedirectToAction(nameof(Index));
             }
-            ViewBag.owners = await repository.GetRoleUsersAsync(UsersConstants.schoolOwner);
             return View(school);
         }
 
@@ -68,12 +66,54 @@ namespace UsersSubscriptions.Areas.Admin.Controllers
                 return RedirectToAction(nameof(Index));
             }
             TempData["ErrorMessage"] = result.Errors.FirstOrDefault().Description;
-            return RedirectToAction(nameof(SchoolDetails), new { id=school.Id});
+            return RedirectToAction(nameof(SchoolDetails), new { id = school.Id });
+        }
+
+        public async Task<IActionResult> DeleteSchool (string id)
+        {
+            School school = await repository.GetSchoolAsync(id);
+            if (school == null)
+            {
+                TempData["ErrorMessage"] = "Школа не знайдена";
+                return RedirectToAction(nameof(Index));
+            }
+            return View(school);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> DeleteSchool(School school)
+        {
+            IdentityResult result = await repository.DeleteScoolAsync(school.Id);
+            if (result.Succeeded)
+            {
+                TempData["SuccessMessage"] = "Школа видалена";
+                return RedirectToAction(nameof(Index));
+            }
+            TempData["ErrorMessage"] = result.Errors.FirstOrDefault().Description;
+            return RedirectToAction(nameof(Index));
+        }
+
+        public IActionResult CreateCourse(string id)
+        {
+            return View(new Course { SchoolId = id });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> CreateCourse(Course course)
+        {
+            IdentityResult result = await repository.CreateCourseAsync(course);
+            if (result.Succeeded)
+            {
+                TempData["SuccessMessage"] = "Курс доданий";
+                return RedirectToAction(nameof(SchoolDetails), new { id = course.SchoolId });
+            }
+            TempData["ErrorMessage"] = result.Errors.FirstOrDefault().Description;
+            return View(course);
         }
 
         public async Task<IActionResult> CourseDetails(string id)
         {
-            Course course =await repository.GetCourseAsync(id);
+            Course course = await repository.GetCourseAsync(id);
             CourseDetailsViewModel model = new CourseDetailsViewModel
             {
                 Id = course.Id,
@@ -93,7 +133,7 @@ namespace UsersSubscriptions.Areas.Admin.Controllers
             if (result.Succeeded)
             {
                 TempData["SuccessMessage"] = "Курс оновлений";
-                return RedirectToAction(nameof(SchoolDetails), new { id=course.SchoolId});
+                return RedirectToAction(nameof(SchoolDetails), new { id = course.SchoolId });
             }
             TempData["ErrorMessage"] = result.Errors.FirstOrDefault().Description;
             return RedirectToAction(nameof(CourseDetails), new { id = course.Id });
@@ -115,8 +155,32 @@ namespace UsersSubscriptions.Areas.Admin.Controllers
                 return RedirectToAction(nameof(SchoolDetails), new { id = course.SchoolId });
             }
             TempData["ErrorMessage"] = result.Errors.FirstOrDefault().Description;
-            return RedirectToAction(nameof(SchoolDetails), new { id=course.SchoolId});
+            return RedirectToAction(nameof(SchoolDetails), new { id = course.SchoolId });
         }
 
+        [HttpPost]
+        public async Task<JsonResult> ChangeSchoolOwnerAsync(string id, string schoolId)
+        { //  /ChangeSchoolOwnerAsync/" + userIdent.id + "?schoolId=" + courseId + "?oldOwner=" + oldOwner,
+
+            if (id == null || string.IsNullOrEmpty(id)
+                || schoolId == null || string.IsNullOrEmpty(schoolId))
+            {
+                return Json("");
+            }
+            if (await repository.GetUserAsync(id) == null)
+            {
+                return Json("");
+            }
+            if (await repository.GetSchoolAsync(schoolId) == null)
+            {
+                return Json("");
+            }
+            IdentityResult result = await repository.ChengeOwnerAsync(id, schoolId);
+            if (!result.Succeeded)
+            {
+                return Json("");
+            }
+            return Json("true");
+        }
     }
 }

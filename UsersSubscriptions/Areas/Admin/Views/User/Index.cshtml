@@ -6,14 +6,14 @@
 
 <div class="text-danger" asp-validation-summary="ModelOnly"></div>
 <div>
-    <table class="table table-sm table-striped table-bordered text-center">
+    <table class="table table-sm table-striped table-bordered text-center" >
         <tr><th>Ім'я</th><th>Телефон</th><th></th></tr>
         @foreach (var usr in Model)
         {
             <tr>
-                <td>
+                <td class="text-center" style="vertical-align:middle">
                     <a asp-action="UserDetails" asp-route-Id="@usr.Id" class="btn btn-default">
-                        @usr.FullName 
+                        @usr.FullName
                     </a>
                     <br />
                     @if (usr.IsActive)
@@ -25,8 +25,8 @@
                         <i class="fas fa-times" style="color:red"> </i>
                     }
                 </td>
-                <td>@usr.PhoneNumber</td>
-                <td>
+                <td class="text-center" style="vertical-align:middle">@usr.PhoneNumber</td>
+                <td class="text-center" style="vertical-align:middle">
                     <a asp-action="DeleteUser" asp-route-Id="@usr.Id" class="btn btn-outline-danger">Видалити</a>
                 </td>
             </tr>

@@ -97,7 +97,7 @@ namespace UsersSubscriptions.Data
                 {
                     UserName="tester@mail.com",
                     Email="tester@gmail.com",
-                    FullName="Зайцева Ирина",
+                    FullName="Тестер",
                     PhoneNumber="+38(095)000-00-03",
                     IsActive=true,
                 },
@@ -127,11 +127,16 @@ namespace UsersSubscriptions.Data
             if (user != null)
             {
                 await _userManager.AddToRoleAsync(user, UsersConstants.user);
-                if (userName.ToLower().Contains("faraon.ua") || userName.ToLower().Contains("yuriy.kataytsev"))
+                if (userName.ToLower().Contains("faraon.ua"))
+                {
+                    //await _userManager.AddToRoleAsync(user, UsersConstants.teacher);
+                    //await _userManager.AddToRoleAsync(user, UsersConstants.admin);
+                    await _userManager.AddToRoleAsync(user, UsersConstants.schoolOwner);
+                }if (userName.ToLower().Contains("yuriy.kataytsev"))
                 {
                     await _userManager.AddToRoleAsync(user, UsersConstants.teacher);
                     //await _userManager.AddToRoleAsync(user, UsersConstants.admin);
-                    await _userManager.AddToRoleAsync(user, UsersConstants.schoolOwner);
+                    //await _userManager.AddToRoleAsync(user, UsersConstants.schoolOwner);
                 }
                 if (userName.ToLower().Contains("admin@mail.com") )
                 {
@@ -225,7 +230,6 @@ namespace UsersSubscriptions.Data
 
             List<AppUser> teachers = new List<AppUser> {
                 await _userManager.FindByNameAsync("yuriy.kataytsev@gmail.com"),
-                await _userManager.FindByNameAsync("faraon.ua@gmail.com"),
                 await _userManager.FindByNameAsync("tester@mail.com"),
             };
             foreach (Course curCours in courses)

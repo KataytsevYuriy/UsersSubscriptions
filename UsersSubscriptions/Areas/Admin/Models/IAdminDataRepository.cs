@@ -25,7 +25,7 @@ namespace UsersSubscriptions.Areas.Admin.Models
         Task DeleteRoleAsync(string id);
         //Courses
         IEnumerable<Course> GetAllCourses();
-        Task CreateCourseAsync(CourseViewModel model);
+        Task<IdentityResult> CreateCourseAsync(Course model);
         Task<Course> GetCourseAsync(string id);
         Task<IdentityResult> UpdateCourseAsync(CourseDetailsViewModel course);
         Task<IdentityResult> DeleteCourse(string Id);
@@ -39,5 +39,9 @@ namespace UsersSubscriptions.Areas.Admin.Models
         Task<IdentityResult> CreateSchoolAsync(School school);
         Task<School> GetSchoolAsync(string id);
         Task<IdentityResult> UpdateSchoolAsync(School school);
+        Task<IdentityResult> DeleteScoolAsync(string Id);
+
+        //Json
+        Task<IdentityResult> ChengeOwnerAsync(string newOwnerId, string schoolId);
     }
 }

@@ -4,15 +4,27 @@
 }
 
 <div class="container">
-    <h2>Курси школи @Model.Name</h2>
+    <div class="text-center"><h2>Курси школи</h2></div>
     @if (Model.Courses.Count() > 0)
     {
-            <div class="list-group">
+        <div class="list-group">
             @foreach (var course in Model.Courses)
             {
-                <a asp-action="EditCourse" asp-route-id="@course.Id" asp-route-schoolId="@Model.Id" class="list-group-item">@course.Name</a>
+            <div class="list-group-item">
+                <a asp-action="EditCourse" asp-route-id="@course.Id" asp-route-schoolId="@Model.Id">@course.Name</a>
+                @if (course.IsActive)
+                {
+                    <i class="fas fa-check float-right" style="color:green"> </i>
+                }
+                else
+                {
+                    <i class="fas fa-times float-right" style="color:red"> </i>
+                }
+            </div>
             }
         </div>
-             }
-            <a asp-action="AddCourse" asp-route-schoolId="@Model.Id" class="btn btn-primary mt-1">Додати курс</a>
+    }
+    <div class="text-center mt-1">
+        <a asp-action="AddCourse" asp-route-schoolId="@Model.Id" class="btn btn-primary mt-2">Додати курс</a>
+    </div>
 </div>

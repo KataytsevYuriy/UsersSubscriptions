@@ -22,7 +22,7 @@ namespace UsersSubscriptions.Areas.Admin.Controllers
         public UserController(IAdminDataRepository aRepo)
         {
             repository = aRepo;
-         }
+        }
         public ActionResult Index()
         {
             return View(repository.GetAllUsers());
@@ -39,14 +39,13 @@ namespace UsersSubscriptions.Areas.Admin.Controllers
                 {
                     Id = user.Id,
                     FullName = user.FullName,
-                    UserName = user.UserName,
                     Email = user.Email,
                     PhoneNumber = user.PhoneNumber,
-                    IsActive = user.IsActive? "checked=\"checked\"" : "",
+                    IsActive = user.IsActive,
                     AllRoles = allRoles,
                     UserRoles = userRoles
                 };
-                return  View(model);
+                return View(model);
             }
             return View(nameof(Index));
         }
@@ -54,14 +53,14 @@ namespace UsersSubscriptions.Areas.Admin.Controllers
         public async Task<IActionResult> UpdateUser(UserViewModel model)
         {
             await repository.UpdateUserAsync(new AppUser
-                                                    {
-                                                        Id = model.Id,
-                                                        FullName = model.FullName,
-                                                        UserName = model.UserName,
-                                                        PhoneNumber = model.PhoneNumber,
-                                                        Email=model.Email,
-                                                        IsActive = model.IsActive == null ? false : true
-                                                    }, model.UserRoles);
+            {
+                Id = model.Id,
+                FullName = model.FullName,
+                UserName = model.UserName,
+                PhoneNumber = model.PhoneNumber,
+                Email = model.Email,
+                IsActive = model.IsActive,
+            }, model.UserRoles);
             return RedirectToAction(nameof(Index));
         }
 
@@ -82,6 +81,6 @@ namespace UsersSubscriptions.Areas.Admin.Controllers
             await repository.DeleteUseAsyncr(model.Id);
             return RedirectToAction(nameof(Index));
         }
- 
+
     }
 }

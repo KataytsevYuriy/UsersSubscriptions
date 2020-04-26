@@ -5,10 +5,10 @@
 }
 @if (ViewBag.roleUsers.Count > 0)
 {
-    <h2 class="text-danger"> Роль @Model.Name міє користувачів:</h2>
+    <h2 class="text-danger"> Роль @Model.Name мaє користувачів:</h2>
     @foreach (AppUser user in ViewBag.roleUsers)
     {
-    <p><a asp-controller="User" asp-action="UserDetails" asp-route-id="@user.Id">User: @user.FullName </a></p> <br />
+    <a asp-controller="User" asp-action="UserDetails" asp-route-id="@user.Id">@user.FullName </a><br />
     }
     <h2> Будьласка спочатку видаліть корстувачів з ролі</h2>
 }

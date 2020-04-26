@@ -4,44 +4,32 @@
     ViewData["Description"] = "Школа";
 }
 
-<div class="container">
+<div class="">
     <form asp-action="SchoolDetails" method="post">
-        <input type="hidden" name="Id" value="@Model.Id" />
+        <input type="hidden" name="Id" id="schoolId" value="@Model.Id" />
         <ul class="list-group">
             <li class="list-group-item">
-                    <label asp-for="Name"></label>
-                    <input asp-for="Name" class="" />
+                <label asp-for="Name">Назва</label>
+                <input asp-for="Name" class="form-control" />
             </li>
             <li class="list-group-item">
-                <label asp-for="UrlName"></label>
-                <input asp-for="UrlName" />
+                <label asp-for="UrlName">Url назва</label>
+                <input asp-for="UrlName" class="form-control" />
             </li>
             <li class="list-group-item">
                 <label asp-for="Owner">Власник школи </label>
-                <select name="OwnerId" class="form-control">
-                    @if(ViewBag.owners != null)
-                    {
-                        foreach (var owner in ViewBag.owners)
-                        {
-                            @if(Model.OwnerId == owner.Id)
-                            {
-                                <option value="@owner.Id" selected>@owner.FullName</option>
-                            }
-                            else
-                            {
-                                <option value="@owner.Id">@owner.FullName</option>
-                            }
-                        }
-                    }
-                </select>
+                <input value="@Model.Owner.FullName" class="form-control" disabled id="ownerName" />
+                <input asp-for="OwnerId" type="hidden" id="ownerName" />
+                <button class="btn mt-3 btn-outline-info float-right" type="button" data-toggle="modal" data-target="#addPhoneModal">Змінити власника</button>
             </li>
             <li class="list-group-item">
                 <button class="btn-default btn" type="submit">Зберегти</button>
+                <a asp-action="DeleteSchool" asp-route-id="@Model.Id" class="btn-outline-danger btn float-right">Видалити</a>
             </li>
         </ul>
     </form>
     <div>
-        <p>Курси</p>
+        <div class="text-center"><h4>Курси</h4></div>
         @if (Model.Courses != null && Model.Courses.Count() > 0)
         {
             <ul class="list-group">
@@ -64,4 +52,26 @@
             </ul>
         }
     </div>
+    <div class="text-center"><a asp-action="CreateCourse" asp-route-id="@Model.Id" class="btn btn-outline-primary mt-3">Додати Курс</a></div>
 </div>
+
+<partial name="_AddUserModal" />
+@section AdminScripts{
+    <script src="~/js/jquery.mask.min.js"></script>
+    <script src="~/js/addUserModal.js"></script>
+    <script>
+        function updateUser(userIdent) {
+            var schoolId = $("#schoolId").val();
+            var oldOwner = $("#ownerId").val()
+            if (oldOwner !== userIdent.id) {
+                $.post("/Admin/School/ChangeSchoolOwnerAsync/" + userIdent.id + "?schoolId=" + schoolId,
+                    function (content) {
+                        if (content == "true") {
+                            $("#ownerId").val(userIdent.id);
+                            $("#ownerName").val(userIdent.name);
+                        }
+                    }, "json");
+            }
+            };
+    </script>
+}

@@ -6,20 +6,33 @@
 
 <form asp-action="CreateSchool" method="post">
     <div class="form-group">
-        <label asp-for="Name"></label>
-        <input asp-for="Name" />
+        <label asp-for="Name">Назва</label>
+        <input asp-for="Name" class="form-control" />
     </div>
     <div class="form-group">
-        <select name="OwnerId" class="form-control">
-            <option value="" selected disabled hidden>Виберіть власника школи</option>
-            @if (ViewBag.owners != null)
-            {
-                foreach (var owner in ViewBag.owners)
-                {
-                    <option value="@owner.Id">@owner.FullName</option>
-                }
-            }
-        </select>
+        <label asp-for="UrlName">Url назва</label>
+        <input asp-for="UrlName" class="form-control" />
     </div>
-    <button class="btn btn-primary" type="submit">Додати</button>
+    <div class="form-group">
+        <label asp-for="Owner">Власник школи</label>
+        <input class="form-control" id="ownerName" disabled />
+        <input type="hidden" name="OwnerId" id="ownerId" class="form-control " />
+        <button class="btn my-2" type="button" data-toggle="modal" data-target="#addPhoneModal">Додати власника</button>
+    </div>
+    <div class="text-center">
+        <button class="btn btn-primary" type="submit">Додати</button>
+    </div>
 </form>
+
+
+<partial name="_AddUserModal" />
+@section AdminScripts{
+    <script src="~/js/jquery.mask.min.js"></script>
+    <script src="~/js/addUserModal.js"></script>
+    <script>
+        function updateUser(userIdent) {
+            $("#ownerId").val(userIdent.id);
+            $("#ownerName").val(userIdent.name);
+            };
+    </script>
+}
