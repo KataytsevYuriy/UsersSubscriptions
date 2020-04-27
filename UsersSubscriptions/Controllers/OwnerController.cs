@@ -155,6 +155,7 @@ namespace UsersSubscriptions.Controllers
             return RedirectToAction(nameof(SchoolInfo), new { id = model.SchoolId });
         }
         [HttpPost]
+        [AllowAnonymous]
         public async Task<JsonResult> GetUserByPhone(string id)
         {
 

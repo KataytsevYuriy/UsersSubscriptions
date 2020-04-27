@@ -86,7 +86,7 @@ namespace UsersSubscriptions.Areas.Identity.Pages.Account
                     var roles = await _userManager.GetRolesAsync(user);
                     if (roles.Contains("Teacher"))
                     {
-                        return RedirectToAction("Index", "Teacher", new { area = "Teacher" });
+                        return RedirectToAction("Index", "Teacher");
                     }
                     return LocalRedirect(returnUrl);
                 }

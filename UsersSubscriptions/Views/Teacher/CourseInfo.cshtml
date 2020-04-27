@@ -15,7 +15,7 @@
 
         <div class="row">
             <br />
-            <div class="col-xs-8 mx-3">
+            <div class="col-8">
                 <select class="selectDate form-control" id="selectMonth" onchange="changeDate(this)">
                     @for (var i = 0; i < 12; i++)
                     {
@@ -30,7 +30,7 @@
                     }
                 </select>
             </div>
-            <div class="col-xs-4 mx-3">
+            <div class="col-4">
                 <select class="selectDate form-control" id="selectYear" onchange="changeDate(this), this.form.submit()">
                     @for (var i = startYear; i <= DateTime.Now.Year; i++)
                     {
