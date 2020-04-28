@@ -178,6 +178,7 @@ namespace UsersSubscriptions.Controllers
         }
 
         [HttpPost]
+        [AllowAnonymous]
         public async Task<JsonResult> GetUserByPhone(string id)
         {
 
