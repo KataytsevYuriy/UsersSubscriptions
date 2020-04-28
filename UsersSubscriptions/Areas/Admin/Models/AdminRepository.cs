@@ -175,6 +175,62 @@ namespace UsersSubscriptions.Areas.Admin.Models
             return IdentityResult.Success;
         }
 
+        public async Task<IdentityResult> CreateCourseAsync(CourseDetailsViewModel model)
+        {
+            if (string.IsNullOrEmpty(model.SchoolId))
+            {
+                return IdentityResult.Failed(new IdentityError { Description = "Школа на задана" });
+            }
+            if (string.IsNullOrEmpty(model.Name))
+            {
+                return IdentityResult.Failed(new IdentityError { Description = "Заповніть назву курсу" });
+            }
+            Course course = await _context.Courses
+                .FirstOrDefaultAsync(cour => cour.Name == model.Name && cour.SchoolId == model.SchoolId);
+            if (course != null)
+            {
+                return IdentityResult.Failed(new IdentityError { Description = "Такий курс вже існує" });
+            }
+            course = new Course();
+            course.Name = model.Name;
+            course.IsActive = model.IsActive;
+            course.Price = model.Price;
+            course.SchoolId = model.SchoolId;
+            var state = await _context.Courses.AddAsync(course);
+            if (state.State != EntityState.Added)
+            {
+                return IdentityResult.Failed(new IdentityError { Description = "Курс не доданий" });
+            }
+            await _context.SaveChangesAsync();
+            course = await _context.Courses
+                .FirstOrDefaultAsync(cour => cour.Name == model.Name && cour.SchoolId == model.SchoolId);
+            if (course == null)
+            {
+                return IdentityResult.Failed(new IdentityError { Description = "Курс не доданий" });
+            }
+            if (model.TeachersId.Count() > 0)
+            {
+                foreach (string teacherId in model.TeachersId)
+                {
+                    AppUser teacher = await _userManager.FindByIdAsync(teacherId);
+                    if (teacher != null)
+                    {
+                        await _context.CourseAppUsers.AddAsync(new CourseAppUser
+                        {
+                            AppUserId = teacher.Id,
+                            CourseId = course.Id,
+                        });
+                        if (!(await _userManager.IsInRoleAsync(teacher, Common.UsersConstants.teacher)))
+                        {
+                            await _userManager.AddToRoleAsync(teacher, Common.UsersConstants.teacher);
+                        }
+                    }
+                }
+                await _context.SaveChangesAsync();
+            }
+            return IdentityResult.Success;
+        }
+
         public async Task<Course> GetCourseAsync(string id)
         {
             return await _context.Courses.Include(p => p.CourseAppUsers).ThenInclude(u => u.AppUser)

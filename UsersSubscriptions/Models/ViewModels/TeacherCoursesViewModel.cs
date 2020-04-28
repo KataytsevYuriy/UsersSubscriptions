@@ -9,7 +9,6 @@ namespace UsersSubscriptions.Models.ViewModels
     public class TeacherCoursesViewModel
     {
         public IEnumerable<Student> Students { get; set; }
-        public IEnumerable<Course> TeacherCourses { get; set; }
         public DateTime Month { get; set; }
         public Course CurrentCourse { get; set; }
     }

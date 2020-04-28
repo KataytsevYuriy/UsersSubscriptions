@@ -95,11 +95,11 @@ namespace UsersSubscriptions.Areas.Admin.Controllers
 
         public IActionResult CreateCourse(string id)
         {
-            return View(new Course { SchoolId = id });
+            return View(new CourseDetailsViewModel { SchoolId = id });
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateCourse(Course course)
+        public async Task<IActionResult> CreateCourse(CourseDetailsViewModel course)
         {
             IdentityResult result = await repository.CreateCourseAsync(course);
             if (result.Succeeded)

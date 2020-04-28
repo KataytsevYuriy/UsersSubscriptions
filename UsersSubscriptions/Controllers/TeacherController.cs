@@ -32,7 +32,7 @@ namespace UsersSubscriptions.Controllers
                 {
                     return RedirectToAction(nameof(SelectSchool), new { redirectValue = "Index" });
                 }
-                if (schools.Count() == 1) schoolId=schools.FirstOrDefault().Id;
+                if (schools.Count() == 1) schoolId = schools.FirstOrDefault().Id;
             }
             ViewBag.schoolId = schoolId;
             return View();
@@ -55,9 +55,9 @@ namespace UsersSubscriptions.Controllers
             IEnumerable<School> schools = await repository.GetCurrentTeacherSchools(teacherId);
             if (schools.Count() == 0) return new List<School>();
             string subdomain = (HttpContext.GetRouteData().Values["subdomain"] ?? "").ToString();
-            if (subdomain != null && !string.IsNullOrEmpty(subdomain))
+            if (!string.IsNullOrEmpty(subdomain))
             {
-                List<School> school = schools.Where(sch => sch.UrlName == subdomain).ToList();
+                List<School> school = schools.Where(sch => sch.UrlName.ToLower().Equals(subdomain.ToLower())).ToList();
                 if (school.Count() == 0) return new List<School>();
                 return school;
             }
@@ -70,34 +70,39 @@ namespace UsersSubscriptions.Controllers
             return View(await SchoolFromContext());
         }
 
-        public async Task<IActionResult> StudentInfo(string studentId, DateTime Month)
+        public async Task<IActionResult> StudentInfo(string studentId, string schoolId, DateTime Month)
         {
             AppUser student = await repository.GetUserAsync(studentId);
             DateTime curDate = DateTime.Now;
-            if (student == null) return RedirectToAction(nameof(Index));
+            if (student == null)
+            {
+                TempData["ErrorMessage"] = "Учня не знайдено";
+                return RedirectToAction(nameof(Index));
+            }
             if (Month.Year < 2000) Month = curDate;
-            IEnumerable<Subscription> userSubscriptions = await repository.GetUserSubscriptionsAsync(student.Id, Month);
+            IEnumerable<Subscription> userSubscriptions = await repository.GetUserSubscriptionsAsync(student.Id, schoolId, Month);
             StudentInfoViewModel model = new StudentInfoViewModel
             {
                 Student = student,
                 Subscriptions = userSubscriptions,
-                Month = Month
+                Month = Month,
+                ScholId = schoolId,
             };
             ViewBag.curDate = curDate;
             return View(model);
         }
 
-        public async Task<IActionResult> AddSubscription(string Id, string month)
+        public async Task<IActionResult> AddSubscription(string Id, string schoolId, string month)
         {
             DateTime Month;
             DateTime.TryParse(month, out Month);
-            // Course curCours;
             if (Month.Year < 2000) { Month = DateTime.Now; }
             AddSubscriptionViewModel model = new AddSubscriptionViewModel
             {
                 Student = await repository.GetUserAsync(Id),
-                TeacherCourses = await repository.GetTeacherCoursesAsync(await repository.GetCurrentUserAsync(HttpContext)),
+                TeacherCourses = await repository.GetTeacherCoursesAsync(await repository.GetCurrentUserAsync(HttpContext), schoolId, true),
                 Month = Month,
+                SchoolId = schoolId,
             };
             return View(model);
         }
@@ -120,7 +125,7 @@ namespace UsersSubscriptions.Controllers
             if (result.Succeeded)
             {
                 TempData["SuccessMessage"] = "Підписку додано";
-                return RedirectToAction(nameof(StudentInfo), new { studentId = model.Student.Id, Month = model.Month });
+                return RedirectToAction(nameof(StudentInfo), new { studentId = model.Student.Id, schoolId = model.SchoolId, Month = model.Month });
             }
             if (result.Errors.Count() > 0)
             {
@@ -131,12 +136,12 @@ namespace UsersSubscriptions.Controllers
                 }
                 TempData["ErrorMessage"] = erorMessage;
             }
-            return RedirectToAction(nameof(AddSubscription), new { Id = model.Student.Id, month = model.Month.ToString() });
+            return RedirectToAction(nameof(AddSubscription), new { Id = model.Student.Id, schoolId = model.SchoolId, month = model.Month.ToString() });
         }
 
         public async Task<IActionResult> TeacherCourses(string schoolId)
         {
-            if (schoolId == null && string.IsNullOrEmpty(schoolId))
+            if (string.IsNullOrEmpty(schoolId))
             {
                 IEnumerable<School> schools = await SchoolFromContext();
                 if (schools.Count() > 1)
@@ -154,21 +159,19 @@ namespace UsersSubscriptions.Controllers
             }
             ViewBag.schoolId = schoolId;
             AppUser currentUser = await repository.GetCurrentUserAsync(HttpContext);
-            IEnumerable<Course> courses = await repository.GetTeacherCoursesAsync(currentUser);
+            IEnumerable<Course> courses = await repository.GetTeacherCoursesAsync(currentUser, schoolId, false);
             return View(courses);
         }
 
-            public async Task<IActionResult> CourseInfo(string Id, DateTime month)
+        public async Task<IActionResult> CourseInfo(string Id, string schoolId, DateTime month)
         {
             AppUser currentUser = await repository.GetCurrentUserAsync(HttpContext);
             if (month.Year < 2000) { month = DateTime.Now; }
-            IEnumerable<Course> courses = await repository.GetTeacherCoursesAsync(currentUser);
             IEnumerable<Student> students = await repository.GetTeacherMonthStudentsAsync(Id, month);
-            Course course = await repository.GetCoursInfoAsync(Id);
+            Course course = await repository.GetCoursAsync(Id);
             TeacherCoursesViewModel model = new TeacherCoursesViewModel
             {
                 Students = students,
-                TeacherCourses = courses,
                 Month = month,
                 CurrentCourse = course,
             };

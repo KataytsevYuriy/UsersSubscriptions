@@ -56,19 +56,11 @@ namespace UsersSubscriptions
                 options.Password.RequireUppercase = false;
                 options.Password.RequireLowercase = false;
             });
-            //services.AddDefaultIdentity<AppUser>()
-            //    .AddRoles<IdentityRole>()
-            //    .AddRoleManager<RoleManager<IdentityRole>>()
-            //    .AddEntityFrameworkStores<ApplicationDbContext>();
-            //services.AddAuthentication(option =>
-            //{
-            //    option.DefaultAuthenticateScheme = IdentityConstants.ApplicationScheme;
-            //    option.DefaultChallengeScheme = IdentityConstants.ApplicationScheme;
-            //    option.DefaultSignInScheme = IdentityConstants.ExternalScheme;
-            //});
+            services.AddScoped<MenuFilterAttribute>();
             services.AddMvc(config =>
             {
                 config.Filters.Add(new SubdomainFilterAttribute());
+                config.Filters.Add<MenuFilterAttribute>();
             }).SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
             services.AddAuthentication().AddCookie().AddFacebook(facebookOptions =>
             {

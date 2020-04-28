@@ -43,10 +43,10 @@ namespace UsersSubscriptions.Controllers
             {
                 return View(schools);
             }
-            string subdomain = (HttpContext.GetRouteData().Values["subdomain"]??"").ToString();
-            if (subdomain != null && !string.IsNullOrEmpty(subdomain))
+            string subdomain = (HttpContext.GetRouteData().Values["subdomain"] ?? "").ToString();
+            if (!string.IsNullOrEmpty(subdomain))
             {
-                School school = schools.FirstOrDefault(sch => sch.UrlName == subdomain);
+                School school = schools.FirstOrDefault(sch => sch.UrlName.ToLower().Equals(subdomain.ToLower()));
                 if (school == null)
                 {
                     return View(new List<School>());
@@ -75,16 +75,18 @@ namespace UsersSubscriptions.Controllers
             }
             return View(school);
         }
+ 
+
 
         public IActionResult AddCourse(string schoolId)
         {
-            return View(new Course { SchoolId = schoolId });
+            return View(new OwnerCourseViewModel { SchoolId = schoolId });
         }
 
         [HttpPost]
-        public async Task<IActionResult> AddCourse(Course course)
+        public async Task<IActionResult> AddCourse(OwnerCourseViewModel course)
         {
-            IdentityResult result = await repository.AddCourseAsync(course);
+            IdentityResult result = await repository.CreateCourseAsync(course);
             if (result.Succeeded)
             {
                 TempData["SuccessMessage"] = "Школа додана";
@@ -97,7 +99,7 @@ namespace UsersSubscriptions.Controllers
         public async Task<IActionResult> EditCourse(string id, string schoolId)
         {
             AppUser curUser = await repository.GetCurrentUserAsync(HttpContext);
-            Course course = await repository.GetCoursInfoAsync(id);
+            Course course = await repository.GetCoursAsync(id);
             if (course == null)
             {
                 TempData["ErrorMessage"] = "Курс не знайдено";
@@ -124,7 +126,7 @@ namespace UsersSubscriptions.Controllers
         {
             IdentityResult result;
             AppUser curUser = await repository.GetCurrentUserAsync(HttpContext);
-            Course course = await repository.GetCoursInfoAsync(model.Id);
+            Course course = await repository.GetCoursAsync(model.Id);
             if (course == null)
             {
                 TempData["ErrorMessage"] = "Курс не знайдено";
@@ -141,12 +143,12 @@ namespace UsersSubscriptions.Controllers
                 Description = model.Description,
                 IsActive = model.IsActive,
                 Price = model.Price,
-            }, model.Teachers.Distinct<string>().ToList());
+            }, model.TeachersId.Distinct<string>().ToList());
             if (result.Succeeded)
             {
                 TempData["SuccessMessage"] = "Курс оновлено";
             }
-            if (model.Teachers.Distinct<string>().ToList()
+            if (model.TeachersId.Distinct<string>().ToList()
                 .Except(course.CourseAppUsers.Select(cour => cour.AppUserId).ToList())
                 .Count() > 0)    //If teacher was added
             {
@@ -154,6 +156,27 @@ namespace UsersSubscriptions.Controllers
             }
             return RedirectToAction(nameof(SchoolInfo), new { id = model.SchoolId });
         }
+
+
+        public async Task<IActionResult> DeleteCourse(string id)
+        {
+            ViewBag.HasSubscriptions = await repository.CourseHasSubscriptions(id);
+            return View(await repository.GetCoursAsync(id));
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> DeleteCourse(Course course)
+        {
+            var result = await repository.DeleteCourse(course.Id);
+            if (result.Succeeded)
+            {
+                TempData["SuccessMessage"] = "Курс видалений";
+                return RedirectToAction(nameof(SchoolInfo), new { id = course.SchoolId });
+            }
+            TempData["ErrorMessage"] = result.Errors.FirstOrDefault().Description;
+            return RedirectToAction(nameof(SchoolInfo), new { id = course.SchoolId });
+        }
+
         [HttpPost]
         public async Task<JsonResult> GetUserByPhone(string id)
         {
@@ -181,17 +204,17 @@ namespace UsersSubscriptions.Controllers
             {
                 return Json("");
             }
-            if (await repository.GetCoursInfoAsync(courseId) == null)
+            if (await repository.GetCoursAsync(courseId) == null)
             {
                 return Json("");
             }
             await repository.AddTeacherToCourse(id, courseId);
-            Course course = await repository.GetCoursInfoAsync(courseId);
+            Course course = await repository.GetCoursAsync(courseId);
             List<AppUser> teachers = course.CourseAppUsers.Select(capu => capu.AppUser).ToList();
             string res = "";
             foreach (AppUser teacher in teachers)
             {
-                res += " <input type=\"checkbox\" name=\"Teachers\" value=\"" + teacher.Id
+                res += " <input type=\"checkbox\" name=\"TeachersId\" value=\"" + teacher.Id
                      + "\" checked > " + teacher.FullName + "<br>";
             }
             return Json(res);

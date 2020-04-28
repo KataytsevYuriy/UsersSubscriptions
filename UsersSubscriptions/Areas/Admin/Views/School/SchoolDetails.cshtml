@@ -20,7 +20,9 @@
                 <label asp-for="Owner">Власник школи </label>
                 <input value="@Model.Owner.FullName" class="form-control" disabled id="ownerName" />
                 <input asp-for="OwnerId" type="hidden" id="ownerName" />
-                <button class="btn mt-3 btn-outline-info float-right" type="button" data-toggle="modal" data-target="#addPhoneModal">Змінити власника</button>
+                <div class="text-center">
+                    <button class="btn mt-3 btn-outline-info" type="button" data-toggle="modal" data-target="#addPhoneModal">Змінити власника</button>
+                </div>
             </li>
             <li class="list-group-item">
                 <button class="btn-default btn" type="submit">Зберегти</button>
@@ -72,6 +74,6 @@
                         }
                     }, "json");
             }
-            };
+        };
     </script>
 }

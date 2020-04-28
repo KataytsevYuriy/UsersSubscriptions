@@ -9,29 +9,36 @@ function sendPhone() {
         scanner.stop();
     }
     var dataSend = $("#phoneInput").val().toString();
-    $("#teacherName").empty();
+    $("#info").empty();
+    $("#info").removeClass();
     dataSend = dataSend.replace(/[^\d]/g, '');
     $.post("/Owner/GetUserByPhone/" + dataSend, function (data) {
         if (data == "") {
-            $("#teacherName").append("Користувача не знайдено");
+            $("#info").append("Користувача не знайдено");
+            $("#info").addClass("alert-danger");
             $("#modalAdd").prop("disabled", true);
         } else {
             userIdent = data;
             userName = data.name;
-            $("#teacherName").append(userName);
+            $("#info").append(userName);
+            $("#info").addClass("alert-info");
             $("#modalAdd").prop("disabled", false);
         }
     }, "json");
 };
 function sendId(content) {
+    $("#info").empty();
+    $("#info").removeClass();
     $.post("/Owner/GetUserById/" + content, function (data) {
         if (data == "") {
-            $("#teacherName").append("Користувача не знайдено");
+            $("#info").append("Користувача не знайдено");
+            $("#info").addClass("alert-danger");
             $("#modalAdd").prop("disabled", true);
         } else {
             userIdent = data;
             userName = data.name;
-            $("#teacherName").append(userName);
+            $("#info").append(userName);
+            $("#info").addClass("alert-info");
             $("#modalAdd").prop("disabled", false);
         }
     }, "json");

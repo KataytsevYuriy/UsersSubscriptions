@@ -13,10 +13,11 @@
 @section Scripts{
     <script>
         var getUserInfoUrl = '@Url.Action("StudentInfo")';
-        var schoolId = @ViewBag.schoolId;
-        ScanQR();
+        var schoolId = "@ViewBag.schoolId";
+        // ScanQR();
         function QrCodeAction(content) {
-            window.location.href = getUserInfoUrl + "?studentId=" + content;
+                window.location.href = getUserInfoUrl + "?studentId="
+                + content + "&schoolId=" + schoolId;
         }
     </script>
     <script type="text/javascript">

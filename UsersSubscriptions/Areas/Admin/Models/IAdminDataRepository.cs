@@ -26,6 +26,7 @@ namespace UsersSubscriptions.Areas.Admin.Models
         //Courses
         IEnumerable<Course> GetAllCourses();
         Task<IdentityResult> CreateCourseAsync(Course model);
+        Task<IdentityResult> CreateCourseAsync(CourseDetailsViewModel model);
         Task<Course> GetCourseAsync(string id);
         Task<IdentityResult> UpdateCourseAsync(CourseDetailsViewModel course);
         Task<IdentityResult> DeleteCourse(string Id);

@@ -7,10 +7,18 @@
 <div class="list-group">
     @foreach (Course course in Model)
     {
-        @if (course.IsActive)
-        {
-            <a class="list-group-item" asp-action="CourseInfo" asp-route-Id="@course.Id">@course.Name</a>
-        }
+        <div class="list-group-item">
+            <a asp-action="CourseInfo" asp-route-Id="@course.Id"
+               asp-route-schoolId="@ViewBag.schoolId">@course.Name</a>
+            @if (course.IsActive)
+            {
+                <i class="fas fa-check float-right" style="color:green"> </i>
+            }
+            else
+            {
+                <i class="fas fa-times float-right" style="color:red"> </i>
+            }
+        </div>
     }
 </div>
 

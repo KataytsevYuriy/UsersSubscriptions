@@ -30,6 +30,9 @@
     <Content Update="Areas\Admin\Views\Subscription\Index.cshtml">
       <Pack>$(IncludeRazorContentInPack)</Pack>
     </Content>
+    <Content Update="Views\Owner\DeleteCourse.cshtml">
+      <Pack>$(IncludeRazorContentInPack)</Pack>
+    </Content>
     <Content Update="Views\Teacher\StudentInfo.cshtml">
       <Pack>$(IncludeRazorContentInPack)</Pack>
     </Content>

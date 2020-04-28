@@ -1,4 +1,4 @@
-﻿@model Course
+﻿@model CourseDetailsViewModel
 @{
     Layout = "_AdminLayout";
     ViewData["Description"] = "Додати курс";
@@ -21,5 +21,26 @@
         <label asp-for="Price">Ціна</label>
         <input asp-for="Price" class="form-control" />
     </div>
+    <div class="list-group-item">
+        <div class=" form-group">
+            <label asp-for="CourseAppUsers">Вчителі</label>
+            <div class="teachers" id="teachers">
+            </div>
+            <button class="btn" type="button" data-toggle="modal" data-target="#addPhoneModal">Додати викладача</button>
+        </div>
+    </div>
     <button type="submit" class="btn btn-primary">Додати</button>
 </form>
+
+<partial name="_AddUserModal" />
+@section AdminScripts{
+    <script src="~/js/jquery.mask.min.js"></script>
+    <script src="~/js/addUserModal.js"></script>
+    <script>
+        function updateUser(userIdent) {
+            var content = " <input type=\"checkbox\" name=\"TeachersId\" value=\"" + userIdent.id
+                + "\" checked > " + userIdent.name + "<br>";
+            $("#teachers").append(content);
+        };
+    </script>
+}

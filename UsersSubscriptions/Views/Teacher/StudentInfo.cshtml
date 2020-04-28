@@ -30,6 +30,7 @@ else
             }
         </select>
         <input type="hidden" name="studentId" value="@Model.Student.Id" />
+        <input type="hidden" name="schoolId" value="@Model.ScholId" />
     </form>
     <br />
     <table class="text-center table table-bordered table-striped">
@@ -53,7 +54,8 @@ else
         }
     </table>
     <div class="text-center">
-        <a class="btn btn-primary" asp-action="AddSubscription" asp-route-Id="@Model.Student.Id" asp-route-month="@Model.Month.ToUniversalTime()">Додати абонемент</a>
+        <a class="btn btn-primary" asp-action="AddSubscription" asp-route-Id="@Model.Student.Id"
+                 asp-route-schoolId="@Model.ScholId" asp-route-month="@Model.Month.ToUniversalTime()">Додати абонемент</a>
     </div>
 }
 else

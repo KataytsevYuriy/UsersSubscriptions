@@ -8,10 +8,10 @@ namespace UsersSubscriptions.Models.ViewModels
 {
     public class OwnerCourseViewModel : Course
     {
-        public IList<string> Teachers { get; set; }
+        public IList<string> TeachersId { get; set; }
         public OwnerCourseViewModel()
         {
-            Teachers = new List<string>();
+            TeachersId = new List<string>();
         }
     }
 }

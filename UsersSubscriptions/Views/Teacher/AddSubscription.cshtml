@@ -11,6 +11,7 @@
 {
     <form asp-action="AddSubscription" method="post">
         <input type="hidden" name="Student.Id" value="@Model.Student.Id" />
+        <input type="hidden" name="SchoolId" value="@Model.SchoolId" />
         <div class="form-group">
             <select class="form-control" name="Month">
                 @if (curDate.Month == Model.Month.Month)
@@ -25,6 +26,7 @@
                 }
             </select>
         </div>
+
         <div class="form-group">
             <select class="form-control" id="CourseSelect" name="SelectedCours.Id" onchange="ChangeCourse(this)">
                 @foreach (var cours in Model.TeacherCourses)
@@ -52,7 +54,6 @@ else
 {
     <div class="bg-danger text-info text-center"><h2>У вас немає активних курсів</h2></div>
 }
-<div class="text-center"><a asp-action="StudentInfo" asp-route-studentId="@Model.Student.Id" class="text-info">Назад</a></div>
 @section Scripts{
     <script>
         function ChangeCourse(a) {
