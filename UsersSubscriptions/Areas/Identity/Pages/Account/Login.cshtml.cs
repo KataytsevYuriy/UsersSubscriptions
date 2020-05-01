@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Logging;
 using UsersSubscriptions.Models;
 using Microsoft.AspNetCore.Builder;
+using UsersSubscriptions.Filters;
 using System.Security.Claims;
 
 namespace UsersSubscriptions.Areas.Identity.Pages.Account
@@ -86,7 +87,7 @@ namespace UsersSubscriptions.Areas.Identity.Pages.Account
                     var roles = await _userManager.GetRolesAsync(user);
                     if (roles.Contains("Teacher"))
                     {
-                        return RedirectToAction("Index", "Teacher");
+                        return RedirectToAction("Index", "Teacher",new { Area=""});
                     }
                     return LocalRedirect(returnUrl);
                 }

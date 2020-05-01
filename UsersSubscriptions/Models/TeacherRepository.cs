@@ -272,19 +272,21 @@ namespace UsersSubscriptions.Models
                 .Include(sub => sub.Subscriptions)
                 .Include(teach => teach.CourseAppUsers)
                 .FirstOrDefault(co => co.Id == Id);
-            if (course.Subscriptions.Count() == 0)
+            if (course.Subscriptions.Count() != 0)
             {
-                course.CourseAppUsers = null;
-                _context.SaveChanges();
-                var state = _context.Courses.Remove(course);
-                if (state.State == EntityState.Deleted)
-                {
-                    await _context.SaveChangesAsync();
-                    return IdentityResult.Success;
-                }
-                return IdentityResult.Failed(new IdentityError { Description = "Курс не видалений" });
+                return IdentityResult.Failed(new IdentityError { Description = "Курс не видалений, курс має абонементи" });
             }
-            return IdentityResult.Failed(new IdentityError { Description = "Курс не видалений, курс має абонементи" });
+            var state = _context.Courses.Remove(course);
+            if (state.State == EntityState.Deleted)
+            {
+                if (course.CourseAppUsers.Count() > 0)
+                {
+                    _context.CourseAppUsers.RemoveRange(course.CourseAppUsers);
+                }
+                await _context.SaveChangesAsync();
+                return IdentityResult.Success;
+            }
+            return IdentityResult.Failed(new IdentityError { Description = "Курс не видалений" });
         }
 
         public async Task<bool> CourseHasSubscriptions(string id)

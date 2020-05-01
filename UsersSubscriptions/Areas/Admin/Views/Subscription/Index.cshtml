@@ -1,10 +1,101 @@
-﻿@model IEnumerable<Subscription>
+﻿@model SubscriptionsViewModel
 @{
     Layout = "_AdminLayout";
-    ViewData["Description"] = "Абонементи";
+    DateTime currentDate = DateTime.Now;
 }
-
 <div class="text-danger" asp-validation-summary="ModelOnly"></div>
+<div class="">
+    @*data-target="#collapseDiv"*@
+    <button class="btn-sm btn-outline-success" id="showSearch" data-toggle="collapse" style="position:absolute">
+        <i class="fas fa-filter"></i>
+    </button>
+    <div class=" text-center">
+        <h2>"Абонементи"</h2>
+    </div>
+</div>
+<div class="collapse @(Model.ShowFilter?"show":"")" id="collapseDiv">
+    <form asp-action="Index" method="post">
+        <input type="hidden" name="month" value="@Model.Month" id="month" />
+        <input type="hidden" name="showFilter" value="@(Model.ShowFilter?"true":"false")" id="showFilter" />
+        <div class="row">
+            <div class="col-6 my-1">
+                <select class="form-control" name="selectedSchoolId" onchange="this.form.submit()">
+                    <option value="" selected>Усі школи</option>
+                    @if (Model.Schools != null & Model.Schools.Count() > 0)
+                    {
+                        foreach (var school in Model.Schools)
+                        {
+                            @if (school.Id == Model.SelectedSchoolId)
+                            {
+                                <option value="@school.Id" selected>@school.Name</option>
+                            }
+                            else
+                            {
+                                <option value="@school.Id">@school.Name</option>
+                            }
+                        }
+                    }
+                </select>
+            </div>
+
+            <div class="col-6 my-1">
+                <select class="form-control" name="SelectedCourseId" onchange="this.form.submit()">
+                    <option value="" selected>Усі курси</option>
+                    @if (Model.Schools != null & Model.Schools.Count() > 0)
+                    {
+                        foreach (var school in Model.Schools)
+                        {
+                            @if (school.Courses != null
+                         && (string.IsNullOrEmpty(Model.SelectedSchoolId) || school.Id == Model.SelectedSchoolId))
+                            {
+                                foreach (var course in school.Courses)
+                                {
+                                    @if (course.Id == Model.SelectedCourseId)
+                                    {
+                                        <option value="@course.Id" selected>@course.Name</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="@course.Id">@course.Name</option>
+                                    }
+                                }
+
+                            }
+                        }
+                    }
+                </select>
+            </div>
+
+        </div>
+        <div class="row">
+            <div class="col-6 my-1">
+                <select class="form-control" name="MonthStr" onchange="this.form.submit()">
+                        <option value="" selected>Увесь період</option>
+                        @for (var i = 1; i > -12; i--)
+                        {
+                            var date = currentDate.AddMonths(i);
+                            @if (Model.Month.Year == date.Year && Model.Month.Month == date.Month)
+                            {
+                                <option selected value="@date">@date.ToString("MMMM:yyyy")</option>
+                            }
+                            else
+                            {
+                                <option value="@date">@date.ToString("MMMM:yyyy")</option>
+                            }
+                        }
+                </select>
+            </div>
+            <div class=" col-6 my-1">
+                <div class="form-group">
+                    <span class="input-group-append">
+                        <input name="searchName" value="@Model.SearchName" placeholder="Ім'я" class="form-control mr-1 mb-1" type="search" />
+                        <button class="btn btn-outline-success mb-1" type="submit" aria-label="Пошук за ім'ям"><i class="fas fa-search"></i></button>
+                    </span>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
 <div>
     <table class="table table-striped table-bordered text-center">
         <tr>
@@ -13,11 +104,11 @@
             <th class="text-center" style="vertical-align:middle">Сплачено</th>
             <th></th>
         </tr>
-        @foreach (var subs in Model)
+        @foreach (var subs in Model._Subscriptions)
         {
             <tr>
                 <td class="text-center" style="vertical-align:middle">@subs.AppUser.FullName </td>
-                <td class="text-center" style="vertical-align:middle">@subs.Course.Name <br /> @subs.Month.ToString("MMMM:yyyy") </td>
+                <td class="text-center" style="vertical-align:middle">@subs.Course.School.Name <br />@subs.Course.Name <br /> @subs.Month.ToString("MMMM:yyyy") </td>
                 <td class="text-center" style="vertical-align:middle">
                     @subs.Price
                     <br />
@@ -38,3 +129,20 @@
     </table>
 </div>
 
+@section AdminScripts{
+    <script>
+        $(function () {
+            $("#showSearch").click(function () {
+                console.log("click");
+                if ($("#collapseDiv").hasClass("show")) {
+                    $("#showFilter").val(false);
+                    $("#collapseDiv").removeClass("show")
+                }
+                else {
+                    $("#showFilter").val(true);
+                    $("#collapseDiv").addClass("show")
+                }
+            })
+        });
+    </script>
+}

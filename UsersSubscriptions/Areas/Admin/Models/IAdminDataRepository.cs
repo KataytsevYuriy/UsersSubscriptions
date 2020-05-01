@@ -13,26 +13,26 @@ namespace UsersSubscriptions.Areas.Admin.Models
         //Users
         IEnumerable<AppUser> GetAllUsers();
         Task<AppUser> GetUserAsync(string id);
-        Task<IList<string>> GetUserRolesAsync(string id);
         Task UpdateUserAsync(AppUser user, IList<string> newUserRoles);
         Task DeleteUseAsyncr(string id);
+
         //Roles
         List<IdentityRole> GetAllRoles();
+        Task<IList<string>> GetUserRolesAsync(string id);
         Task CreateRoleAsync(IdentityRole role);
         Task UpdateRole(IdentityRole role);
         Task<IdentityRole> GetRoleAsync(string id);
         Task<IList<AppUser>> GetRoleUsersAsync(string roleName);
         Task DeleteRoleAsync(string id);
+
         //Courses
-        IEnumerable<Course> GetAllCourses();
-        Task<IdentityResult> CreateCourseAsync(Course model);
         Task<IdentityResult> CreateCourseAsync(CourseDetailsViewModel model);
         Task<Course> GetCourseAsync(string id);
         Task<IdentityResult> UpdateCourseAsync(CourseDetailsViewModel course);
         Task<IdentityResult> DeleteCourse(string Id);
         Task<bool> CourseHasSubscriptions(string id);
         //Subscriptions
-        IEnumerable<Subscription> GetAllSubscriptions();
+        IEnumerable<Subscription> GetFilteredSubscriptions(string schoolId, string courseId, DateTime month, string searchByName);
         Task RemoveSubscriptionAsync(string id);
         Task<Subscription> GetSubscription(string id);
         //Schools

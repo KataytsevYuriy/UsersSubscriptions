@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Routing;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Protocols;
 using System;
@@ -16,13 +17,14 @@ namespace UsersSubscriptions.Filters
 {
     public class MenuFilterAttribute : ActionFilterAttribute
     {
-        private readonly ApplicationDbContext _context;
         private readonly ITeacherRepository repository;
-        public MenuFilterAttribute(ApplicationDbContext ctx, ITeacherRepository repo)
+        private IMemoryCache _cache;
+        public MenuFilterAttribute(ITeacherRepository repo, IMemoryCache icache)
         {
-            _context = ctx;
             repository = repo;
+            _cache = icache;
         }
+
         public override void OnActionExecuted(ActionExecutedContext context)
         {
             string userId = context.HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -32,18 +34,39 @@ namespace UsersSubscriptions.Filters
             bool showOwnerMenu = true;
             if (!string.IsNullOrEmpty(subdomain))
             {
-                school = repository.GetSchoolByUrl(subdomain);
-                if (!string.IsNullOrEmpty(userId))
+                if (_cache.TryGetValue(subdomain+userId, out CacheMenuModel cacheMenu))
                 {
-                    if (context.HttpContext.User.IsInRole(Common.UsersConstants.schoolOwner))
+                    school = new School
                     {
-                        showOwnerMenu = repository.IsItThisSchoolOwner(school.Id, userId);
-                    }
-                    if (context.HttpContext.User.IsInRole(Common.UsersConstants.teacher))
-                    {
-                        showTeacherMenu = repository.IsItThisSchoolTeacher(school.Id, userId);
-                    }
+                        Name = cacheMenu.Name,
+                    };
+                    showOwnerMenu = cacheMenu.ShowOwnerMenu;
+                    showTeacherMenu = cacheMenu.ShowTeacherMenu;
                 }
+                else
+                {
+                    school = repository.GetSchoolByUrl(subdomain);
+                    if (!string.IsNullOrEmpty(userId))
+                    {
+                        if (context.HttpContext.User.IsInRole(Common.UsersConstants.schoolOwner))
+                        {
+                            showOwnerMenu = repository.IsItThisSchoolOwner(school.Id, userId);
+                        }
+                        if (context.HttpContext.User.IsInRole(Common.UsersConstants.teacher))
+                        {
+                            showTeacherMenu = repository.IsItThisSchoolTeacher(school.Id, userId);
+                        }
+                    }
+                    cacheMenu = new CacheMenuModel
+                    {
+                        Name = school.Name,
+                        ShowTeacherMenu = showTeacherMenu,
+                        ShowOwnerMenu = showOwnerMenu,
+                    };
+                    var cacheEntryOptions = new MemoryCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromMinutes(3));
+                    _cache.Set(subdomain + userId, cacheMenu, cacheEntryOptions);
+                }
+
             }
             Controller controller = context.Controller as Controller;
             if (controller != null)
