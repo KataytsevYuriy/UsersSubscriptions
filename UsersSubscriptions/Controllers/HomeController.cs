@@ -43,6 +43,7 @@ namespace UsersSubscriptions.Controllers
                 await _signInManager.SignOutAsync();
                 return RedirectToAction(nameof(Index));
             }
+           
             return View(currentUser);
         }
 

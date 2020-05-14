@@ -46,7 +46,8 @@
                         {
                             if (ViewData["showOwnerMenu"] == null ? false : (bool)ViewData["showOwnerMenu"])
                             {
-                                <li class="nav-item"><a class=" nav-link" asp-area="" asp-controller="Owner" asp-action="Index">Управління школою</a></li>
+                                <li class="nav-item"><a class=" nav-link" asp-area="" asp-controller="Owner" asp-action="SchoolDetails">Управління школою</a></li>
+                                <li class="nav-item"><a class=" nav-link" asp-area="" asp-controller="Owner" asp-action="SchoolCalculation">Фінансовий облік</a></li>
                             }
                         }
                         @if (User.IsInRole(Common.UsersConstants.admin))
@@ -83,7 +84,7 @@
 
     <div class="col-12">
         <div style="overflow-x:auto">
-            <div class="container">
+            <div class="">
                 <partial name="_FlashMessage" />
                 @RenderBody()
                 <hr />

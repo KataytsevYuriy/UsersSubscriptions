@@ -60,16 +60,6 @@ namespace UsersSubscriptions.Areas.Admin.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        public async Task<IActionResult> DeleteRole(string id)
-        {
-            IdentityRole role = await repository.GetRoleAsync(id);
-            if (role != null)
-            {
-                ViewBag.roleUsers = await repository.GetRoleUsersAsync(role.Name);
-                return View(role);
-            }
-            return RedirectToAction(nameof(Index));
-        }
         [HttpPost]
         public async Task<IActionResult> DeleteRole(IdentityRole model)
         {

@@ -1,0 +1,201 @@
+﻿@model SchoolCalculationsViewModel
+@{
+    Layout = "_Layout";
+    int startYear = 2019;
+    var monthes = new List<string>{"Січень", "Лютий", "Березень", "Квітень", "Травень", "Червень",
+"Липень", "Серпень", "Вересень", "Жовтень", "Листопад",  "Грудень"};
+}
+<form asp-action="SchoolCalculation" method="post" class="fm-date my-1">
+    <input type="hidden" value="@Model.SchoolId" name="SchoolId" />
+    <input type="hidden" value="@Model.SelectedCourseId" name="selectedCourseId" id="selectedCourseId" />
+    <input type="hidden" value="@Model.SelectedTeacherId" name="selectedTeacherId" id="selectedTeacherId" />
+    <input type="hidden" value="@Model.Month" name="month" id="month" />
+    <input type="hidden" value="@Model.SelectedNavId" name="selectedNavId" id="selectedNavId" />
+
+    <div class="row">
+        <br />
+        <div class="col-8">
+            <select class="selectDate form-control" id="selectMonth" onchange="sendForm()">
+                @for (var i = 0; i < 12; i++)
+                {
+                    @if (Model.Month.Month == i + 1)
+                    {
+                        <option selected value="@i">@monthes[i]</option>
+                    }
+                    else
+                    {
+                        <option value="@i">@monthes[i]</option>
+                    }
+                }
+            </select>
+        </div>
+        <div class="col-4">
+            <select class="selectDate form-control" id="selectYear" onchange="sendForm(), this.form.submit()">
+                @for (var i = startYear; i <= DateTime.Now.Year; i++)
+                {
+                    if (Model.Month.Year == i)
+                    {
+                        <option selected value="@i">@i</option>
+                    }
+                    else
+                    {
+                        <option value="@i">@i</option>
+                    }
+                }
+            </select>
+        </div>
+    </div>
+</form>
+<nav>
+    <div class="nav nav-tabs" id="nav-tabs" role="tablist">
+        <a class="nav-item nav-link active" id="nav-school-tab" data-toggle="tab" href="#nav-school" role="tab"
+           aria-controls="nav-school" aria-selected="true">По школі</a>
+        <a class="nav-item nav-link " id="nav-course-tab" data-toggle="tab" href="#nav-course" role="tab"
+           aria-controls="nav-course" aria-selected="true">По курсу</a>
+        <a class="nav-item nav-link " id="nav-teacher-tab" data-toggle="tab" href="#nav-teacher" role="tab"
+           aria-controls="nav-teacher" aria-selected="true">По вчителю</a>
+    </div>
+    <div class="tab-content" id="nav-tabContent">
+        <div class="tab-pane fade show active py-2" id="nav-school" role="tabpanel" aria-labelledby="nav-school-tab">
+            <table class="table table-bordered table-striped">
+                @if (Model.SchoolCourses.Count() > 0)
+                {
+                    foreach (var course in Model.SchoolCourses)
+                    {
+                        <tr>
+                            <th class="text-center">
+                                @if (course.IsActive)
+                                {
+                                    <i class="fas fa-check" style="color:green"> </i>
+                                }
+                                else
+                                {
+                                    <i class="fas fa-times" style="color:red"> </i>
+                                }
+                                @course.Name
+                            </th>
+                            <td class="text-center">
+                                @course.Sum
+                            </td>
+                        </tr>
+                    }
+                }
+                <tr>
+                    <th class="text-right">Разом</th>
+                    <th class="text-center">@Model.SchoolCourses.Select(cour => cour.Sum).Sum()</th>
+                </tr>
+            </table>
+        </div>
+        <div class="tab-pane fade py-2" id="nav-course" role="tabpanel" aria-labelledby="nav-course-tab">
+            <div class="my-2">
+                <select id="selectCourse" onchange="sendForm()">
+                    @if (string.IsNullOrEmpty(Model.SelectedCourseId))
+                    {
+                        <option value="" selected>Виберіть курс</option>
+                    }
+                    @foreach (var course in Model.SchoolCourses)
+                    {
+                        if (Model.SelectedCourseId == course.Id)
+                        {
+                            <option selected value="@course.Id">@course.Name</option>
+                        }
+                        else
+                        {
+                            <option value="@course.Id">@course.Name</option>
+                        }
+                    }
+                </select>
+            </div>
+            <div>
+                <table class="table table-bordered table-striped">
+                    @foreach (var subscription in Model.CourseSubscriptions)
+                    {
+                        <tr>
+                            <td class="text-center">@subscription.AppUser.FullName</td>
+                            <td class="text-center">@subscription.Price</td>
+                        </tr>
+                    }
+                    <tr>
+                        <th class="text-center">Разом</th>
+                        <td class="text-center">@Model.CourseSubscriptions.Select(sub => sub.Price).Sum()</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+        <div class="tab-pane fade py2" id="nav-teacher" role="tabpanel" aria-labelledby="nav-teacher-tab">
+            <div class="my-2">
+                <select id="selectTeacher" onchange="sendForm()">
+                    @if (string.IsNullOrEmpty(Model.SelectedTeacherId))
+                    {
+                        <option value="" selected>Виберіть вчителя</option>
+                    }
+                    @if (Model.SchoolTeachers != null && Model.SchoolTeachers.Count() > 0)
+                    {
+                        foreach (var teacher in Model.SchoolTeachers)
+                        {
+                            if (Model.SelectedTeacherId == teacher.Id)
+                            {
+                            <option selected value="@teacher.Id">@teacher.FullName</option>
+                            }
+                            else
+                            {
+                            <option value="@teacher.Id">@teacher.FullName</option>
+                            }
+                        }
+                    }
+                </select>
+            </div>
+            <div>
+                <table class="table table-bordered table-striped">
+                    @foreach (var subscription in Model.TeacherSubscriptions)
+                    {
+                        <tr>
+                            <td class="text-center">@subscription.AppUser.FullName</td>
+                            <td class="text-center">@subscription.Price</td>
+                        </tr>
+                    }
+                    <tr>
+                        <th class="text-center">Разом</th>
+                        <td class="text-center">@Model.TeacherSubscriptions.Select(sub => sub.Price).Sum()</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+</nav>
+
+
+@section Scripts{
+    <script>
+        $(function () {
+            var selected = $("#selectedNavId").val();
+            if (selected === "nav-course") {
+                $("#nav-course-tab").tab('show');
+            } else if (selected === "nav-teacher") {
+                $("#nav-teacher-tab").tab('show');
+            }
+        })
+    </script>
+    <script>
+        function sendForm() {
+            var newDate = new Date($("#selectYear").val(), $("#selectMonth").val());
+            $("#month").val(newDate.toUTCString());
+
+            var courseId = $("#selectCourse").val();
+            $("#selectedCourseId").val(courseId);
+
+            var teacherId = $("#selectTeacher").val();
+            $("#selectedTeacherId").val(teacherId);
+
+            if ($("#nav-course").hasClass("show")) {
+                $("#selectedNavId").val("nav-course");
+            } else if ($("#nav-teacher").hasClass("show")) {
+                $("#selectedNavId").val("nav-teacher");
+            } else {
+                $("#selectedNavId").val("");
+            }
+
+            $(".fm-date").submit();
+        }
+    </script>
+}

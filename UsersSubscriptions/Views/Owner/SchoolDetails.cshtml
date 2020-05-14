@@ -11,7 +11,7 @@
             @foreach (var course in Model.Courses)
             {
             <div class="list-group-item">
-                <a asp-action="EditCourse" asp-route-id="@course.Id" asp-route-schoolId="@Model.Id">@course.Name</a>
+                <a asp-action="CourseDetails" asp-route-id="@course.Id" asp-route-schoolId="@Model.Id">@course.Name</a>
                 @if (course.IsActive)
                 {
                     <i class="fas fa-check float-right" style="color:green"> </i>

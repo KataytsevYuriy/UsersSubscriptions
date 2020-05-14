@@ -11,7 +11,7 @@
         <div class="list-group">
             @foreach (var school in Model)
             {
-                <a asp-action="SchoolInfo" asp-route-id="@school.Id" class="list-group-item">@school.Name</a>
+                <a asp-action="SchoolDetails" asp-route-id="@school.Id" class="list-group-item">@school.Name</a>
             }
         </div>
 

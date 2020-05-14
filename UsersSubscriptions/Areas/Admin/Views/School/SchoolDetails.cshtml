@@ -2,10 +2,12 @@
 @{
     Layout = "_AdminLayout";
     ViewData["Description"] = "Школа";
+    ViewBag.ConfirmMessage = "Видалити школу " + Model.Name + "?";
+
 }
 
 <div class="">
-    <form asp-action="SchoolDetails" method="post">
+    <form asp-action="SchoolDetails" method="post" id="form">
         <input type="hidden" name="Id" id="schoolId" value="@Model.Id" />
         <ul class="list-group">
             <li class="list-group-item">
@@ -26,7 +28,7 @@
             </li>
             <li class="list-group-item">
                 <button class="btn-default btn" type="submit">Зберегти</button>
-                <a asp-action="DeleteSchool" asp-route-id="@Model.Id" class="btn-outline-danger btn float-right">Видалити</a>
+                <button type="button" class="btn btn-outline-danger float-right" data-toggle="modal" data-target="#confirmDelete">Видалити</button>
             </li>
         </ul>
     </form>
@@ -38,17 +40,15 @@
                 @foreach (var cours in Model.Courses)
                 {
                     <li class="list-group-item">
+                        <a asp-action="CourseDetails" asp-route-id="@cours.Id"> @cours.Name</a>
                         @if (cours.IsActive)
                         {
-                            <i class="fas fa-check" style="color:green"> </i>
+                            <i class="fas fa-check float-right" style="color:green"> </i>
                         }
                         else
                         {
-                            <i class="fas fa-times" style="color:red"> </i>
+                            <i class="fas fa-times float-right" style="color:red"> </i>
                         }
-
-                        <a asp-action="CourseDetails" asp-route-id="@cours.Id"> @cours.Name</a>
-                        <a asp-action="DeleteCourse" asp-route-id="@cours.Id" class=" text-danger float-right">Видалити</a>
                     </li>
                 }
             </ul>
@@ -56,6 +56,7 @@
     </div>
     <div class="text-center"><a asp-action="CreateCourse" asp-route-id="@Model.Id" class="btn btn-outline-primary mt-3">Додати Курс</a></div>
 </div>
+<partial name="_ConfirmDelete" />
 
 <partial name="_AddUserModal" />
 @section AdminScripts{
@@ -75,5 +76,15 @@
                     }, "json");
             }
         };
+    </script>
+    <script>
+        $(function () {
+            $("#deleteButton").click(function () {
+                var action = "/Admin/School/DeleteSchool"
+                var form = document.getElementById("form");
+                form.action = action;
+                form.submit();
+            });
+        });
     </script>
 }

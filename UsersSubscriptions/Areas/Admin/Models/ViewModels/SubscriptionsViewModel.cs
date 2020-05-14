@@ -8,6 +8,7 @@ namespace UsersSubscriptions.Areas.Admin.Models.ViewModels
 {
     public class SubscriptionsViewModel
     {
+        public string Id { get; set; }
         public IEnumerable<Subscription> _Subscriptions { get; set; }
         public string SelectedSchoolId { get; set; }
         public IEnumerable<School> Schools { get; set; }

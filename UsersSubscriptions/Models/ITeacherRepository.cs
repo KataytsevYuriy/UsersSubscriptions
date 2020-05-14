@@ -12,30 +12,31 @@ namespace UsersSubscriptions.Models
     public interface ITeacherRepository
     {
         //user
-        Task<AppUser> GetCurrentUserAsync(HttpContext context);
         Task<AppUser> GetUserAsync(string id);
-        Task<AppUser> GetUserByPhone(string phone);
-        Task<AppUser> GetCurrentOwnerAsync(string userId);
-        Task<IEnumerable<School>> GetCurrentTeacherSchools(string userId);
-       
+        AppUser GetUserByPhone(string phone);
+        AppUser GetCurrentOwner(string userId);
+        IEnumerable<School> GetCurrentTeacherSchools(string userId);
+
         //course
-        Task<IdentityResult> CreateCourseAsync(OwnerCourseViewModel course);
-        Task<Course> GetCoursAsync(string id);
-        Task<IEnumerable<Course>> GetTeacherCoursesAsync(AppUser teacher, string schoolId, bool onlyActive);
-        Task<IdentityResult> UpdateCourseAsync(Course course, IList<string> TeachersId);
+        Course GetCourse(string id);
+        Task<IdentityResult> CreateCourseAsync(CourseViewModel course);
+        Task<IdentityResult> UpdateCourseAsync(CourseViewModel course);
+        IEnumerable<Course> GetTeacherCourses(string teacherId, string schoolId, bool onlyActive);
         Task AddTeacherToCourse(string userId, string courseId);
-        Task<IdentityResult> DeleteCourse(string Id);
-        Task<bool> CourseHasSubscriptions(string id);
+        Task<IdentityResult> DeleteCourseAsync(string Id);
+        bool CourseHasSubscriptions(string id);
 
         //Subscription
         Task<IdentityResult> CreateSubscriptionAsync(Subscription subscription);
-        Task<IEnumerable<Subscription>> GetUserSubscriptionsAsync(string userId,string schoolId, DateTime month);
+        IEnumerable<Subscription> GetUserSubscriptions(string userId, string schoolId, DateTime month);
+        void RemoveSubscription(string id);
 
         //school
-        Task<School> GetSchoolAsync(string schoolId);
+        School GetSchool(string schoolId);
+        SchoolCalculationsViewModel GetSchoolDetail(string schoolId, string courseId, DateTime month, string selectedNavId, string selectedTeacherId);
         School GetSchoolByUrl(string url);
-        Task<IEnumerable<Student>> GetTeacherMonthStudentsAsync(string courseId, DateTime month);
         IEnumerable<School> GetUsersSchools(string userId);
+        IEnumerable<Student> GetTeacherMonthStudents(string courseId, DateTime month);
         bool IsItThisSchoolOwner(string schoolId, string ownerId);
         bool IsItThisSchoolTeacher(string schoolId, string teacherId);
 

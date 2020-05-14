@@ -12,9 +12,8 @@ namespace UsersSubscriptions.Areas.Admin.Models
     {
         //Users
         IEnumerable<AppUser> GetAllUsers();
-        Task<AppUser> GetUserAsync(string id);
         Task UpdateUserAsync(AppUser user, IList<string> newUserRoles);
-        Task DeleteUseAsyncr(string id);
+        Task<IdentityResult> DeleteUseAsync(string id);
 
         //Roles
         List<IdentityRole> GetAllRoles();
@@ -25,20 +24,13 @@ namespace UsersSubscriptions.Areas.Admin.Models
         Task<IList<AppUser>> GetRoleUsersAsync(string roleName);
         Task DeleteRoleAsync(string id);
 
-        //Courses
-        Task<IdentityResult> CreateCourseAsync(CourseDetailsViewModel model);
-        Task<Course> GetCourseAsync(string id);
-        Task<IdentityResult> UpdateCourseAsync(CourseDetailsViewModel course);
-        Task<IdentityResult> DeleteCourse(string Id);
-        Task<bool> CourseHasSubscriptions(string id);
         //Subscriptions
         IEnumerable<Subscription> GetFilteredSubscriptions(string schoolId, string courseId, DateTime month, string searchByName);
-        Task RemoveSubscriptionAsync(string id);
         Task<Subscription> GetSubscription(string id);
+
         //Schools
         IEnumerable<School> GetAllSchools();
         Task<IdentityResult> CreateSchoolAsync(School school);
-        Task<School> GetSchoolAsync(string id);
         Task<IdentityResult> UpdateSchoolAsync(School school);
         Task<IdentityResult> DeleteScoolAsync(string Id);
 

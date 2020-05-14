@@ -5,7 +5,6 @@
 }
 <div class="text-danger" asp-validation-summary="ModelOnly"></div>
 <div class="">
-    @*data-target="#collapseDiv"*@
     <button class="btn-sm btn-outline-success" id="showSearch" data-toggle="collapse" style="position:absolute">
         <i class="fas fa-filter"></i>
     </button>
@@ -14,9 +13,10 @@
     </div>
 </div>
 <div class="collapse @(Model.ShowFilter?"show":"")" id="collapseDiv">
-    <form asp-action="Index" method="post">
+    <form asp-action="Index" method="post" id="form">
         <input type="hidden" name="month" value="@Model.Month" id="month" />
         <input type="hidden" name="showFilter" value="@(Model.ShowFilter?"true":"false")" id="showFilter" />
+        <input type="hidden" name="Id" id="idToDelete" />
         <div class="row">
             <div class="col-6 my-1">
                 <select class="form-control" name="selectedSchoolId" onchange="this.form.submit()">
@@ -46,7 +46,7 @@
                         foreach (var school in Model.Schools)
                         {
                             @if (school.Courses != null
-                         && (string.IsNullOrEmpty(Model.SelectedSchoolId) || school.Id == Model.SelectedSchoolId))
+                      && (string.IsNullOrEmpty(Model.SelectedSchoolId) || school.Id == Model.SelectedSchoolId))
                             {
                                 foreach (var course in school.Courses)
                                 {
@@ -70,19 +70,19 @@
         <div class="row">
             <div class="col-6 my-1">
                 <select class="form-control" name="MonthStr" onchange="this.form.submit()">
-                        <option value="" selected>Увесь період</option>
-                        @for (var i = 1; i > -12; i--)
+                    <option value="" selected>Увесь період</option>
+                    @for (var i = 1; i > -12; i--)
+                    {
+                        var date = currentDate.AddMonths(i);
+                        @if (Model.Month.Year == date.Year && Model.Month.Month == date.Month)
                         {
-                            var date = currentDate.AddMonths(i);
-                            @if (Model.Month.Year == date.Year && Model.Month.Month == date.Month)
-                            {
-                                <option selected value="@date">@date.ToString("MMMM:yyyy")</option>
-                            }
-                            else
-                            {
-                                <option value="@date">@date.ToString("MMMM:yyyy")</option>
-                            }
+                            <option selected value="@date">@date.ToString("MMMM:yyyy")</option>
                         }
+                        else
+                        {
+                            <option value="@date">@date.ToString("MMMM:yyyy")</option>
+                        }
+                    }
                 </select>
             </div>
             <div class=" col-6 my-1">
@@ -122,18 +122,22 @@
                     }
                 </td>
                 <td class="text-center" style="vertical-align:middle">
-                    <a asp-action="RemoveSubscription" asp-route-Id="@subs.Id" class="btn btn-outline-danger">Видалити</a>
+                    <button type="button" class="btn btn-outline-danger float-right mt-2" onclick="deleteButtonCkick('@subs.Id')">
+                        @*onclick="deleteButtonCkick(@subs.Id)">*@
+                                        Видалити
+                                    </button>
+                    @*data-toggle="modal"  data-target="#confirmDelete" id="deleteButton" >Видалити</button>*@
+                    @*<a asp-action="RemoveSubscription" asp-route-Id="@subs.Id" class="btn btn-outline-danger">Видалити</a>*@
                 </td>
             </tr>
         }
     </table>
 </div>
-
+<partial name="_ConfirmDelete" />
 @section AdminScripts{
     <script>
         $(function () {
             $("#showSearch").click(function () {
-                console.log("click");
                 if ($("#collapseDiv").hasClass("show")) {
                     $("#showFilter").val(false);
                     $("#collapseDiv").removeClass("show")
@@ -143,6 +147,25 @@
                     $("#collapseDiv").addClass("show")
                 }
             })
+        });
+    </script>
+    <script>
+        function deleteButtonCkick(data) {
+            console.log(data);
+            console.log("click");
+ $("#idToDelete").val(data); 
+            console.log("1");
+    $("#confirmDelete").modal('show');
+        };
+    </script>
+    <script>
+        $(function () {
+            $("#deleteButton").click(function () {
+                var action = "/Admin/Subscription/RemoveSubscription"
+                var form = document.getElementById("form");
+                form.action = action;
+                form.submit();
+            });
         });
     </script>
 }

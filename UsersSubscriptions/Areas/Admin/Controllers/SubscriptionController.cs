@@ -17,7 +17,12 @@ namespace UsersSubscriptions.Areas.Admin.Controllers
     public class SubscriptionController : Controller
     {
         private IAdminDataRepository repository;
-        public SubscriptionController(IAdminDataRepository repo) => repository = repo;
+        private ITeacherRepository teacherRepository;
+        public SubscriptionController(IAdminDataRepository repo, ITeacherRepository teacherRepo)
+        {
+            repository = repo;
+            teacherRepository = teacherRepo;
+        }
 
         public IActionResult Index(string selectedSchoolId, string selectedCourseId, string MonthStr, string searchName, bool showFilter)
         {
@@ -28,7 +33,7 @@ namespace UsersSubscriptions.Areas.Admin.Controllers
             }
             IEnumerable<School> schools = repository.GetAllSchools();
             IEnumerable<Subscription> subscriptions = repository
-                .GetFilteredSubscriptions(selectedSchoolId, selectedCourseId, dateTime,searchName);
+                .GetFilteredSubscriptions(selectedSchoolId, selectedCourseId, dateTime, searchName);
             SubscriptionsViewModel model = new SubscriptionsViewModel
             {
                 _Subscriptions = subscriptions,
@@ -36,23 +41,30 @@ namespace UsersSubscriptions.Areas.Admin.Controllers
                 SelectedSchoolId = selectedSchoolId,
                 SelectedCourseId = selectedCourseId,
                 Month = dateTime,
-                SearchName=searchName,
-                ShowFilter=showFilter,
+                SearchName = searchName,
+                ShowFilter = showFilter,
             };
             return View(model);
         }
 
-        public async Task<IActionResult> RemoveSubscription(string Id)
-        {
-            return View(await repository.GetSubscription(Id));
-        }
-
         [HttpPost]
-        public async Task<IActionResult> RemoveSubscription(Subscription subscription)
+        public IActionResult RemoveSubscription(SubscriptionsViewModel subscription)
         {
-            await repository.RemoveSubscriptionAsync(subscription.Id);
-            return RedirectToAction(nameof(Index));
+            teacherRepository.RemoveSubscription(subscription.Id);
+            DateTime dateTime = new DateTime();
+            if (!string.IsNullOrEmpty(subscription.MonthStr))
+            {
+                DateTime.TryParse(subscription.MonthStr, out dateTime);
+            }
+            return RedirectToAction(nameof(Index),
+                new
+                {
+                    selectedSchoolId = subscription.SelectedSchoolId,
+                    selectedCourseId = subscription.SelectedCourseId,
+                    MonthStr = dateTime,
+                    searchName = subscription.SearchName,
+                    showFilter = subscription.ShowFilter,
+                });
         }
-
     }
 }

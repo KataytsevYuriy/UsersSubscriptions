@@ -6,16 +6,13 @@
 
 <div class="text-danger" asp-validation-summary="ModelOnly"></div>
 <div>
-    <table class="table table-bordered table-striped">
+    <div class="list-group">
         @foreach(IdentityRole role in Model)
         {
-            <tr>
-                <td><a asp-action="RoleDetails" asp-route-id="@role.Id" class="">@role.Name</a></td>
-                <td>
-                    <a asp-action="DeleteRole" asp-route-id="@role.Id" class="btn btn-outline-danger">Видалити</a>
-                </td>
-            </tr>
+            <div class="list-group-item text-center">
+                <a asp-action="RoleDetails" asp-route-id="@role.Id" class="">@role.Name</a>
+            </div>
         }
-    </table>
+    </div>
 </div>
-<a asp-action="CreateRole" class="btn btn-primary">Додати роль</a>
+<div class="text-center mt-2"><a asp-action="CreateRole" class="btn btn-outline-primary">Додати роль</a></div>

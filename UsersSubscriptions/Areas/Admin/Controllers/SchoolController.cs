@@ -9,6 +9,7 @@ using UsersSubscriptions.Areas.Admin.Models;
 using UsersSubscriptions.Areas.Admin.Models.ViewModels;
 using UsersSubscriptions.Common;
 using UsersSubscriptions.Models;
+using UsersSubscriptions.Models.ViewModels;
 
 namespace UsersSubscriptions.Areas.Admin.Controllers
 {
@@ -17,9 +18,11 @@ namespace UsersSubscriptions.Areas.Admin.Controllers
     public class SchoolController : Controller
     {
         private IAdminDataRepository repository;
-        public SchoolController(IAdminDataRepository repo)
+        private ITeacherRepository repositoryTeacher;
+        public SchoolController(IAdminDataRepository repo, ITeacherRepository repoTeacher)
         {
             repository = repo;
+            repositoryTeacher = repoTeacher;
         }
 
         public IActionResult Index()
@@ -45,9 +48,9 @@ namespace UsersSubscriptions.Areas.Admin.Controllers
             return RedirectToAction(nameof(CreateSchool));
         }
 
-        public async Task<IActionResult> SchoolDetails(string id)
+        public IActionResult SchoolDetails(string id)
         {
-            School school = await repository.GetSchoolAsync(id);
+            School school = repositoryTeacher.GetSchool(id);
             if (school == null)
             {
                 TempData["ErrorMessage"] = "Школа не знайдена";
@@ -69,17 +72,6 @@ namespace UsersSubscriptions.Areas.Admin.Controllers
             return RedirectToAction(nameof(SchoolDetails), new { id = school.Id });
         }
 
-        public async Task<IActionResult> DeleteSchool (string id)
-        {
-            School school = await repository.GetSchoolAsync(id);
-            if (school == null)
-            {
-                TempData["ErrorMessage"] = "Школа не знайдена";
-                return RedirectToAction(nameof(Index));
-            }
-            return View(school);
-        }
-
         [HttpPost]
         public async Task<IActionResult> DeleteSchool(School school)
         {
@@ -95,13 +87,13 @@ namespace UsersSubscriptions.Areas.Admin.Controllers
 
         public IActionResult CreateCourse(string id)
         {
-            return View(new CourseDetailsViewModel { SchoolId = id });
+            return View(new CourseViewModel { SchoolId = id });
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateCourse(CourseDetailsViewModel course)
+        public async Task<IActionResult> CreateCourse(CourseViewModel course)
         {
-            IdentityResult result = await repository.CreateCourseAsync(course);
+            IdentityResult result = await repositoryTeacher.CreateCourseAsync(course);
             if (result.Succeeded)
             {
                 TempData["SuccessMessage"] = "Курс доданий";
@@ -111,10 +103,10 @@ namespace UsersSubscriptions.Areas.Admin.Controllers
             return View(course);
         }
 
-        public async Task<IActionResult> CourseDetails(string id)
+        public IActionResult CourseDetails(string id)
         {
-            Course course = await repository.GetCourseAsync(id);
-            CourseDetailsViewModel model = new CourseDetailsViewModel
+            Course course =  repositoryTeacher.GetCourse(id);
+            CourseViewModel model = new CourseViewModel
             {
                 Id = course.Id,
                 Name = course.Name,
@@ -127,9 +119,9 @@ namespace UsersSubscriptions.Areas.Admin.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> UpdateCourse(CourseDetailsViewModel course)
+        public async Task<IActionResult> UpdateCourse(CourseViewModel course)
         {
-            IdentityResult result = await repository.UpdateCourseAsync(course);
+            IdentityResult result = await repositoryTeacher.UpdateCourseAsync(course);
             if (result.Succeeded)
             {
                 TempData["SuccessMessage"] = "Курс оновлений";
@@ -139,39 +131,33 @@ namespace UsersSubscriptions.Areas.Admin.Controllers
             return RedirectToAction(nameof(CourseDetails), new { id = course.Id });
         }
 
-        public async Task<IActionResult> DeleteCourse(string id)
-        {
-            ViewBag.HasSubscriptions = await repository.CourseHasSubscriptions(id);
-            return View(await repository.GetCourseAsync(id));
-        }
-
         [HttpPost]
         public async Task<IActionResult> DeleteCourse(Course course)
         {
-            var result = await repository.DeleteCourse(course.Id);
+            IdentityResult result = await  repositoryTeacher.DeleteCourseAsync(course.Id);
             if (result.Succeeded)
             {
                 TempData["SuccessMessage"] = "Курс видалений";
-                return RedirectToAction(nameof(SchoolDetails), new { id = course.SchoolId });
-            }
+            } else
+            {
             TempData["ErrorMessage"] = result.Errors.FirstOrDefault().Description;
+            }
             return RedirectToAction(nameof(SchoolDetails), new { id = course.SchoolId });
         }
 
         [HttpPost]
         public async Task<JsonResult> ChangeSchoolOwnerAsync(string id, string schoolId)
-        { //  /ChangeSchoolOwnerAsync/" + userIdent.id + "?schoolId=" + courseId + "?oldOwner=" + oldOwner,
-
+        { 
             if (id == null || string.IsNullOrEmpty(id)
                 || schoolId == null || string.IsNullOrEmpty(schoolId))
             {
                 return Json("");
             }
-            if (await repository.GetUserAsync(id) == null)
+            if (await repositoryTeacher.GetUserAsync(id) == null)
             {
                 return Json("");
             }
-            if (await repository.GetSchoolAsync(schoolId) == null)
+            if ( repositoryTeacher.GetSchool(schoolId) == null)
             {
                 return Json("");
             }

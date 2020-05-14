@@ -17,31 +17,35 @@ namespace UsersSubscriptions.Controllers
     public class OwnerController : Controller
     {
         private readonly SignInManager<AppUser> _signInManager;
-        private ITeacherRepository repository;
+        private ITeacherRepository teacherRepository;
         public OwnerController(ITeacherRepository repo, SignInManager<AppUser> signInManager)
         {
-            repository = repo;
+            teacherRepository = repo;
             _signInManager = signInManager;
         }
 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string redirect)
         {
+            if (string.IsNullOrEmpty(redirect))
+            {
+                return RedirectToAction("Index","home" );
+            }
             string ownerId = HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (ownerId == null || string.IsNullOrEmpty(ownerId))
+            if (string.IsNullOrEmpty(ownerId))
             {
                 await _signInManager.SignOutAsync();
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction("Index", "home");
             }
-            AppUser curOwner = await repository.GetCurrentOwnerAsync(ownerId);
+            AppUser curOwner = teacherRepository.GetCurrentOwner(ownerId);
             if (curOwner == null)
             {
                 await _signInManager.SignOutAsync();
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction("Index", "home");
             }
             IEnumerable<School> schools = curOwner.Schools;
             if (schools.Count() == 0)
             {
-                return View(schools);
+                return RedirectToAction("Index", "Home");
             }
             string subdomain = (HttpContext.GetRouteData().Values["subdomain"] ?? "").ToString();
             if (!string.IsNullOrEmpty(subdomain))
@@ -49,67 +53,66 @@ namespace UsersSubscriptions.Controllers
                 School school = schools.FirstOrDefault(sch => sch.UrlName.ToLower().Equals(subdomain.ToLower()));
                 if (school == null)
                 {
-                    return View(new List<School>());
+                    return RedirectToAction("Index", "Home");
                 }
-                return RedirectToAction(nameof(SchoolInfo), new { id = school.Id });
+                return RedirectToAction(redirect, new { id = school.Id });
             }
             if (schools.Count() == 1)
             {
-                return RedirectToAction(nameof(SchoolInfo), new { id = schools.First().Id });
+                return RedirectToAction(redirect, new { id = schools.FirstOrDefault().Id });
             }
             return View(schools);
         }
 
 
 
-        public async Task<IActionResult> SchoolInfo(string id)
+        public IActionResult SchoolDetails(string id)
         {
             if (string.IsNullOrEmpty(id))
             {
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction(nameof(Index), new { redirect = "SchoolDetails" });
             }
-            School school = await repository.GetSchoolAsync(id);
+            School school = teacherRepository.GetSchool(id);
             if (school == null)
             {
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction(nameof(Index), new { redirect = "SchoolDetails" });
             }
             return View(school);
         }
- 
+
 
 
         public IActionResult AddCourse(string schoolId)
         {
-            return View(new OwnerCourseViewModel { SchoolId = schoolId });
+            return View(new CourseViewModel { SchoolId = schoolId });
         }
 
         [HttpPost]
-        public async Task<IActionResult> AddCourse(OwnerCourseViewModel course)
+        public async Task<IActionResult> AddCourse(CourseViewModel course)
         {
-            IdentityResult result = await repository.CreateCourseAsync(course);
+            IdentityResult result = await teacherRepository.CreateCourseAsync(course);
             if (result.Succeeded)
             {
                 TempData["SuccessMessage"] = "Школа додана";
-                return RedirectToAction(nameof(SchoolInfo), new { id = course.SchoolId });
+                return RedirectToAction(nameof(SchoolDetails), new { id = course.SchoolId });
             }
             TempData["ErrorMessage"] = result.Errors.FirstOrDefault().Description;
             return RedirectToAction(nameof(AddCourse), new { schoolId = course.SchoolId });
         }
 
-        public async Task<IActionResult> EditCourse(string id, string schoolId)
+        public IActionResult CourseDetails(string id, string schoolId)
         {
-            AppUser curUser = await repository.GetCurrentUserAsync(HttpContext);
-            Course course = await repository.GetCoursAsync(id);
+            Course course = teacherRepository.GetCourse(id);
             if (course == null)
             {
                 TempData["ErrorMessage"] = "Курс не знайдено";
-                return RedirectToAction(nameof(SchoolInfo), new { id = schoolId });
+                return RedirectToAction(nameof(SchoolDetails), new { id = schoolId });
             }
-            if (course.School.OwnerId != curUser.Id)
+            if (course.School.OwnerId != HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier))
             {
                 return StatusCode(403);
             }
-            OwnerCourseViewModel model = new OwnerCourseViewModel
+            CourseViewModel model = new CourseViewModel
             {
                 Id = course.Id,
                 Name = course.Name,
@@ -122,67 +125,40 @@ namespace UsersSubscriptions.Controllers
             return View(model);
         }
         [HttpPost]
-        public async Task<IActionResult> EditCourse(OwnerCourseViewModel model)
+        public async Task<IActionResult> CourseDetails(CourseViewModel model)
         {
-            IdentityResult result;
-            AppUser curUser = await repository.GetCurrentUserAsync(HttpContext);
-            Course course = await repository.GetCoursAsync(model.Id);
-            if (course == null)
-            {
-                TempData["ErrorMessage"] = "Курс не знайдено";
-                return RedirectToAction(nameof(SchoolInfo), new { id = model.SchoolId });
-            }
-            if (course.School.OwnerId != curUser.Id)
-            {
-                return StatusCode(403);
-            }
-            result = await repository.UpdateCourseAsync(new Course
-            {
-                Id = model.Id,
-                Name = model.Name,
-                Description = model.Description,
-                IsActive = model.IsActive,
-                Price = model.Price,
-            }, model.TeachersId.Distinct<string>().ToList());
+            IdentityResult result = await teacherRepository.UpdateCourseAsync(model);
             if (result.Succeeded)
             {
                 TempData["SuccessMessage"] = "Курс оновлено";
+                return RedirectToAction(nameof(SchoolDetails), new { id = model.SchoolId });
             }
-            if (model.TeachersId.Distinct<string>().ToList()
-                .Except(course.CourseAppUsers.Select(cour => cour.AppUserId).ToList())
-                .Count() > 0)    //If teacher was added
-            {
-                return RedirectToAction(nameof(EditCourse), new { id = course.Id, schoolId = model.SchoolId });
-            }
-            return RedirectToAction(nameof(SchoolInfo), new { id = model.SchoolId });
+            TempData["ErrorMessage"] = result.Errors.FirstOrDefault().Description;
+            return RedirectToAction(nameof(CourseDetails), new { id = model.Id, schoolId = model.SchoolId });
         }
 
-
-        public async Task<IActionResult> DeleteCourse(string id)
-        {
-            ViewBag.HasSubscriptions = await repository.CourseHasSubscriptions(id);
-            return View(await repository.GetCoursAsync(id));
-        }
 
         [HttpPost]
-        public async Task<IActionResult> DeleteCourse(Course course)
+        public async Task<IActionResult> DeleteCourse(CourseViewModel course)
         {
-            var result = await repository.DeleteCourse(course.Id);
+            var result = await teacherRepository.DeleteCourseAsync(course.Id);
             if (result.Succeeded)
             {
                 TempData["SuccessMessage"] = "Курс видалений";
-                return RedirectToAction(nameof(SchoolInfo), new { id = course.SchoolId });
             }
-            TempData["ErrorMessage"] = result.Errors.FirstOrDefault().Description;
-            return RedirectToAction(nameof(SchoolInfo), new { id = course.SchoolId });
+            else
+            {
+                TempData["ErrorMessage"] = result.Errors.FirstOrDefault().Description;
+            }
+            return RedirectToAction(nameof(SchoolDetails), new { id = course.SchoolId });
         }
 
         [HttpPost]
         [AllowAnonymous]
-        public async Task<JsonResult> GetUserByPhone(string id)
+        public JsonResult GetUserByPhone(string id)
         {
 
-            AppUser user = await repository.GetUserByPhone(id);
+            AppUser user = teacherRepository.GetUserByPhone(id);
             if (user == null) { return Json(""); }
             return Json(new { id = user.Id, name = user.FullName });
         }
@@ -190,7 +166,7 @@ namespace UsersSubscriptions.Controllers
         [HttpPost]
         public async Task<JsonResult> GetUserById(string id)
         {
-            AppUser user = await repository.GetUserAsync(id);
+            AppUser user = await teacherRepository.GetUserAsync(id);
             if (user == null) { return Json(""); }
             return Json(new { id = user.Id, name = user.FullName });
         }
@@ -201,16 +177,16 @@ namespace UsersSubscriptions.Controllers
             {
                 return Json("");
             }
-            if (await repository.GetUserAsync(id) == null)
+            if (await teacherRepository.GetUserAsync(id) == null)
             {
                 return Json("");
             }
-            if (await repository.GetCoursAsync(courseId) == null)
+            if (teacherRepository.GetCourse(courseId) == null)
             {
                 return Json("");
             }
-            await repository.AddTeacherToCourse(id, courseId);
-            Course course = await repository.GetCoursAsync(courseId);
+            await teacherRepository.AddTeacherToCourse(id, courseId);
+            Course course = teacherRepository.GetCourse(courseId);
             List<AppUser> teachers = course.CourseAppUsers.Select(capu => capu.AppUser).ToList();
             string res = "";
             foreach (AppUser teacher in teachers)
@@ -219,6 +195,32 @@ namespace UsersSubscriptions.Controllers
                      + "\" checked > " + teacher.FullName + "<br>";
             }
             return Json(res);
+        }
+
+        public IActionResult SchoolCalculation(string id)
+        {
+            if (string.IsNullOrEmpty(id))
+            {
+                return RedirectToAction(nameof(Index), new { redirect = "SchoolCalculation" });
+            }
+            SchoolCalculationsViewModel model = teacherRepository.GetSchoolDetail(id,"",DateTime.Now,"","");
+            if (model == null)
+            {
+                return RedirectToAction(nameof(Index), new { redirect = "SchoolCalculation" });
+            }
+            return View(model);
+        }
+
+        [HttpPost]
+        public IActionResult SchoolCalculation(SchoolCalculationsViewModel model)
+        {
+            SchoolCalculationsViewModel result = teacherRepository
+                .GetSchoolDetail(model.SchoolId, model.SelectedCourseId, model.Month, model.SelectedNavId, model.SelectedTeacherId);
+            if (model == null)
+            {
+                return RedirectToAction(nameof(Index), new { redirect = "SchoolCalculation" });
+            }
+            return View(result);
         }
     }
 }

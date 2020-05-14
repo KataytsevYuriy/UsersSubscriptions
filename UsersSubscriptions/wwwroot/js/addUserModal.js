@@ -48,6 +48,10 @@ function addTeacher() {
     $("#modalCancel").click();
     $("#modalAdd").prop("disabled", true);
     $("#teacherName").empty();
+    $("#info").empty();
+}
+function clearUserName() {
+    $("#info").empty();
 }
 
 

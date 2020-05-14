@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authorization;
 using UsersSubscriptions.Common;
+using UsersSubscriptions.Services;
 
 namespace UsersSubscriptions.Areas.Admin.Controllers
 {
@@ -19,9 +20,11 @@ namespace UsersSubscriptions.Areas.Admin.Controllers
     public class UserController : Controller
     {
         private IAdminDataRepository repository;
-        public UserController(IAdminDataRepository aRepo)
+        private ITeacherRepository repositoryTeacher;
+        public UserController(IAdminDataRepository repo, ITeacherRepository repoTeacher)
         {
-            repository = aRepo;
+            repository = repo;
+            repositoryTeacher = repoTeacher;
         }
         public ActionResult Index()
         {
@@ -30,7 +33,7 @@ namespace UsersSubscriptions.Areas.Admin.Controllers
 
         public async Task<ActionResult> UserDetails(string id)
         {
-            AppUser user = await repository.GetUserAsync(id);
+            AppUser user = await repositoryTeacher.GetUserAsync(id);
             if (user != null)
             {
                 var userRoles = await repository.GetUserRolesAsync(user.Id);
@@ -64,21 +67,21 @@ namespace UsersSubscriptions.Areas.Admin.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        public async Task<IActionResult> DeleteUser(string id)
-        {
-            AppUser user = await repository.GetUserAsync(id);
-            if (user != null)
-            {
-                ViewBag.userRoles = await repository.GetUserRolesAsync(user.Id);
-                return View(user);
-            }
-            return View(nameof(Index));
-        }
-
         [HttpPost]
         public async Task<IActionResult> DeleteUser(AppUser model)
         {
-            await repository.DeleteUseAsyncr(model.Id);
+            
+            IdentityResult result = await repository.DeleteUseAsync(model.Id);
+            if (result.Succeeded)
+            {
+                TempData["SuccessMessage"] = "Корстувача видалено";
+                DeleteFile remove = new DeleteFile();
+                remove.Delete("wwwroot/qrr/file-" + model.Id + ".qrr");
+                remove.Delete("wwwroot/avatars/avatar-" + model.Id + ".jpg");
+            } else
+            {
+            TempData["ErrorMessage"] = result.Errors.FirstOrDefault().Description;
+            }
             return RedirectToAction(nameof(Index));
         }
 

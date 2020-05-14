@@ -1,12 +1,12 @@
-﻿@model CourseDetailsViewModel
+﻿@model CourseViewModel
 @{
     Layout = "_AdminLayout";
     ViewData["Description"] = "Курс";
 }
 
 <div class="">
-    <form asp-action="UpdateCourse" method="post">
-        <input type="hidden" name="Id" id="courseId"  value="@Model.Id" />
+    <form asp-action="UpdateCourse" method="post" id="form">
+        <input type="hidden" name="Id" id="courseId" value="@Model.Id" />
         <input type="hidden" name="SchoolId" value="@Model.SchoolId" />
         <ul class="list-group">
             <li class="list-group-item">
@@ -47,22 +47,33 @@
             </li>
         </ul>
         <button type="submit" class="btn btn-light mt-2">Зберегти</button>
+        <button type="button" class="btn btn-outline-danger float-right mt-2" data-toggle="modal" data-target="#confirmDelete">Видалити</button>
     </form>
 
 </div>
-
+<partial name="_confirmDelete" />
 <partial name="_AddUserModal" />
 @section AdminScripts{
     <script src="~/js/jquery.mask.min.js"></script>
     <script src="~/js/addUserModal.js"></script>
-        <script>
-            function updateUser(userIdent) {
-                var courseId = $("#courseId").val();
-                $.post("/Owner/AddTeacherToCourseAsync/" + userIdent.id + "?courseId=" + courseId,
-                    function (content) {
-                        $("#teachers").empty();
-                        $("#teachers").append(content); 
-                    }, "json");
-            };
-        </script>
+    <script>
+        function updateUser(userIdent) {
+            var courseId = $("#courseId").val();
+            $.post("/Owner/AddTeacherToCourseAsync/" + userIdent.id + "?courseId=" + courseId,
+                function (content) {
+                    $("#teachers").empty();
+                    $("#teachers").append(content);
+                }, "json");
+        };
+    </script>
+    <script>
+        $(function () {
+            var action = "/Admin/School/DeleteCourse"
+            $("#deleteButton").click(function () {
+                var form = document.getElementById("form");
+                form.action = action;
+                form.submit();
+            });
+        })
+    </script>
 }

@@ -1,11 +1,11 @@
-﻿@model OwnerCourseViewModel
+﻿@model CourseViewModel
 @{
     Layout = "_Layout";
 }
 
 
 <div>
-    <form asp-action="EditCourse" id="form" method="post">
+    <form asp-action="CourseDetails" id="form" method="post">
         <input type="hidden" name="Id" id="courseId" value="@Model.Id" />
         <input type="hidden" name="SchoolId" value="@Model.SchoolId" />
         <div class="form-group">
@@ -37,18 +37,18 @@
             <div class="teachers" id="teachers" >
                 @foreach (var teacher in Model.CourseAppUsers)
                 {
-                    <input type="checkbox" name="Teachers" value="@teacher.AppUserId" checked />@teacher.AppUser.FullName
+                    <input type="checkbox" name="TeachersId" value="@teacher.AppUserId" checked />@teacher.AppUser.FullName
                     <br />
                 }
             </div>
             <button class="btn" type="button" data-toggle="modal" data-target="#addPhoneModal">Додати викладача</button>
         </div>
-        <button class="btn btn-primary" type="submit">Зберегти</button>
-        <a asp-action="DeleteCourse" asp-route-id="@Model.Id" class="btn btn-outline-danger float-right">Видалити</a>
+        <button class="btn btn-primary mt-2" type="submit">Зберегти</button>
+        <button type="button" class="btn btn-outline-danger float-right mt-2" data-toggle="modal" data-target="#confirmDelete">Видалити</button>
     </form>
-
-
 </div>
+
+<partial name="_ConfirmDelete" />
 <partial name="_AddUserModal" />
 @section Scripts{
     <script src="~/js/jquery.mask.min.js"></script>
@@ -62,5 +62,15 @@
                     $("#teachers").append(content);
                 }, "json");
         };
+    </script>
+    <script>
+        $(function () {
+            var action = "/Owner/DeleteCourse"
+            $("#deleteButton").click(function () {
+                var form = document.getElementById("form");
+                form.action = action;
+                form.submit();
+            });
+    })
     </script>
     }

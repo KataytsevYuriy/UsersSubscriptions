@@ -1,6 +1,5 @@
-﻿@model CourseDetailsViewModel
-@{
-    Layout = "_AdminLayout";
+﻿@model CourseViewModel
+ @{   Layout = "_AdminLayout";
     ViewData["Description"] = "Додати курс";
 }
 
@@ -29,7 +28,7 @@
             <button class="btn" type="button" data-toggle="modal" data-target="#addPhoneModal">Додати викладача</button>
         </div>
     </div>
-    <button type="submit" class="btn btn-primary">Додати</button>
+    <button type="submit" class="btn btn-outline-primary mt-2">Додати</button>
 </form>
 
 <partial name="_AddUserModal" />

@@ -5,7 +5,7 @@
 }
 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 <div>
-    <form asp-action="UpdateUser" method="post">
+    <form asp-action="UpdateUser" method="post" id="form">
         <input type="hidden" name="Id" value="@Model.Id" />
         <div class="form-group">
             <label asp-for="FullName">Ім'я</label>
@@ -46,6 +46,20 @@
         </div>
         <br />
         <button type="submit" class="btn btn-primary">Зберегти</button>
+        <button type="button" class="btn btn-outline-danger float-right" data-toggle="modal" data-target="#confirmDelete">Видалити</button>
     </form>
 
 </div>
+<partial name="_ConfirmDelete" />
+@section AdminScripts{
+    <script>
+            $(function () {
+                $("#deleteButton").click(function () {
+                    var action = "/Admin/User/DeleteUser"
+                        var form = document.getElementById("form");
+                        form.action = action;
+                        form.submit();
+                    });
+                });
+    </script>
+}

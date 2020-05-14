@@ -9,6 +9,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Routing;
+using Microsoft.AspNetCore.Http;
+using System.IO;
 
 namespace UsersSubscriptions.Controllers
 {
@@ -16,23 +18,27 @@ namespace UsersSubscriptions.Controllers
     public class TeacherController : Controller
     {
         private readonly SignInManager<AppUser> _signInManager;
-        private ITeacherRepository repository;
+        private ITeacherRepository teacherRepository;
         public TeacherController(ITeacherRepository repo, SignInManager<AppUser> signInManager)
         {
-            repository = repo;
+            teacherRepository = repo;
             _signInManager = signInManager;
         }
 
         public async Task<IActionResult> Index(string schoolId)
         {
-            if (schoolId == null && string.IsNullOrEmpty(schoolId))
+            if (string.IsNullOrEmpty(schoolId))
             {
                 IEnumerable<School> schools = await SchoolFromContext();
                 if (schools.Count() > 1)
                 {
                     return RedirectToAction(nameof(SelectSchool), new { redirectValue = "Index" });
                 }
-                if (schools.Count() == 1) schoolId = schools.FirstOrDefault().Id;
+                if (schools.Count() == 0)
+                {
+                    return RedirectToAction("Index", "Home");
+                }
+                schoolId = schools.FirstOrDefault().Id;
             }
             ViewBag.schoolId = schoolId;
             return View();
@@ -46,13 +52,13 @@ namespace UsersSubscriptions.Controllers
                 await _signInManager.SignOutAsync();
                 return new List<School>();
             }
-            AppUser curTeacher = await repository.GetUserAsync(teacherId);
+            AppUser curTeacher = await teacherRepository.GetUserAsync(teacherId);
             if (curTeacher == null)
             {
                 await _signInManager.SignOutAsync();
                 return new List<School>();
             }
-            IEnumerable<School> schools = await repository.GetCurrentTeacherSchools(teacherId);
+            IEnumerable<School> schools = teacherRepository.GetCurrentTeacherSchools(teacherId);
             if (schools.Count() == 0) return new List<School>();
             string subdomain = (HttpContext.GetRouteData().Values["subdomain"] ?? "").ToString();
             if (!string.IsNullOrEmpty(subdomain))
@@ -72,7 +78,7 @@ namespace UsersSubscriptions.Controllers
 
         public async Task<IActionResult> StudentInfo(string studentId, string schoolId, DateTime Month)
         {
-            AppUser student = await repository.GetUserAsync(studentId);
+            AppUser student = await teacherRepository.GetUserAsync(studentId);
             DateTime curDate = DateTime.Now;
             if (student == null)
             {
@@ -80,7 +86,7 @@ namespace UsersSubscriptions.Controllers
                 return RedirectToAction(nameof(Index));
             }
             if (Month.Year < 2000) Month = curDate;
-            IEnumerable<Subscription> userSubscriptions = await repository.GetUserSubscriptionsAsync(student.Id, schoolId, Month);
+            IEnumerable<Subscription> userSubscriptions = teacherRepository.GetUserSubscriptions(student.Id, schoolId, Month);
             StudentInfoViewModel model = new StudentInfoViewModel
             {
                 Student = student,
@@ -99,10 +105,11 @@ namespace UsersSubscriptions.Controllers
             if (Month.Year < 2000) { Month = DateTime.Now; }
             AddSubscriptionViewModel model = new AddSubscriptionViewModel
             {
-                Student = await repository.GetUserAsync(Id),
-                TeacherCourses = await repository.GetTeacherCoursesAsync(await repository.GetCurrentUserAsync(HttpContext), schoolId, true),
+                TeacherCourses = teacherRepository.GetTeacherCourses(
+                    HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier), schoolId, true),
                 Month = Month,
                 SchoolId = schoolId,
+                Student = await teacherRepository.GetUserAsync(Id),
             };
             return View(model);
         }
@@ -110,7 +117,7 @@ namespace UsersSubscriptions.Controllers
         [HttpPost]
         public async Task<IActionResult> AddSubscription(AddSubscriptionViewModel model)
         {
-            AppUser teacher = await repository.GetCurrentUserAsync(HttpContext);
+            AppUser teacher = await teacherRepository.GetUserAsync(HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier));
             Subscription subscription = new Subscription
             {
                 AppUserId = model.Student.Id,
@@ -121,10 +128,10 @@ namespace UsersSubscriptions.Controllers
                 PayedToId = teacher.Id,
                 Price = model.SelectedCours.Price,
             };
-            IdentityResult result = await repository.CreateSubscriptionAsync(subscription);
+            IdentityResult result = await teacherRepository.CreateSubscriptionAsync(subscription);
             if (result.Succeeded)
             {
-                TempData["SuccessMessage"] = "Підписку додано";
+                TempData["SuccessMessage"] = "Абонемент додано";
                 return RedirectToAction(nameof(StudentInfo), new { studentId = model.Student.Id, schoolId = model.SchoolId, Month = model.Month });
             }
             if (result.Errors.Count() > 0)
@@ -158,17 +165,16 @@ namespace UsersSubscriptions.Controllers
                 }
             }
             ViewBag.schoolId = schoolId;
-            AppUser currentUser = await repository.GetCurrentUserAsync(HttpContext);
-            IEnumerable<Course> courses = await repository.GetTeacherCoursesAsync(currentUser, schoolId, false);
+            IEnumerable<Course> courses = teacherRepository.GetTeacherCourses(
+                HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier), schoolId, false);
             return View(courses);
         }
 
-        public async Task<IActionResult> CourseInfo(string Id, string schoolId, DateTime month)
+        public IActionResult CourseInfo(string Id, string schoolId, DateTime month)
         {
-            AppUser currentUser = await repository.GetCurrentUserAsync(HttpContext);
             if (month.Year < 2000) { month = DateTime.Now; }
-            IEnumerable<Student> students = await repository.GetTeacherMonthStudentsAsync(Id, month);
-            Course course = await repository.GetCoursAsync(Id);
+            IEnumerable<Student> students = teacherRepository.GetTeacherMonthStudents(Id, month);
+            Course course = teacherRepository.GetCourse(Id);
             TeacherCoursesViewModel model = new TeacherCoursesViewModel
             {
                 Students = students,
@@ -176,6 +182,20 @@ namespace UsersSubscriptions.Controllers
                 CurrentCourse = course,
             };
             return View(model);
+        }
+
+        public JsonResult AddAvatar(string userId, IFormFile imageData)
+        {
+            if (!string.IsNullOrEmpty(userId) && imageData.Length > 0)
+            {
+                var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/avatars/avatar-" + userId + ".jpg");
+                using (var fileStream = new FileStream(filePath, FileMode.Create))
+                {
+                    imageData.CopyTo(fileStream);
+                    return Json(true);
+                }
+            }
+            return Json(false);
         }
 
     }

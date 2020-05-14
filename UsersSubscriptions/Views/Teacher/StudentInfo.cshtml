@@ -2,6 +2,7 @@
 @{
     Layout = "_Layout";
     DateTime curDate = DateTime.Now;
+    string imageSRC = "/avatars/avatar-" + @Model.Student.Id + ".jpg";
 }
 
 <div class="text-center"><h3>@Model.Student.FullName.ToUpper()</h3></div>
@@ -29,7 +30,7 @@ else
                 <option selected value="@curDate.AddMonths(1)">@curDate.AddMonths(1).ToString("MMMM:yyyy")</option>
             }
         </select>
-        <input type="hidden" name="studentId" value="@Model.Student.Id" />
+        <input type="hidden" name="studentId"  id="userId"; value="@Model.Student.Id" />
         <input type="hidden" name="schoolId" value="@Model.ScholId" />
     </form>
     <br />
@@ -41,7 +42,8 @@ else
                 <tr>
                     <td style="vertical-align:middle; font-weight:bold;">@subs.Course.Name</td>
                     <td>
-                        @foreach(var user in subs.Course.CourseAppUsers) {
+                        @foreach (var user in subs.Course.CourseAppUsers)
+                        {
                             <span>@user.AppUser.FullName</span><br />
                         }
                     </td>
@@ -55,10 +57,28 @@ else
     </table>
     <div class="text-center">
         <a class="btn btn-primary" asp-action="AddSubscription" asp-route-Id="@Model.Student.Id"
-                 asp-route-schoolId="@Model.ScholId" asp-route-month="@Model.Month.ToUniversalTime()">Додати абонемент</a>
+           asp-route-schoolId="@Model.ScholId" asp-route-month="@Model.Month.ToUniversalTime()">Додати абонемент</a>
+    </div>
+    <div class="text-center my-2">
+        <img style="width:100%" src="@imageSRC" onError="NoAvatarFunc(this) " />
+    </div>
+    <div>
+        <button class="btn btn-outline-primary" type="button" data-toggle="modal" data-target="#addAvatarModal">Встановити зображення</button>
     </div>
 }
 else
 {
     <div class="bg-danger text-center"> <h2>Цей аккаунт блокований. Будьласка зв'яжіться з адміністрацією.</h2></div>
+}
+
+<partial name="_AddUsersAvatarModal" />
+@section Scripts{
+    <script src="~/js/photograph.js"></script>
+    <script>
+        function NoAvatarFunc(img) {
+            var flashMessage = $('#flashMessage');
+            flashMessage.append("<p class='alert alert-danger'>Додайте фото</p>");
+            img.style.display = 'none';
+        }
+    </script>
 }

@@ -6,10 +6,10 @@ using UsersSubscriptions.Models;
 
 namespace UsersSubscriptions.Models.ViewModels
 {
-    public class OwnerCourseViewModel : Course
+    public class CourseViewModel : Course
     {
         public IList<string> TeachersId { get; set; }
-        public OwnerCourseViewModel()
+        public CourseViewModel()
         {
             TeachersId = new List<string>();
         }

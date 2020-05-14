@@ -7,7 +7,7 @@ using UsersSubscriptions.Models;
 
 namespace UsersSubscriptions.Areas.Admin.Models
 {
-    public class CourseViewModel
+    public class CourseViewModel1
     {
         [StringLength(64)]
         public string Id { get; set; }
@@ -21,7 +21,7 @@ namespace UsersSubscriptions.Areas.Admin.Models
         public IList<AppUser> Teachers { get; set; }
         public List<string> NewTeachers { get; set; }
 
-        public CourseViewModel()
+        public CourseViewModel1()
         {
             AllTeachers = new List<AppUser>();
             Teachers = new List<AppUser>();

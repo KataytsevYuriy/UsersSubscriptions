@@ -2,25 +2,41 @@
 @{
     Layout = "_AdminLayout";
     ViewData["Description"] = "Детальніше";
+    ViewBag.ConfirmMessage = "Видалити роль " + Model.Name + "?";
 }
 
 <div>
-    <form asp-action="ChangeRole" method="post">
+    <form asp-action="ChangeRole" method="post" id="form">
         <div class="form-group">
             <input type="hidden" asp-for="Id" />
             <label asp-for="Name">Назва</label>
-            <input asp-for="Name" class="form-control"/>
+            <input asp-for="Name" class="form-control" />
         </div>
         <button type="submit" class="btn btn-default">Зберегти</button>
+        <button type="button" class="btn btn-outline-danger float-right" data-toggle="modal" data-target="#confirmDelete">Видалити роль</button>
     </form>
     <div>
         <h4> Користувачі:</h4>
 
-            @foreach (AppUser user in ViewBag.roleUsers)
-            {
-                <a asp-controller="User" asp-action="UserDetails" asp-route-id="@user.Id">
-                    @user.FullName  
-                </a><br />
-            }
+        @foreach (AppUser user in ViewBag.roleUsers)
+        {
+            <a asp-controller="User" asp-action="UserDetails" asp-route-id="@user.Id">
+                @user.FullName
+            </a><br />
+        }
     </div>
 </div>
+
+<partial name="_ConfirmDelete" />
+@section AdminScripts{
+    <script>
+            $(function () {
+                $("#deleteButton").click(function () {
+                    var action = "/Admin/Role/DeleteRole"
+                        var form = document.getElementById("form");
+                        form.action = action;
+                        form.submit();
+                    });
+                });
+        </script>
+}

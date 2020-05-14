@@ -30,11 +30,6 @@ namespace UsersSubscriptions.Areas.Admin.Models
             return _context.Users.ToList();
         }
 
-        public async Task<AppUser> GetUserAsync(string id)
-        {
-            return await _userManager.FindByIdAsync(id);
-        }
-
         public async Task UpdateUserAsync(AppUser user, IList<string> newUserRoles)
         {
             AppUser dbUser = await _userManager.FindByIdAsync(user.Id);
@@ -53,38 +48,51 @@ namespace UsersSubscriptions.Areas.Admin.Models
             }
         }
 
-        public async Task DeleteUseAsyncr(string id)
+        public async Task<IdentityResult> DeleteUseAsync(string id)
         {
             IdentityResult result = new IdentityResult();
-            AppUser user = await _context.Users
-                                .Include(s => s.CourseAppUsers)
-                                .Include(s => s.Subscriptions)
-                                .Include(s => s.SubscriptionPayedTo)
-                                .FirstOrDefaultAsync(us => us.Id == id);
-            if (user != null)
+            AppUser user = await _userManager.FindByIdAsync(id);
+            if (user == null)
             {
-                if (user.CourseAppUsers.Count() == 0)
-                {
-                    if (user.Subscriptions.Count() == 0)
-                    {
-                        if (user.SubscriptionPayedTo.Count() == 0)
-                        {
-                            IList<string> roles = await GetUserRolesAsync(id);
-                            if (roles.Count > 0)
-                            {
-                                await _userManager.RemoveFromRolesAsync(user, roles);
-                            }
-                            result = await _userManager.DeleteAsync(user);
-                        }
-                        // Trow exception if Payed to this user, confirmed...                  
-                    }
-                }
-                else   //user.CourseAppUsers.Count() >0
-                {
-                    result = IdentityResult.Failed(new IdentityError { Description = "CourseAppUsers.Count() >0" });
-                }
-
+                return (IdentityResult.Failed(new IdentityError { Description = "Користувача не видалено." }));
             }
+            IEnumerable<CourseAppUser> courseAppUsers = _context.CourseAppUsers.Where(cap => cap.AppUserId == id);
+            if (courseAppUsers.Count() > 0)
+            {
+                _context.CourseAppUsers.RemoveRange(courseAppUsers);
+            }
+            IEnumerable<Subscription> subscriptions = _context.Subscriptions.Where(sub => sub.AppUserId == id);
+            if (subscriptions.Count() > 0)
+            {
+                _context.Subscriptions.RemoveRange(subscriptions);
+            }
+            IEnumerable<School> schools = _context.Schools.Where(sch => sch.OwnerId == id);
+            if (schools.Count() > 0)
+            {
+                string message = "";
+                foreach (School school in schools) message += school.Name + ", ";
+                return (IdentityResult.Failed(new IdentityError
+                {
+                    Description = "Користувач це власник школи - "
+                    + message + " Спочатку видаліть школи"
+                }));
+            }
+            IList<string> roles = await GetUserRolesAsync(id);
+            if (roles.Count > 0)
+            {
+                await _userManager.RemoveFromRolesAsync(user, roles);
+            }
+            result = await _userManager.DeleteAsync(user);
+            if (result.Succeeded)
+            {
+                _context.SaveChanges();
+            }
+            else
+            {
+                result = IdentityResult.Failed(new IdentityError { Description = "Роль не видалена." });
+            }
+            return (result);
+
         }
 
         //role
@@ -131,168 +139,10 @@ namespace UsersSubscriptions.Areas.Admin.Models
             IdentityRole role = await GetRoleAsync(id);
             if (role != null)
             {
-                if ((await GetRoleUsersAsync(role.Name)).Count == 0)
-                {
-                    await _roleManager.DeleteAsync(role);
-                }
+                await _roleManager.DeleteAsync(role);
             }
         }
 
-        //Courses
-
-        public async Task<IdentityResult> CreateCourseAsync(CourseDetailsViewModel model)
-        {
-            if (string.IsNullOrEmpty(model.SchoolId))
-            {
-                return IdentityResult.Failed(new IdentityError { Description = "Школа на задана" });
-            }
-            if (string.IsNullOrEmpty(model.Name))
-            {
-                return IdentityResult.Failed(new IdentityError { Description = "Заповніть назву курсу" });
-            }
-            Course course = await _context.Courses
-                .FirstOrDefaultAsync(cour => cour.Name == model.Name && cour.SchoolId == model.SchoolId);
-            if (course != null)
-            {
-                return IdentityResult.Failed(new IdentityError { Description = "Такий курс вже існує" });
-            }
-            course = new Course();
-            course.Name = model.Name;
-            course.IsActive = model.IsActive;
-            course.Price = model.Price;
-            course.SchoolId = model.SchoolId;
-            var state = await _context.Courses.AddAsync(course);
-            if (state.State != EntityState.Added)
-            {
-                return IdentityResult.Failed(new IdentityError { Description = "Курс не доданий" });
-            }
-            await _context.SaveChangesAsync();
-            course = await _context.Courses
-                .FirstOrDefaultAsync(cour => cour.Name == model.Name && cour.SchoolId == model.SchoolId);
-            if (course == null)
-            {
-                return IdentityResult.Failed(new IdentityError { Description = "Курс не доданий" });
-            }
-            if (model.TeachersId.Count() > 0)
-            {
-                foreach (string teacherId in model.TeachersId)
-                {
-                    AppUser teacher = await _userManager.FindByIdAsync(teacherId);
-                    if (teacher != null)
-                    {
-                        await _context.CourseAppUsers.AddAsync(new CourseAppUser
-                        {
-                            AppUserId = teacher.Id,
-                            CourseId = course.Id,
-                        });
-                        if (!(await _userManager.IsInRoleAsync(teacher, Common.UsersConstants.teacher)))
-                        {
-                            await _userManager.AddToRoleAsync(teacher, Common.UsersConstants.teacher);
-                        }
-                    }
-                }
-                await _context.SaveChangesAsync();
-            }
-            return IdentityResult.Success;
-        }
-
-        public async Task<Course> GetCourseAsync(string id)
-        {
-            return await _context.Courses
-                .Include(p => p.CourseAppUsers).ThenInclude(u => u.AppUser)
-                .FirstOrDefaultAsync(i => i.Id == id);
-        }
-
-        public async Task<IdentityResult> UpdateCourseAsync(CourseDetailsViewModel course)
-        {
-            Course dbCourse = await GetCourseAsync(course.Id);
-            if (dbCourse == null)
-            {
-                return IdentityResult.Failed(new IdentityError { Description = "Курс не знайдено" });
-            }
-            IList<string> coursTeachersId = dbCourse.CourseAppUsers.Select(usr => usr.AppUserId).ToList();
-            IEnumerable<string> addedTeachers = course.TeachersId.Except(coursTeachersId);
-            IEnumerable<string> removedTeachers = coursTeachersId.Except(course.TeachersId);
-            dbCourse.Name = course.Name;
-            dbCourse.IsActive = course.IsActive;
-            dbCourse.Price = course.Price;
-            var state = _context.Courses.Update(dbCourse);
-            if (state.State != EntityState.Modified)
-            {
-                return IdentityResult.Failed(new IdentityError { Description = "Курс не оновлений" });
-            }
-            await _context.SaveChangesAsync();
-            foreach (string teacher in addedTeachers)
-            {
-                AppUser user = await _userManager.FindByIdAsync(teacher);
-                if (user != null)
-                {
-                    await _context.CourseAppUsers.AddAsync(new CourseAppUser
-                    {
-                        AppUserId = user.Id,
-                        CourseId = dbCourse.Id,
-                    });
-                    if (!(await _userManager.IsInRoleAsync(user, Common.UsersConstants.teacher)))
-                    {
-                        await _userManager.AddToRoleAsync(user, Common.UsersConstants.teacher);
-                    }
-                }
-            }
-            foreach (string teacher in removedTeachers)
-            {
-                CourseAppUser courseAppUser = _context.CourseAppUsers
-                    .FirstOrDefault(cau => cau.AppUserId == teacher && cau.CourseId == dbCourse.Id);
-                if (courseAppUser != null)
-                {
-                    _context.CourseAppUsers.Remove(courseAppUser);
-                    if (_context.CourseAppUsers.Where(teach => teach.AppUserId == teacher).Count() == 1)
-                    {
-                        AppUser user = await _userManager.FindByIdAsync(teacher);
-                        if (user != null)
-                        {
-                            await _userManager.RemoveFromRoleAsync(user, Common.UsersConstants.teacher);
-                        }
-                    }
-                }
-            }
-            await _context.SaveChangesAsync();
-            return IdentityResult.Success;
-        }
-
-        public async Task<IdentityResult> DeleteCourse(string Id)
-        {
-            Course course = _context.Courses
-                .Include(sub => sub.Subscriptions)
-                .Include(teach => teach.CourseAppUsers)
-                .FirstOrDefault(co => co.Id == Id);
-            if (course.Subscriptions.Count() != 0)
-            {
-                return IdentityResult.Failed(new IdentityError { Description = "Курс не видалений, курс має абонементи" });
-            }
-            var state = _context.Courses.Remove(course);
-            if (state.State == EntityState.Deleted)
-            {
-                if (course.CourseAppUsers.Count() > 0)
-                {
-                    _context.CourseAppUsers.RemoveRange(course.CourseAppUsers);
-                }
-                await _context.SaveChangesAsync();
-                return IdentityResult.Success;
-            }
-            return IdentityResult.Failed(new IdentityError { Description = "Курс не видалений" });
-        }
-
-        public async Task<bool> CourseHasSubscriptions(string id)
-        {
-            if ((await _context.Courses
-                .Include(cour => cour.Subscriptions)
-                .FirstOrDefaultAsync(cour => cour.Id == id))
-                .Subscriptions.Count() > 0)
-            {
-                return true;
-            }
-            return false;
-        }
 
         //Subscriptions
         public IEnumerable<Subscription> GetFilteredSubscriptions(string schoolId, string courseId, DateTime month, string searchByName)
@@ -319,24 +169,9 @@ namespace UsersSubscriptions.Areas.Admin.Models
                 subscriptions = subscriptions
                     .Where(sub => sub.AppUser.FullName.ToLower().Contains(searchByName.ToLower()));
             }
-                return subscriptions;
+            return subscriptions;
         }
 
-        public async Task RemoveSubscriptionAsync(string id)
-        {
-            Subscription subscription = await _context.Subscriptions
-                                                .Include(pay => pay.PayedTo)
-                                                .FirstOrDefaultAsync(subs => subs.Id == id);
-            if (subscription != null)
-            {
-                _context.Subscriptions.Remove(subscription);
-                await _context.SaveChangesAsync();
-            }
-            else
-            {
-                //Not found Exception
-            }
-        }
 
         public async Task<Subscription> GetSubscription(string id)
         {
@@ -356,7 +191,7 @@ namespace UsersSubscriptions.Areas.Admin.Models
         {
             return _context.Schools
                 .Include(usr => usr.Owner)
-                .Include(sch=>sch.Courses)
+                .Include(sch => sch.Courses)
                 .ToList();
         }
 
@@ -392,13 +227,7 @@ namespace UsersSubscriptions.Areas.Admin.Models
             return IdentityResult.Success;
         }
 
-        public async Task<School> GetSchoolAsync(string id)
-        {
-            return await _context.Schools
-                .Include(sch => sch.Courses)
-                .Include(sch => sch.Owner)
-                .FirstOrDefaultAsync(sch => sch.Id == id);
-        }
+
 
         public async Task<IdentityResult> UpdateSchoolAsync(School school)
         {
@@ -415,7 +244,7 @@ namespace UsersSubscriptions.Areas.Admin.Models
             {
                 return IdentityResult.Failed(new IdentityError { Description = "Введіть Url школи" });
             }
-            string oldOwnerId = dbSchool.OwnerId??"";
+            string oldOwnerId = dbSchool.OwnerId ?? "";
             if (string.IsNullOrEmpty(school.OwnerId))
             {
                 return IdentityResult.Failed(new IdentityError { Description = "Додайте власника  школи" });
@@ -432,13 +261,13 @@ namespace UsersSubscriptions.Areas.Admin.Models
             if (!oldOwnerId.Equals(school.OwnerId))
             {
                 AppUser newOwner = await _userManager.FindByIdAsync(school.OwnerId);
-                if(newOwner!=null && !(await _userManager.IsInRoleAsync(newOwner, Common.UsersConstants.schoolOwner)))
+                if (newOwner != null && !(await _userManager.IsInRoleAsync(newOwner, Common.UsersConstants.schoolOwner)))
                 {
                     await _userManager.AddToRoleAsync(newOwner, Common.UsersConstants.schoolOwner);
                 }
-                if(_context.Schools
-                    .Include(sch=>sch.Owner)
-                    .Where(sch=>sch.OwnerId==oldOwnerId)
+                if (_context.Schools
+                    .Include(sch => sch.Owner)
+                    .Where(sch => sch.OwnerId == oldOwnerId)
                     .Count() == 1)
                 {
                     AppUser oldOwner = await _userManager.FindByIdAsync(oldOwnerId);
@@ -454,13 +283,13 @@ namespace UsersSubscriptions.Areas.Admin.Models
         public async Task<IdentityResult> DeleteScoolAsync(string Id)
         {
             School dbSchool = await _context.Schools
-                .Include(sch=>sch.Courses)
+                .Include(sch => sch.Courses)
                 .FirstOrDefaultAsync(sch => sch.Id == Id);
             if (dbSchool == null)
             {
                 return IdentityResult.Failed(new IdentityError { Description = "Школа на знайдена" });
             }
-             if (dbSchool.Courses.Count() >0)
+            if (dbSchool.Courses.Count() > 0)
             {
                 return IdentityResult.Failed(new IdentityError { Description = "Школа має курси, видаліть їх спочатку." });
             }
