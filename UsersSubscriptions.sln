@@ -1,11 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.28307.757
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30011.22
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UsersSubscriptions", "UsersSubscriptions\UsersSubscriptions.csproj", "{54254BF0-FADA-447C-BD4F-9EC380E4E1A3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UsersSubscriptions.Common", "UsersSubscriptions.Common\UsersSubscriptions.Common.csproj", "{8B30379B-3A39-4921-8B6D-5DAAF8E061EF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UsersSubscriptions.Common", "UsersSubscriptions.Common\UsersSubscriptions.Common.csproj", "{8B30379B-3A39-4921-8B6D-5DAAF8E061EF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
