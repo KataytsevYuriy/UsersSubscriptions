@@ -21,6 +21,11 @@ namespace UsersSubscriptions.Models
         [StringLength(64)]
         public string AppUserId { get; set; }
         public AppUser AppUser { get; set; }
+        [StringLength(50)]
+        public string FullName { get; set; }
+        [Phone]
+        public string Phone { get; set; }
+        public bool MonthSubscriprion { get; set; }
 
         public int Price { get; set; }
 

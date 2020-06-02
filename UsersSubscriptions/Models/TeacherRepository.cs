@@ -369,14 +369,14 @@ namespace UsersSubscriptions.Models
             {
                 IEnumerable<Course> teacherCourses = courses.Where(cour => cour.CourseAppUsers.Any(cap => cap.AppUserId == selectedTeacherId));
                 teacherSubscriptions = teacherCourses.SelectMany(cour => cour.Subscriptions)
-                    .Where(sub=>sub.Month.Month==month.Month && sub.Month.Year==month.Year)
+                    .Where(sub => sub.Month.Month == month.Month && sub.Month.Year == month.Year)
                     .ToList();
             }
             SchoolCalculationsViewModel model = new SchoolCalculationsViewModel
             {
                 SchoolId = schoolId,
                 SelectedCourseId = courseId,
-                SelectedTeacherId=selectedTeacherId,
+                SelectedTeacherId = selectedTeacherId,
                 Month = month,
                 SelectedNavId = selectedNavId,
                 SchoolCourses = schoolCourses,
@@ -405,8 +405,8 @@ namespace UsersSubscriptions.Models
             {
                 students.Add(new Student
                 {
-                    StudentName = subscr.AppUser.FullName,
-                    Phone = subscr.AppUser.PhoneNumber,
+                    StudentName = subscr.AppUser == null ? subscr.FullName : subscr.AppUser.FullName,
+                    Phone = subscr.AppUser == null ? subscr.Phone : subscr.AppUser.PhoneNumber,
                     Price = subscr.Price,
                 });
             }

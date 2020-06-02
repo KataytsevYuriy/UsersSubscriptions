@@ -76,6 +76,11 @@ namespace UsersSubscriptions.Controllers
             return View(await SchoolFromContext());
         }
 
+        public IActionResult AddOneTimeSubscription(string schoolId)
+        {
+            return View();
+        }
+
         public async Task<IActionResult> StudentInfo(string studentId, string schoolId, DateTime Month)
         {
             AppUser student = await teacherRepository.GetUserAsync(studentId);
@@ -125,6 +130,7 @@ namespace UsersSubscriptions.Controllers
                 CourseId = model.SelectedCours.Id,
                 Month = model.Month,
                 PayedDatetime = DateTime.Now,
+                MonthSubscriprion = true,
                 PayedToId = teacher.Id,
                 Price = model.SelectedCours.Price,
             };

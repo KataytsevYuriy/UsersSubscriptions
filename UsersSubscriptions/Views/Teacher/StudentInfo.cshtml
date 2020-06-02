@@ -30,7 +30,7 @@ else
                 <option selected value="@curDate.AddMonths(1)">@curDate.AddMonths(1).ToString("MMMM:yyyy")</option>
             }
         </select>
-        <input type="hidden" name="studentId"  id="userId"; value="@Model.Student.Id" />
+        <input type="hidden" name="studentId" id="userId" ; value="@Model.Student.Id" />
         <input type="hidden" name="schoolId" value="@Model.ScholId" />
     </form>
     <br />
@@ -60,7 +60,7 @@ else
            asp-route-schoolId="@Model.ScholId" asp-route-month="@Model.Month.ToUniversalTime()">Додати абонемент</a>
     </div>
     <div class="text-center my-2">
-        <img style="width:100%" src="@imageSRC" onError="NoAvatarFunc(this) " />
+        <img id="avatarImg" style="width:100%" src="@imageSRC" onError="NoAvatarFunc() " />
     </div>
     <div>
         <button class="btn btn-outline-primary" type="button" data-toggle="modal" data-target="#addAvatarModal">Встановити зображення</button>
@@ -75,10 +75,10 @@ else
 @section Scripts{
     <script src="~/js/photograph.js"></script>
     <script>
-        function NoAvatarFunc(img) {
+        function NoAvatarFunc() {
             var flashMessage = $('#flashMessage');
             flashMessage.append("<p class='alert alert-danger'>Додайте фото</p>");
-            img.style.display = 'none';
+            $('#avatarImg').addClass("d-none");
         }
     </script>
 }

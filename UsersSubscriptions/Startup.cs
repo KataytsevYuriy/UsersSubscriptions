@@ -56,12 +56,14 @@ namespace UsersSubscriptions
                 options.Password.RequireUppercase = false;
                 options.Password.RequireLowercase = false;
             });
+            services.AddDistributedMemoryCache();
+            services.AddSession();
             services.AddScoped<MenuFilterAttribute>();
             services.AddMvc(config =>
-            {
-                config.Filters.Add(new SubdomainFilterAttribute());
-                config.Filters.Add<MenuFilterAttribute>();
-            }).SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
+                                   {
+                                       config.Filters.Add(new SubdomainFilterAttribute());
+                                       config.Filters.Add<MenuFilterAttribute>();
+                                   }).SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
             services.AddAuthentication().AddCookie().AddFacebook(facebookOptions =>
             {
                 facebookOptions.AppId = Configuration["Authentication:Facebook:AppId"];
@@ -89,7 +91,7 @@ namespace UsersSubscriptions
             app.UseCookiePolicy();
 
             app.UseAuthentication();
-
+            app.UseSession();
             app.UseMvc(routes =>
             {
                 routes.MapRoute(

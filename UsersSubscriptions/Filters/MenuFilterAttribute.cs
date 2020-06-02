@@ -32,40 +32,80 @@ namespace UsersSubscriptions.Filters
             School school = null;
             bool showTeacherMenu = true;
             bool showOwnerMenu = true;
+
             if (!string.IsNullOrEmpty(subdomain))
             {
-                if (_cache.TryGetValue(subdomain+userId, out CacheMenuModel cacheMenu))
+                string subdomainContext = context.HttpContext.Session.GetString("subdomain");
+                if (!string.IsNullOrEmpty(subdomain) && subdomain == subdomainContext)
                 {
-                    school = new School
+                    if (context.HttpContext.Session.GetString("showOwnerMenu") != "true")
                     {
-                        Name = cacheMenu.Name,
-                    };
-                    showOwnerMenu = cacheMenu.ShowOwnerMenu;
-                    showTeacherMenu = cacheMenu.ShowTeacherMenu;
+                        showOwnerMenu = false;
+                    }
+                    if (context.HttpContext.Session.GetString("showTeacherMenu") != "true")
+                    {
+                        showTeacherMenu = false;
+                    }
+
                 }
                 else
                 {
                     school = repository.GetSchoolByUrl(subdomain);
                     if (!string.IsNullOrEmpty(userId))
                     {
-                        if (context.HttpContext.User.IsInRole(Common.UsersConstants.schoolOwner))
+                        if (school == null || string.IsNullOrEmpty(school.Id))
                         {
-                            showOwnerMenu = repository.IsItThisSchoolOwner(school.Id, userId);
+                            showOwnerMenu = false;
+                            showTeacherMenu = false;
                         }
-                        if (context.HttpContext.User.IsInRole(Common.UsersConstants.teacher))
+                        else
                         {
-                            showTeacherMenu = repository.IsItThisSchoolTeacher(school.Id, userId);
+                            if (context.HttpContext.User.IsInRole(Common.UsersConstants.schoolOwner))
+                            {
+                                showOwnerMenu = repository.IsItThisSchoolOwner(school.Id, userId);
+                            }
+                            if (context.HttpContext.User.IsInRole(Common.UsersConstants.teacher))
+                            {
+                                showTeacherMenu = repository.IsItThisSchoolTeacher(school.Id, userId);
+                            }
                         }
+                        context.HttpContext.Session.SetString("subdomain", subdomain);
+                        context.HttpContext.Session.SetString("showOwnerMenu", showOwnerMenu ? "true" : "false");
+                        context.HttpContext.Session.SetString("showTeacherMenu", showTeacherMenu ? "true" : "false");
                     }
-                    cacheMenu = new CacheMenuModel
-                    {
-                        Name = school.Name,
-                        ShowTeacherMenu = showTeacherMenu,
-                        ShowOwnerMenu = showOwnerMenu,
-                    };
-                    var cacheEntryOptions = new MemoryCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromMinutes(3));
-                    _cache.Set(subdomain + userId, cacheMenu, cacheEntryOptions);
                 }
+                //if (_cache.TryGetValue(subdomain + userId, out CacheMenuModel cacheMenu))
+                //{
+                //    school = new School
+                //    {
+                //        Name = cacheMenu.Name,
+                //    };
+                //    showOwnerMenu = cacheMenu.ShowOwnerMenu;
+                //    showTeacherMenu = cacheMenu.ShowTeacherMenu;
+                //}
+                //else
+                //{
+                //    school = repository.GetSchoolByUrl(subdomain);
+                //    if (!string.IsNullOrEmpty(userId))
+                //    {
+                //        if (context.HttpContext.User.IsInRole(Common.UsersConstants.schoolOwner))
+                //        {
+                //            showOwnerMenu = repository.IsItThisSchoolOwner(school.Id, userId);
+                //        }
+                //        if (context.HttpContext.User.IsInRole(Common.UsersConstants.teacher))
+                //        {
+                //            showTeacherMenu = repository.IsItThisSchoolTeacher(school.Id, userId);
+                //        }
+                //    }
+                //    cacheMenu = new CacheMenuModel
+                //    {
+                //        Name = school.Name,
+                //        ShowTeacherMenu = showTeacherMenu,
+                //        ShowOwnerMenu = showOwnerMenu,
+                //    };
+                //    var cacheEntryOptions = new MemoryCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromMinutes(3));
+                //    _cache.Set(subdomain + userId, cacheMenu, cacheEntryOptions);
+                //}
 
             }
             Controller controller = context.Controller as Controller;
@@ -78,6 +118,7 @@ namespace UsersSubscriptions.Filters
                 controller.ViewData["showTeacherMenu"] = showTeacherMenu;
                 controller.ViewData["showOwnerMenu"] = showOwnerMenu;
             }
+            base.OnActionExecuted(context);
         }
     }
 }

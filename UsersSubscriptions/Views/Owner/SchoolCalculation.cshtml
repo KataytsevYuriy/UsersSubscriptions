@@ -111,12 +111,12 @@
                     @foreach (var subscription in Model.CourseSubscriptions)
                     {
                         <tr>
-                            <td class="text-center">@subscription.AppUser.FullName</td>
+                            <td class="text-center">@(subscription.AppUser == null ? subscription.FullName : subscription.AppUser.FullName)</td>
                             <td class="text-center">@subscription.Price</td>
                         </tr>
                     }
                     <tr>
-                        <th class="text-center">Разом</th>
+                        <th class="text-right">Разом</th>
                         <td class="text-center">@Model.CourseSubscriptions.Select(sub => sub.Price).Sum()</td>
                     </tr>
                 </table>
@@ -150,12 +150,12 @@
                     @foreach (var subscription in Model.TeacherSubscriptions)
                     {
                         <tr>
-                            <td class="text-center">@subscription.AppUser.FullName</td>
+                            <td class="text-center">@(subscription.AppUser==null? subscription.FullName:subscription.AppUser.FullName)</td>
                             <td class="text-center">@subscription.Price</td>
                         </tr>
                     }
                     <tr>
-                        <th class="text-center">Разом</th>
+                        <th class="text-right">Разом</th>
                         <td class="text-center">@Model.TeacherSubscriptions.Select(sub => sub.Price).Sum()</td>
                     </tr>
                 </table>

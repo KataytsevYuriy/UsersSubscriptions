@@ -107,8 +107,9 @@
         @foreach (var subs in Model._Subscriptions)
         {
             <tr>
-                <td class="text-center" style="vertical-align:middle">@subs.AppUser.FullName </td>
-                <td class="text-center" style="vertical-align:middle">@subs.Course.School.Name <br />@subs.Course.Name <br /> @subs.Month.ToString("MMMM:yyyy") </td>
+                <td class="text-center" style="vertical-align:middle">@(subs.AppUser==null? subs.FullName:subs.AppUser.FullName) </td>
+                <td class="text-center" style="vertical-align:middle">@subs.Course.School.Name <br />@subs.Course.Name <br />
+                @(subs.AppUser==null? subs.Month.ToString("DD:MMMM:yyyy") : subs.Month.ToString("MMMM:yyyy") )</td>
                 <td class="text-center" style="vertical-align:middle">
                     @subs.Price
                     <br />
@@ -123,11 +124,8 @@
                 </td>
                 <td class="text-center" style="vertical-align:middle">
                     <button type="button" class="btn btn-outline-danger float-right mt-2" onclick="deleteButtonCkick('@subs.Id')">
-                        @*onclick="deleteButtonCkick(@subs.Id)">*@
                                         Видалити
                                     </button>
-                    @*data-toggle="modal"  data-target="#confirmDelete" id="deleteButton" >Видалити</button>*@
-                    @*<a asp-action="RemoveSubscription" asp-route-Id="@subs.Id" class="btn btn-outline-danger">Видалити</a>*@
                 </td>
             </tr>
         }

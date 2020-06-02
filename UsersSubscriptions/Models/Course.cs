@@ -17,7 +17,9 @@ namespace UsersSubscriptions.Models
         public bool IsActive { get; set; }
         public string Description { get; set; }
         public int Price { get; set; }
- 
+        public int OneTimePrice { get; set; }
+        public bool AllowOneTimePrice { get; set; }
+
         public IEnumerable<Subscription> Subscriptions { get; set; }
         public IEnumerable<CourseAppUser> CourseAppUsers { get; set; }
 
