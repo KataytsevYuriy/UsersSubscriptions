@@ -74,39 +74,6 @@ namespace UsersSubscriptions.Filters
                         context.HttpContext.Session.SetString("showTeacherMenu", showTeacherMenu ? "true" : "false");
                     }
                 }
-                //if (_cache.TryGetValue(subdomain + userId, out CacheMenuModel cacheMenu))
-                //{
-                //    school = new School
-                //    {
-                //        Name = cacheMenu.Name,
-                //    };
-                //    showOwnerMenu = cacheMenu.ShowOwnerMenu;
-                //    showTeacherMenu = cacheMenu.ShowTeacherMenu;
-                //}
-                //else
-                //{
-                //    school = repository.GetSchoolByUrl(subdomain);
-                //    if (!string.IsNullOrEmpty(userId))
-                //    {
-                //        if (context.HttpContext.User.IsInRole(Common.UsersConstants.schoolOwner))
-                //        {
-                //            showOwnerMenu = repository.IsItThisSchoolOwner(school.Id, userId);
-                //        }
-                //        if (context.HttpContext.User.IsInRole(Common.UsersConstants.teacher))
-                //        {
-                //            showTeacherMenu = repository.IsItThisSchoolTeacher(school.Id, userId);
-                //        }
-                //    }
-                //    cacheMenu = new CacheMenuModel
-                //    {
-                //        Name = school.Name,
-                //        ShowTeacherMenu = showTeacherMenu,
-                //        ShowOwnerMenu = showOwnerMenu,
-                //    };
-                //    var cacheEntryOptions = new MemoryCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromMinutes(3));
-                //    _cache.Set(subdomain + userId, cacheMenu, cacheEntryOptions);
-                //}
-
             }
             Controller controller = context.Controller as Controller;
             if (controller != null)
