@@ -10,8 +10,8 @@ using UsersSubscriptions.Data;
 namespace UsersSubscriptions.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20200530172435_addOneTimeSubscription")]
-    partial class addOneTimeSubscription
+    [Migration("20200602093407_addOneTimeSubscriptions")]
+    partial class addOneTimeSubscriptions
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -286,7 +286,7 @@ namespace UsersSubscriptions.Migrations
 
                     b.Property<DateTime>("Month");
 
-                    b.Property<bool>("MonthSubscriprion");
+                    b.Property<bool>("MonthSubscription");
 
                     b.Property<DateTime>("PayedDatetime");
 

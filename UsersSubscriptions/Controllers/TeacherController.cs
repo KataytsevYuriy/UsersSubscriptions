@@ -76,9 +76,96 @@ namespace UsersSubscriptions.Controllers
             return View(await SchoolFromContext());
         }
 
-        public IActionResult AddOneTimeSubscription(string schoolId)
+        public async Task<IActionResult> AddOneTimeSubscription(string schoolId)
         {
-            return View();
+            if (string.IsNullOrEmpty(schoolId))
+            {
+                IEnumerable<School> schools = await SchoolFromContext();
+                if (schools.Count() > 1)
+                {
+                    return RedirectToAction(nameof(SelectSchool), new { redirectValue = "AddOneTimeSubscription" });
+                }
+                if (schools.Count() == 0)
+                {
+                    return RedirectToAction("Index", "Home");
+                }
+                schoolId = schools.FirstOrDefault().Id;
+            }
+            AddSubscriptionViewModel model = new AddSubscriptionViewModel()
+            {
+                TeacherCourses = teacherRepository.GetTeacherCourses(
+                    HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier), schoolId, true),
+                SchoolId = schoolId,
+                Month = DateTime.Now,
+
+            };
+            return View(model);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> AddOneTimeSubscription(AddSubscriptionViewModel model)
+        {
+            Subscription subscription = new Subscription();
+            if (model == null) return RedirectToAction(nameof(AddOneTimeSubscription));
+            if (model.Student == null) return RedirectToAction(nameof(AddOneTimeSubscription));
+            if (string.IsNullOrEmpty(model.Student.FullName) && string.IsNullOrEmpty(model.Student.Id))
+            {
+                TempData["ErrorMessage"] = "Потрібно вібрати учня";
+                return RedirectToAction(nameof(AddOneTimeSubscription));
+            }
+            if(string.IsNullOrEmpty(model.Student.Id) && (model.Student.FullName.Length < 5))
+            {
+                TempData["ErrorMessage"] = "Ім'я повинно бути довше 5 символів";
+                return RedirectToAction(nameof(AddOneTimeSubscription));
+            }
+            if(string.IsNullOrEmpty(model.Student.PhoneNumber))
+            {
+                TempData["ErrorMessage"] = "Додайте телефон";
+                return RedirectToAction(nameof(AddOneTimeSubscription));
+            }
+            if (string.IsNullOrEmpty(model.Student.Id) && (model.Student.PhoneNumber.Length < 17))
+            {
+                TempData["ErrorMessage"] = "Введіть телефон повністю";
+                return RedirectToAction(nameof(AddOneTimeSubscription));
+            }
+            if (model.Month.Year < 2000) return RedirectToAction(nameof(AddOneTimeSubscription));
+            if (model.SelectedCours == null || string.IsNullOrEmpty(model.SelectedCours.Id)) return RedirectToAction(nameof(AddOneTimeSubscription));
+            if (!string.IsNullOrEmpty(model.Student.Id))
+            {
+                subscription.AppUserId = model.Student.Id;
+            }
+            else if (!string.IsNullOrEmpty(model.Student.FullName))
+            {
+                subscription.FullName = model.Student.FullName;
+                if (!string.IsNullOrEmpty(model.Student.PhoneNumber))
+                {
+                    subscription.Phone = model.Student.PhoneNumber;
+                }
+            }
+            else return RedirectToAction(nameof(AddOneTimeSubscription));
+            subscription.Month = model.Month;
+            subscription.CourseId = model.SelectedCours.Id;
+            subscription.PayedToId = HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
+            subscription.PayedDatetime = DateTime.Now;
+            subscription.MonthSubscription = false;
+            subscription.CreatedDatetime = DateTime.Now;
+            subscription.Price = model.SelectedCours.Price;
+
+            IdentityResult result = await teacherRepository.CreateSubscriptionAsync(subscription);
+            if (result.Succeeded)
+            {
+                TempData["SuccessMessage"] = "Відвідування додано";
+            }
+            else if (result.Errors.Count() > 0)
+            {
+                string erorMessage = "";
+                foreach (var error in result.Errors)
+                {
+                    erorMessage += error.Description;
+                }
+                TempData["ErrorMessage"] = erorMessage;
+            }
+            return RedirectToAction(nameof(AddOneTimeSubscription), new { schoolId = model.SchoolId });
         }
 
         public async Task<IActionResult> StudentInfo(string studentId, string schoolId, DateTime Month)
@@ -130,7 +217,7 @@ namespace UsersSubscriptions.Controllers
                 CourseId = model.SelectedCours.Id,
                 Month = model.Month,
                 PayedDatetime = DateTime.Now,
-                MonthSubscriprion = true,
+                MonthSubscription = true,
                 PayedToId = teacher.Id,
                 Price = model.SelectedCours.Price,
             };

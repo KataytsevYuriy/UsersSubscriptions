@@ -1,30 +1,71 @@
 ﻿$('.phone-input').mask("+38(000)000-00-00", { placeholder: "+38(___)___-__-__" });
 
 
-var userIdent, userName;
+var userIdent, userName, usersIdents;
 
 function sendPhone() {
     $("#cameraVideo").addClass("d-none");
     if (scanner != undefined) {
         scanner.stop();
     }
-    var dataSend = $("#phoneInput").val().toString();
     $("#info").empty();
-    $("#info").removeClass();
-    dataSend = dataSend.replace(/[^\d]/g, '');
-    $.post("/Owner/GetUserByPhone/" + dataSend, function (data) {
-        if (data == "") {
-            $("#info").append("Користувача не знайдено");
-            $("#info").addClass("alert-danger");
-            $("#modalAdd").prop("disabled", true);
-        } else {
-            userIdent = data;
-            userName = data.name;
-            $("#info").append(userName);
-            $("#info").addClass("alert-info");
-            $("#modalAdd").prop("disabled", false);
-        }
-    }, "json");
+    $("#selectUser").empty();
+    $("#selectUser").addClass("d-none");
+    var findByName = $("#nameInput").val().toString();
+    if (findByName.length > 0) {
+        $.post("/Owner/GetUserByName/" + findByName, function (data) {
+            if (data == "") {
+                $("#info").append("Користувача не знайдено");
+                $("#info").addClass("alert-danger");
+                $("#modalAdd").prop("disabled", true);
+            } else {
+                usersIdents = JSON.parse(data);
+                if (usersIdents.length == 1) {
+                    userIdent = usersIdents[0];
+                    userName = usersIdents[0].Name;
+                    $("#info").append(userName);
+                    $("#info").addClass("alert-info");
+                    $("#modalAdd").prop("disabled", false);
+                } else {
+                    var selectUser = document.getElementById("selectUser");
+                    if (usersIdents.length > 5) {
+                        selectUser.size = 5;
+                    } else {
+                        selectUser.size = usersIdents.length;
+                    }
+                    for (let i = 0; i < usersIdents.length; i++) {
+                        var selectOption = document.createElement("option");
+                        selectOption.text = usersIdents[i].Name;
+                        selectOption.value = usersIdents[i].Id;
+                        selectUser.add(selectOption, selectUser[i]);
+                    }
+                    $("#selectUser").removeClass("d-none");
+                    userName = data.name;
+                    $("#info").append(userName);
+                    $("#info").addClass("alert-info");
+                    $("#modalAdd").prop("disabled", true);
+                }
+            }
+        }, "json");
+    } else {
+        var dataSend = $("#phoneInput").val().toString();
+        $("#info").empty();
+        $("#info").removeClass();
+        dataSend = dataSend.replace(/[^\d]/g, '');
+        $.post("/Owner/GetUserByPhone/" + dataSend, function (data) {
+            if (data == "") {
+                $("#info").append("Користувача не знайдено");
+                $("#info").addClass("alert-danger");
+                $("#modalAdd").prop("disabled", true);
+            } else {
+                userIdent = data;
+                userName = data.name;
+                $("#info").append(userName);
+                $("#info").addClass("alert-info");
+                $("#modalAdd").prop("disabled", false);
+            }
+        }, "json");
+    }
 };
 function sendId(content) {
     $("#info").empty();
@@ -54,6 +95,26 @@ function clearUserName() {
     $("#info").empty();
 }
 
+
+$(function () {
+    $("#selectUser").change(function () {
+        var selectedUserId = $(this).val();
+        for (let i = 0; i < usersIdents.length; i++) {
+            if (usersIdents[i].Id == selectedUserId) {
+                userIdent = new Object;
+                userIdent.id = selectedUserId;
+                userIdent.name = usersIdents[i].Name;
+                userName = usersIdents[i].Name;
+                break;
+            }
+        }
+        $("#info").empty();
+        $("#info").append(userName);
+        $("#info").addClass("alert-info");
+        $("#selectUser").addClass("d-none");
+        $("#modalAdd").prop("disabled", false);
+    });
+});
 
 var getUserInfoUrl = '@Url.Action("GetUserById")';
 var cameras;

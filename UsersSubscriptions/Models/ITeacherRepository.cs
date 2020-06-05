@@ -16,6 +16,7 @@ namespace UsersSubscriptions.Models
         AppUser GetUserByPhone(string phone);
         AppUser GetCurrentOwner(string userId);
         IEnumerable<School> GetCurrentTeacherSchools(string userId);
+        IEnumerable<AppUser> FindUserByName(string name);
 
         //course
         Course GetCourse(string id);

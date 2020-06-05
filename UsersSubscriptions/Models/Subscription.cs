@@ -12,6 +12,7 @@ namespace UsersSubscriptions.Models
     {
         [StringLength(64)]
         public string Id { get; set; }
+        [DisplayFormat(DataFormatString ="{0:dd'/'mm'/'yyyy}", ApplyFormatInEditMode =true)]
         public DateTime Month { get; set; }
 
         [StringLength(64)]
@@ -25,7 +26,7 @@ namespace UsersSubscriptions.Models
         public string FullName { get; set; }
         [Phone]
         public string Phone { get; set; }
-        public bool MonthSubscriprion { get; set; }
+        public bool MonthSubscription { get; set; }
 
         public int Price { get; set; }
 

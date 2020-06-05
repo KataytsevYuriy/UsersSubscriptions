@@ -15,7 +15,7 @@ namespace UsersSubscriptions.Models
         [StringLength(64)]
         [Key]
         public override string Id { get; set; }
-        [StringLength(50)]
+        [StringLength(50, MinimumLength = 5)]
         public string FullName { get; set; }
         public bool IsActive { get; set; }
 

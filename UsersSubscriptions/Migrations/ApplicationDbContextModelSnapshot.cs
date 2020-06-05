@@ -284,7 +284,7 @@ namespace UsersSubscriptions.Migrations
 
                     b.Property<DateTime>("Month");
 
-                    b.Property<bool>("MonthSubscriprion");
+                    b.Property<bool>("MonthSubscription");
 
                     b.Property<DateTime>("PayedDatetime");
 

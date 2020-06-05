@@ -8,6 +8,7 @@
   <ItemGroup>
     <Compile Remove="Migrations\20200419205341_AddUrlNameToSchool.cs" />
     <Compile Remove="Migrations\20200530171905_addOneTimeSubscription.cs" />
+    <Compile Remove="Migrations\20200530172435_addOneTimeSubscription.cs" />
   </ItemGroup>
 
   <ItemGroup>

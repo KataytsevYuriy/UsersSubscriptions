@@ -17,6 +17,19 @@
             <input asp-for="Price" class="form-control" />
         </div>
         <div class="form-group">
+            <label asp-for="AllowOneTimePrice">Дозволити разове відвідування</label>
+            <input asp-for="AllowOneTimePrice" id="AllowOneTimePrice"/>
+        </div>
+        <div class="form-group">
+            <label asp-for="OneTimePrice">Ціна разового відвідування</label>
+            @if (Model.AllowOneTimePrice)
+            {
+                <input asp-for="OneTimePrice" class="form-control" id="OneTimePrice" />
+            } else {
+                <input asp-for="OneTimePrice" class="form-control" id="OneTimePrice" disabled />
+            }
+        </div>
+        <div class="form-group">
             <label asp-for="IsActive">Активний</label>
             <select name="IsActive" class="form-control">
                 @if (Model.IsActive)
@@ -62,6 +75,18 @@
                     $("#teachers").append(content);
                 }, "json");
         };
+    </script>
+    <script>
+        $(function () {
+            $("#AllowOneTimePrice").change(function () {
+                var ttt = $("#AllowOneTimePrice");
+                if ($("#AllowOneTimePrice").is(':checked')) {
+                    $("#OneTimePrice").prop("disabled", false);
+                } else {
+                    $("#OneTimePrice").prop("disabled", true);
+                }
+            });
+        })
     </script>
     <script>
         $(function () {

@@ -109,7 +109,7 @@
             <tr>
                 <td class="text-center" style="vertical-align:middle">@(subs.AppUser==null? subs.FullName:subs.AppUser.FullName) </td>
                 <td class="text-center" style="vertical-align:middle">@subs.Course.School.Name <br />@subs.Course.Name <br />
-                @(subs.AppUser==null? subs.Month.ToString("DD:MMMM:yyyy") : subs.Month.ToString("MMMM:yyyy") )</td>
+                @(subs.AppUser==null? subs.Month.ToString("dd:MMMM:yyyy") : subs.Month.ToString("MMMM:yyyy") )</td>
                 <td class="text-center" style="vertical-align:middle">
                     @subs.Price
                     <br />

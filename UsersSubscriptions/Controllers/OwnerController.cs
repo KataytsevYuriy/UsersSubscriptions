@@ -10,6 +10,7 @@ using UsersSubscriptions.Models.ViewModels;
 using Microsoft.AspNetCore.Identity;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Routing;
+using Newtonsoft.Json;
 
 namespace UsersSubscriptions.Controllers
 {
@@ -121,6 +122,8 @@ namespace UsersSubscriptions.Controllers
                 Price = course.Price,
                 CourseAppUsers = course.CourseAppUsers,
                 SchoolId = course.SchoolId,
+                AllowOneTimePrice = course.AllowOneTimePrice,
+                OneTimePrice=course.OneTimePrice,
             };
             return View(model);
         }
@@ -157,7 +160,6 @@ namespace UsersSubscriptions.Controllers
         [AllowAnonymous]
         public JsonResult GetUserByPhone(string id)
         {
-
             AppUser user = teacherRepository.GetUserByPhone(id);
             if (user == null) { return Json(""); }
             return Json(new { id = user.Id, name = user.FullName });
@@ -170,6 +172,26 @@ namespace UsersSubscriptions.Controllers
             if (user == null) { return Json(""); }
             return Json(new { id = user.Id, name = user.FullName });
         }
+
+        [HttpPost]
+        public JsonResult GetUserByName(string id)
+        {
+            IEnumerable<AppUser> appUsers = teacherRepository.FindUserByName(id);
+            if(appUsers==null || appUsers.Count()==0) { return Json(""); }
+            List<UserJsonResponseModel> responseModel = new List<UserJsonResponseModel>();
+            foreach(AppUser user in appUsers)
+            {
+                UserJsonResponseModel userJson = new UserJsonResponseModel
+                {
+                    Id = user.Id,
+                    Name = user.FullName,
+                };
+                responseModel.Add(userJson);
+            }
+            var jsonResponse = JsonConvert.SerializeObject(responseModel);
+            return Json(jsonResponse);
+        }
+
         [HttpPost]
         public async Task<JsonResult> AddTeacherToCourseAsync(string id, string courseId)
         {

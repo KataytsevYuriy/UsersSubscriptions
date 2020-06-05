@@ -2,7 +2,7 @@
 
 namespace UsersSubscriptions.Migrations
 {
-    public partial class addOneTimeSubscription : Migration
+    public partial class addOneTimeSubscriptions : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -13,7 +13,7 @@ namespace UsersSubscriptions.Migrations
                 nullable: true);
 
             migrationBuilder.AddColumn<bool>(
-                name: "MonthSubscriprion",
+                name: "MonthSubscription",
                 table: "Subscriptions",
                 nullable: false,
                 defaultValue: false);
@@ -43,7 +43,7 @@ namespace UsersSubscriptions.Migrations
                 table: "Subscriptions");
 
             migrationBuilder.DropColumn(
-                name: "MonthSubscriprion",
+                name: "MonthSubscription",
                 table: "Subscriptions");
 
             migrationBuilder.DropColumn(

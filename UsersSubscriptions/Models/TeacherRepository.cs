@@ -53,6 +53,15 @@ namespace UsersSubscriptions.Models
             return curTeacherSchools;
         }
 
+
+        public IEnumerable<AppUser> FindUserByName(string name)
+        {
+            name = name.ToLower();
+            List<AppUser> appUsers = _context.Users.Where(user => user.FullName.ToLower().Contains(name)).ToList();
+            return appUsers;
+        }
+
+
         //course
 
         public Course GetCourse(string id)
@@ -123,6 +132,8 @@ namespace UsersSubscriptions.Models
             dbCourse.Description = course.Description;
             dbCourse.IsActive = course.IsActive;
             dbCourse.Price = course.Price;
+            dbCourse.AllowOneTimePrice = course.AllowOneTimePrice;
+            dbCourse.OneTimePrice = course.OneTimePrice;
             var state = _context.Courses.Update(dbCourse);
             if (state.State != EntityState.Modified)
                 return IdentityResult.Failed(new IdentityError { Description = "Курс не оновлено" });
@@ -278,7 +289,8 @@ namespace UsersSubscriptions.Models
 
         public async Task<IdentityResult> CreateSubscriptionAsync(Subscription subscription)
         {
-            if ((_context.Subscriptions.FirstOrDefault(sub =>
+            if (subscription.MonthSubscription
+                && (_context.Subscriptions.FirstOrDefault(sub =>
                 sub.AppUserId == subscription.AppUserId
                 && sub.CourseId == subscription.CourseId
                 && sub.Month.Year == subscription.Month.Year && sub.Month.Month == subscription.Month.Month
@@ -354,7 +366,7 @@ namespace UsersSubscriptions.Models
                 subscriptions = courses.FirstOrDefault(cour => cour.Id == courseId)
                     .Subscriptions
                     .Where(sub => sub.Month.Month == month.Month && sub.Month.Year == month.Year)
-                    .OrderBy(sub => sub.AppUser.FullName).ToList();
+                    /*.OrderBy(sub => sub.AppUser.FullName)*/.ToList();
             }
             IEnumerable<SchoolTeacher> schoolTeachers = courses.SelectMany(cour => cour.CourseAppUsers.Select(capu => capu.AppUser))
                 .Distinct()
@@ -431,7 +443,6 @@ namespace UsersSubscriptions.Models
                 && cour.CourseAppUsers.Any(cau => cau.AppUserId == teacherId));
             return course == null ? false : true;
         }
-
 
     }
 }
