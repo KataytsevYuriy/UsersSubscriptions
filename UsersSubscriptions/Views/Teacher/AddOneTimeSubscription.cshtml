@@ -2,30 +2,38 @@
 @{
     Layout = "_Layout";
     Course selectedCourse = Model.TeacherCourses.Where(cour => cour.AllowOneTimePrice == true).FirstOrDefault();
+    if (Model.SelectedCours != null) { selectedCourse = Model.TeacherCourses.Where(cour => cour.Id == Model.SelectedCours.Id).FirstOrDefault(); }
     DateTime date = DateTime.Now;
+    if (Model.Month != null) { date = Model.Month; }
+    DateTime minDate = DateTime.Now;
 }
 
 <div>
     <form asp-action="AddOneTimeSubscription" method="post">
         <input type="hidden" asp-for="SchoolId" />
-        <input type="hidden" asp-for="Student.Id" id="studentId" class="form-control" />
+        <input type="hidden" asp-for="Student.Id" id="studentId" />
+
         <div class="form-group">
             <label asp-for="Student.FullName">Ім'я</label>
             <input asp-for="Student.FullName" class="form-control" />
         </div>
         <div class="form-group">
             <label asp-for="Student.PhoneNumber">Телефон</label>
-            <input class="form-control phone-input" name="Student.PhoneNumber" id="phoneInput"
-                   type="tel" required placeholder="+38(___)___-__-__" />
+            <input class="form-control phone-input" name="Student.PhoneNumber"
+                   type="tel" required placeholder="+38(___)___-__-__"
+                   value="@Model.Student?.PhoneNumber?" />
 
         </div>
         <div class="form-group">
             <button class="btn btn-outline-info" type="button" data-toggle="modal" data-target="#addPhoneModal">Вибрати учня</button>
-            <label class="ml-2" id="userName"></label>
+            <label class="ml-2" id="userName">@(string.IsNullOrEmpty(Model.Student?.Id) ? "" : Model.Student?.FullName)</label>
+            <button type="button" id="btnDismissSelectUser" class="btn-outline-danger d-none">
+                <span aria-hidden="true">&times;</span>
+            </button>
         </div>
         <div class="form-group">
             <label asp-for="Month">Дата</label>
-            <input class="form-control" type="date" name="Month" value="@date.ToString("yyyy-MM-dd")" />
+            <input class="form-control" type="date" name="Month" value="@date.ToString("yyyy-MM-dd")"  min="@minDate.ToString("yyyy-MM-dd")"/>
         </div>
         <div class="form-group">
             <label>Курс</label>
@@ -58,6 +66,7 @@
         function updateUser(userIdent) {
             $("#studentId").val(userIdent.id);
             $("#userName").text(userIdent.name);
+            $("#btnDismissSelectUser").removeClass("d-none");
         };
     </script>
     <script>
@@ -66,5 +75,13 @@
             $("#Price").val(val);
         }
     </script>
-
+    <script>
+        $(function () {
+            $("#btnDismissSelectUser").click(function () {
+                $("#studentId").val("");
+                $("#userName").text("");
+                $("#btnDismissSelectUser").addClass("d-none");
+            });
+        });
+    </script>
 }
