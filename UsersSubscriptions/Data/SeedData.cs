@@ -21,8 +21,8 @@ namespace UsersSubscriptions.Data
             var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
             var userManager = serviceProvider.GetRequiredService<UserManager<AppUser>>();
             await CreateRolesAsync(roleManager);
-            await CreateUsersAsync(userManager);
-            await CreateSchoolAsync(_context, userManager);
+            //await CreateUsersAsync(userManager);
+            //await CreateSchoolAsync(_context, userManager);
             //await CreateSubscriptionsAsync(_context, userManager);
         }
 

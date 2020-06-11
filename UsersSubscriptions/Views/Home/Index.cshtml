@@ -9,7 +9,7 @@
         <a asp-action="DownloadFile" asp-route-id="@Model.Id" class="btn btn-primary">Завантажити</a>
     </p>
     <div>
-        <img style="width:100%" src="@String.Format("data:image/png;base64,{0}", Convert.ToBase64String(ViewBag.LoadedQrFile))" />
+        <img style="max-width:100%; max-height: 400px;" src="@String.Format("data:image/png;base64,{0}", Convert.ToBase64String(ViewBag.LoadedQrFile))" />
     </div>
 </div>
 
