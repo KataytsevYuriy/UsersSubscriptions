@@ -81,6 +81,28 @@ namespace UsersSubscriptions.Controllers
             return View(school);
         }
 
+        [HttpPost]
+        public IActionResult SchoolSettings (School model)
+        {
+            if(!teacherRepository.IsItThisSchoolOwner(model.Id, HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier)))
+            {
+                TempData["ErrorMessage"] = "Ви не є власник школи";
+                return RedirectToAction("Index", "home");
+            }
+            IdentityResult result = teacherRepository.UpdateSchoolOptions(model);
+            if (!result.Succeeded)
+            {
+                TempData["ErrorMessage"] = result.Errors.FirstOrDefault().Description;
+            }
+            School school = teacherRepository.GetSchool(model.Id);
+            if (school == null)
+            {
+                TempData["ErrorMessage"] = "Школу не знайдено";
+                return RedirectToAction("Index", "home");
+            }
+
+            return View("SchoolDetails",school);
+        }
 
 
         public IActionResult AddCourse(string schoolId)
@@ -124,7 +146,11 @@ namespace UsersSubscriptions.Controllers
                 SchoolId = course.SchoolId,
                 AllowOneTimePrice = course.AllowOneTimePrice,
                 OneTimePrice=course.OneTimePrice,
+                AllPaymentTypes=teacherRepository.GetSchoolPaymentTyapes(schoolId),
+                ListPaymentTypes = course.CoursePaymentTypes.Select(cpt=>cpt.PaymentType).ToList(),
             };
+            //foreach(PaymentType type in teacherRepository.GetSchoolPaymentTyapes(schoolId))
+            //var ttt = course.CoursePaymentTypes.Contains()
             return View(model);
         }
         [HttpPost]
@@ -217,6 +243,18 @@ namespace UsersSubscriptions.Controllers
                      + "\" checked > " + teacher.FullName + "<br>";
             }
             return Json(res);
+        }
+
+        [HttpPost]
+        public JsonResult SetCoursePayTypes(string schoolId, string courseId, string[] pTypes)
+        {
+            IdentityResult result = teacherRepository
+                .UpdateCoursePaymentTypes(schoolId, courseId, pTypes.ToList());
+            if (result.Succeeded)
+            {
+                return Json("true");
+            }
+            return Json(result.Errors.FirstOrDefault().Description);
         }
 
         public IActionResult SchoolCalculation(string id)

@@ -19,6 +19,8 @@ namespace UsersSubscriptions.Data
         public DbSet<Course> Courses { get; set; }
         public DbSet<School> Schools { get; set; }
         public DbSet<CourseAppUser> CourseAppUsers { get; set; }
+        public DbSet<PaymentType> PaymentTypes { get; set; }
+        public DbSet<CoursePaymentType> CoursePaymentTypes { get; set; }
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);

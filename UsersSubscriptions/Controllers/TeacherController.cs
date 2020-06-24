@@ -11,6 +11,7 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.Http;
 using System.IO;
+using Newtonsoft.Json;
 
 namespace UsersSubscriptions.Controllers
 {
@@ -41,6 +42,13 @@ namespace UsersSubscriptions.Controllers
                 schoolId = schools.FirstOrDefault().Id;
             }
             ViewBag.schoolId = schoolId;
+            IEnumerable<Course> teacherCourses = teacherRepository.GetTeacherCourses(
+                    HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier), schoolId, true);
+            if (teacherCourses != null
+                && teacherCourses.Where(cour => cour.AllowOneTimePrice == true).Count() > 0)
+            {
+                ViewBag.hasOneTimeCourses = true;
+            }
             return View();
         }
 
@@ -103,6 +111,7 @@ namespace UsersSubscriptions.Controllers
                 TeacherCourses = teacherCourses,
                 SchoolId = schoolId,
                 Month = DateTime.Now,
+                PaymentTypes = teacherRepository.GetSchoolPaymentTyapes(schoolId),
 
             };
             return View(model);
@@ -125,25 +134,26 @@ namespace UsersSubscriptions.Controllers
             if (string.IsNullOrEmpty(model.Student.FullName) && string.IsNullOrEmpty(model.Student.Id))
             {
                 TempData["ErrorMessage"] = "Потрібно вибрати учня ";
-                //return RedirectToAction(nameof(AddOneTimeSubscription));
                 return View(model);
             }
             if(string.IsNullOrEmpty(model.Student.Id) && (model.Student.FullName.Length < 5))
             {
                 TempData["ErrorMessage"] = "Ім'я повинно бути довше 5 символів";
-                //return RedirectToAction(nameof(AddOneTimeSubscription));
                 return View(model);
             }
             if(string.IsNullOrEmpty(model.Student.PhoneNumber))
             {
                 TempData["ErrorMessage"] = "Додайте телефон";
-                //return RedirectToAction(nameof(AddOneTimeSubscription));
+                return View(model);
+            }
+            if(string.IsNullOrEmpty(model.SelectedPaymentType))
+            {
+                TempData["ErrorMessage"] = "Виберіть тип оплати";
                 return View(model);
             }
             if (string.IsNullOrEmpty(model.Student.Id) && (model.Student.PhoneNumber.Length < 17))
             {
                 TempData["ErrorMessage"] = "Введіть телефон повністю";
-                //return RedirectToAction(nameof(AddOneTimeSubscription));
                 return View(model);
             }
             if (model.Month.Year < 2000) return RedirectToAction(nameof(AddOneTimeSubscription));
@@ -169,6 +179,7 @@ namespace UsersSubscriptions.Controllers
             subscription.MonthSubscription = false;
             subscription.CreatedDatetime = DateTime.Now;
             subscription.Price = model.SelectedCours.Price;
+            subscription.PaymentTypeId = model.SelectedPaymentType;
 
             IdentityResult result = await teacherRepository.CreateSubscriptionAsync(subscription);
             if (result.Succeeded)
@@ -227,6 +238,7 @@ namespace UsersSubscriptions.Controllers
                 Month = Month,
                 SchoolId = schoolId,
                 Student = await teacherRepository.GetUserAsync(Id),
+                PaymentTypes = teacherRepository.GetSchoolPaymentTyapes(schoolId),
             };
             return View(model);
         }
@@ -245,6 +257,7 @@ namespace UsersSubscriptions.Controllers
                 MonthSubscription = true,
                 PayedToId = teacher.Id,
                 Price = model.SelectedCours.Price,
+                PaymentTypeId=model.SelectedPaymentType,
             };
             IdentityResult result = await teacherRepository.CreateSubscriptionAsync(subscription);
             if (result.Succeeded)

@@ -147,7 +147,8 @@ namespace UsersSubscriptions.Areas.Admin.Models
         //Subscriptions
         public IEnumerable<Subscription> GetFilteredSubscriptions(string schoolId, string courseId, DateTime month, string searchByName)
         {
-            IEnumerable<Subscription> subscriptions = _context.Subscriptions.Include(cour => cour.Course).ThenInclude(cou => cou.School)
+            IEnumerable<Subscription> subscriptions = _context.Subscriptions
+                                        .Include(cour => cour.Course).ThenInclude(cou => cou.School)
                                         .Include(payed => payed.PayedTo)
                                         .Include(user => user.AppUser)
                                         .ToList();
@@ -167,7 +168,10 @@ namespace UsersSubscriptions.Areas.Admin.Models
             if (!string.IsNullOrEmpty(searchByName))
             {
                 subscriptions = subscriptions
-                    .Where(sub => sub.AppUser.FullName.ToLower().Contains(searchByName.ToLower()));
+                    .Where(sub =>
+                    (sub.AppUser!=null && sub.AppUser.FullName.ToLower().Contains(searchByName.ToLower()))
+                    ||(sub.AppUser==null && !string.IsNullOrEmpty(sub.FullName) && sub.FullName.ToLower().Contains(searchByName.ToLower())));
+
             }
             return subscriptions;
         }

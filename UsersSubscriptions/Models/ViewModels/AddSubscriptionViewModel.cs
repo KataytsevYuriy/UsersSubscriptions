@@ -13,5 +13,7 @@ namespace UsersSubscriptions.Models.ViewModels
         public DateTime Month { get; set; }
         public Course SelectedCours { get; set; }
         public string SchoolId { get; set; }
+        public IEnumerable<PaymentType> PaymentTypes { get; set; }
+        public string SelectedPaymentType { get; set; }
     }
 }

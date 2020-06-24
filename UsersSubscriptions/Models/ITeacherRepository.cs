@@ -34,13 +34,16 @@ namespace UsersSubscriptions.Models
 
         //school
         School GetSchool(string schoolId);
+        IdentityResult UpdateSchoolOptions(School school);
         SchoolCalculationsViewModel GetSchoolDetail(string schoolId, string courseId, DateTime month, string selectedNavId, string selectedTeacherId);
         School GetSchoolByUrl(string url);
         IEnumerable<School> GetUsersSchools(string userId);
         IEnumerable<Student> GetTeacherMonthStudents(string courseId, DateTime month);
+        IEnumerable<PaymentType> GetSchoolPaymentTyapes(string schoolId);
         bool IsItThisSchoolOwner(string schoolId, string ownerId);
         bool IsItThisSchoolTeacher(string schoolId, string teacherId);
 
-
+        //PaymentType
+        IdentityResult UpdateCoursePaymentTypes(string schoolId, string courseId, List<string> pTypes);
     }
 }

@@ -69,6 +69,7 @@ namespace UsersSubscriptions.Models
             return _context.Courses
                 .Include(cour => cour.School).ThenInclude(sch => sch.Owner)
                 .Include(cour => cour.CourseAppUsers).ThenInclude(appu => appu.AppUser)
+                .Include(cour => cour.CoursePaymentTypes)
                 .FirstOrDefault(cour => cour.Id == id); ;
         }
 
@@ -176,6 +177,8 @@ namespace UsersSubscriptions.Models
             IEnumerable<Course> courses = _context.Courses
                 .Include(cour => cour.School)
                 .Include(cu => cu.CourseAppUsers)
+                .Include(cu=>cu.CoursePaymentTypes)
+                .ThenInclude(cpt=>cpt.PaymentType)
                     .Where(cour =>
                         cour.CourseAppUsers.Any(dd => dd.AppUserId == teacherId)
                         && cour.SchoolId == schoolId
@@ -298,6 +301,10 @@ namespace UsersSubscriptions.Models
             {
                 return IdentityResult.Failed(new IdentityError { Description = "Такий абонемент вже існує" });
             }
+            if(string.IsNullOrEmpty(subscription.PaymentTypeId))
+            {
+                return IdentityResult.Failed(new IdentityError { Description = "Виберіть спосіб оплати" });
+            }
             var state = await _context.Subscriptions.AddAsync(subscription);
             if (state.State != EntityState.Added)
             {
@@ -324,7 +331,71 @@ namespace UsersSubscriptions.Models
             return _context.Schools
                 .Include(sch => sch.Courses)
                 .Include(sch => sch.Owner)
+                .Include(sch => sch.PaymentTypes)
                 .FirstOrDefault(sch => sch.Id == schoolId);
+        }
+
+        public IdentityResult UpdateSchoolOptions(School model)
+        {
+            if (string.IsNullOrEmpty(model.Id))
+            {
+                return IdentityResult.Failed(new IdentityError { Description = "Школа вiдсутня" });
+            }
+            bool modified = false;
+            if (model.PaymentTypes != null)
+            {
+                if (model.PaymentTypes.Count() > 0)
+                {
+                    foreach (PaymentType payment in model.PaymentTypes)
+                    {
+                        if ((payment.Name?.Length > 1 && payment.Name?.Length < 3)
+                            || (string.IsNullOrEmpty(payment.Name) && !string.IsNullOrEmpty(payment.Id)))
+                        {
+                            return IdentityResult.Failed(new IdentityError
+                            { Description = "Назва способу оплати повинна мати не менше трьох символів" });
+                        }
+                        if (string.IsNullOrEmpty(payment.Id) && !string.IsNullOrEmpty(payment.Name))
+                        {
+                            _context.PaymentTypes.Add(new PaymentType
+                            {
+                                Name = payment.Name,
+                                Priority = payment.Priority,
+                                SchoolId = model.Id,
+                            });
+                            modified = true;
+                        }
+                        else
+                        {
+                            PaymentType pType = _context.PaymentTypes.FirstOrDefault(pt => pt.Id == payment.Id);
+                            if (pType != null
+                                    && (string.IsNullOrEmpty(pType.Name) || !pType.Name.Equals(payment.Name)
+                                            || pType.Priority != payment.Priority))
+                            {
+                                pType.Name = payment.Name;
+                                pType.Priority = payment.Priority;
+                                modified = true;
+                            }
+                        }
+
+                    }
+                }
+                List<string> dbPaymentTypes = _context.PaymentTypes.Where(pt => pt.SchoolId == model.Id)
+                    .Select(pt => pt.Id).ToList();
+                IEnumerable<string> removedPaymentTypes = dbPaymentTypes.Except(model
+                                                        .PaymentTypes.Select(pt => pt.Id).ToList());
+                if (removedPaymentTypes.Count() > 0)
+                {
+                    foreach (string pTId in removedPaymentTypes)
+                    {
+                        PaymentType paymentToRemove = _context.PaymentTypes.FirstOrDefault(pt => pt.Id == pTId);
+                        _context.PaymentTypes.Remove(paymentToRemove);
+                    }
+                    modified = true;
+                }
+            }
+            if (modified) { _context.SaveChanges(); }
+
+            return IdentityResult.Success;
         }
 
         public School GetSchoolByUrl(string url)
@@ -444,5 +515,89 @@ namespace UsersSubscriptions.Models
             return course == null ? false : true;
         }
 
+        public IEnumerable<PaymentType> GetSchoolPaymentTyapes(string schoolId)
+        {
+            IEnumerable<PaymentType> paymentTypes = _context.PaymentTypes
+                .Where(pt => pt.SchoolId == schoolId).OrderBy(pt => pt.Priority).ToList();
+            //;
+            return paymentTypes;
+        }
+
+        //PaymentType
+
+        public IdentityResult UpdateCoursePaymentTypes(string schoolId, string courseId, List<string> pTypes)
+        {
+            if (string.IsNullOrEmpty(schoolId) || string.IsNullOrEmpty(courseId))
+            {
+                return IdentityResult.Failed(new IdentityError { Description = "Помилка школи або курса" });
+            }
+            School school = GetSchool(schoolId);
+            if (school == null)
+            {
+                return IdentityResult.Failed(new IdentityError { Description = "Школа не знайдена" });
+            }
+            if (!school.Courses.Any(cour => cour.Id == courseId))
+            {
+                return IdentityResult.Failed(new IdentityError
+                { Description = "Цей курс не відноситься до цієї школи" });
+            }
+            List<string> schoolPTypes = school.PaymentTypes.Select(pt => pt.Id).ToList();
+            if (schoolPTypes.Count() == 0)
+            {
+                return IdentityResult.Failed(new IdentityError
+                { Description = "Варіанти сплати відсутні" });
+            }
+            if(pTypes.Except(schoolPTypes).ToList().Count()>0)
+            {
+                return IdentityResult.Failed(new IdentityError
+                { Description = "Варіанти сплати не відносяться до школи" });
+            }
+            List<string> coursePTypes = _context.CoursePaymentTypes
+                .Where(cpt => cpt.CourseId == courseId)
+                .Select(cpt => cpt.PaymentTypeId).ToList();
+            if (pTypes.Count() > 0)
+            {
+                List<string> cptToAdd = pTypes.Except(coursePTypes).ToList();
+                if (cptToAdd.Count() > 0)
+                {
+                    foreach (string ctpId in cptToAdd)
+                    {
+                        AddCoursePaymentType(courseId, ctpId);
+                    }
+                }
+            }
+            if (coursePTypes.Count() > 0)
+            {
+                List<string> cptToRemove = coursePTypes.Except(pTypes).ToList();
+                if (cptToRemove.Count() > 0)
+                {
+                    foreach(string cptId in cptToRemove)
+                    {
+                        RemoveCoursePaymentType(courseId, cptId);
+                    }
+                }
+            }
+            return IdentityResult.Success;
+        }
+
+        private void AddCoursePaymentType(string courseId, string pTypeId)
+        {
+            _context.CoursePaymentTypes.Add(new CoursePaymentType
+            {
+                CourseId = courseId,
+                PaymentTypeId = pTypeId,
+            });
+            _context.SaveChanges();
+        }
+        private void RemoveCoursePaymentType(string courseId, string pTypeId)
+        {
+            CoursePaymentType coursePT = _context.CoursePaymentTypes
+                 .FirstOrDefault(cpt => cpt.CourseId == courseId && cpt.PaymentTypeId == pTypeId);
+            if (coursePT != null)
+            {
+                _context.CoursePaymentTypes.Remove(coursePT);
+                _context.SaveChanges();
+            }
+        }
     }
 }

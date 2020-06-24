@@ -6,17 +6,21 @@
 <div class="text-center">
     <button class="btn btn-outline-primary" type="button" data-toggle="modal" data-target="#addPhoneModal">Додати за номером телефона</button>
 </div>
+@if (ViewBag.hasOneTimeCourses != null && ViewBag.hasOneTimeCourses == true)
+{
+    <div class="text-center my-2">
+        <a class="btn btn-outline-primary" asp-action="AddOneTimeSubscription" asp-route-schoolId="@ViewBag.schoolId">
+            Додати разове відвідуівння
+        </a>
+    </div>
+}
 <p style="font-size:1.2em">
     Відскануйте QR код абонементу
 </p>
 <div id="area-cameras-list">
 </div>
 <video id="preview" style="width:100%;height:50%;"></video>
-<div class="text-center">
-    <a class="btn btn-outline-primary" asp-action="AddOneTimeSubscription" asp-route-schoolId="@ViewBag.schoolId">
-         Додати разове відвідуівння
-    </a>
-</div>
+
 
 <partial name="_AddUserModal" />
 @section Scripts{
