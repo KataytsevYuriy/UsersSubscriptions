@@ -7,7 +7,7 @@
 <div class="">
     <form asp-action="UpdateCourse" method="post" id="form">
         <input type="hidden" name="Id" id="courseId" value="@Model.Id" />
-        <input type="hidden" name="SchoolId" value="@Model.SchoolId" />
+        <input type="hidden" name="SchoolId" id="schoolId" value="@Model.SchoolId" />
         <ul class="list-group">
             <li class="list-group-item">
                 <label asp-for="Name">Назва</label>
@@ -31,6 +31,40 @@
             <li class="list-group-item">
                 <label asp-for="Price">Ціна</label>
                 <input asp-for="Price" class=" form-control" />
+                <br />
+                @if (Model.AllPaymentTypes != null && Model.AllPaymentTypes.Count() > 0)
+                {
+                    <div class="form-group">
+                        <button class="mb-2 float-right btn btn-outline-secondary" type="button" data-toggle="modal"
+                                data-target="#selectPaymentType">
+                            Варіанти сплати
+                        </button>
+                    </div>
+                }
+                else
+                {
+                    <div class="text-danger form-group">
+                        <h4 class="float-right"> Варіанти сплати відсутні </h4>
+                    </div>
+                }
+            </li>
+            <li>
+                <div class="form-group">
+                    <label asp-for="AllowOneTimePrice">Дозволити разове відвідування</label>
+                    <input asp-for="AllowOneTimePrice" id="AllowOneTimePrice" />
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="OneTimePrice">Ціна разового відвідування</label>
+                    @if (Model.AllowOneTimePrice)
+                    {
+                        <input asp-for="OneTimePrice" class="form-control" id="OneTimePrice" />
+                    }
+                    else
+                    {
+                        <input asp-for="OneTimePrice" class="form-control" id="OneTimePrice" disabled />
+                    }
+                </div>
             </li>
             <li class="list-group-item">
                 <div class=" form-group">
@@ -51,11 +85,13 @@
     </form>
 
 </div>
-<partial name="_confirmDelete" />
+<partial name="_ConfirmDelete" />
 <partial name="_AddUserModal" />
+<partial name="_SelectPaymentTypeModal" />
 @section AdminScripts{
     <script src="~/js/jquery.mask.min.js"></script>
     <script src="~/js/addUserModal.js"></script>
+    <script src="~/js/SelectPTModal.js"></script>
     <script>
         function updateUser(userIdent) {
             var courseId = $("#courseId").val();
@@ -65,6 +101,17 @@
                     $("#teachers").append(content);
                 }, "json");
         };
+    </script>
+    <script>
+        $(function () {
+            $("#AllowOneTimePrice").change(function () {
+                if ($("#AllowOneTimePrice").is(':checked')) {
+                    $("#OneTimePrice").prop("disabled", false);
+                } else {
+                    $("#OneTimePrice").prop("disabled", true);
+                }
+            });
+        })
     </script>
     <script>
         $(function () {

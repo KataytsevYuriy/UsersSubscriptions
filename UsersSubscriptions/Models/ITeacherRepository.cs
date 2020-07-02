@@ -20,6 +20,7 @@ namespace UsersSubscriptions.Models
 
         //course
         Course GetCourse(string id);
+        CourseViewModel GetCourseViewModel(string id);
         Task<IdentityResult> CreateCourseAsync(CourseViewModel course);
         Task<IdentityResult> UpdateCourseAsync(CourseViewModel course);
         IEnumerable<Course> GetTeacherCourses(string teacherId, string schoolId, bool onlyActive);

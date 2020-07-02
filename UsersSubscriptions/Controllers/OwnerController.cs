@@ -29,7 +29,7 @@ namespace UsersSubscriptions.Controllers
         {
             if (string.IsNullOrEmpty(redirect))
             {
-                return RedirectToAction("Index","home" );
+                return RedirectToAction("Index", "home");
             }
             string ownerId = HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (string.IsNullOrEmpty(ownerId))
@@ -82,17 +82,32 @@ namespace UsersSubscriptions.Controllers
         }
 
         [HttpPost]
-        public IActionResult SchoolSettings (School model)
+        public IActionResult SchoolSettings(School model, string redirectUrl)
         {
-            if(!teacherRepository.IsItThisSchoolOwner(model.Id, HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier)))
+            if (!string.IsNullOrEmpty(redirectUrl))
             {
-                TempData["ErrorMessage"] = "Ви не є власник школи";
-                return RedirectToAction("Index", "home");
+                if (!User.IsInRole(Common.UsersConstants.admin))
+                {
+                    TempData["ErrorMessage"] = "Ви не адмін";
+                    return RedirectToAction("Index", "home");
+                }
+            }
+            else
+            {
+                if (!teacherRepository.IsItThisSchoolOwner(model.Id, HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier)))
+                {
+                    TempData["ErrorMessage"] = "Ви не є власник школи";
+                    return RedirectToAction("Index", "home");
+                }
             }
             IdentityResult result = teacherRepository.UpdateSchoolOptions(model);
             if (!result.Succeeded)
             {
                 TempData["ErrorMessage"] = result.Errors.FirstOrDefault().Description;
+            }
+            if (!string.IsNullOrEmpty(redirectUrl) && redirectUrl.Equals("admin"))
+            {
+                return RedirectToAction("SchoolDetails", "School", new { Area = "Admin", id = model.Id });
             }
             School school = teacherRepository.GetSchool(model.Id);
             if (school == null)
@@ -100,8 +115,8 @@ namespace UsersSubscriptions.Controllers
                 TempData["ErrorMessage"] = "Школу не знайдено";
                 return RedirectToAction("Index", "home");
             }
-
-            return View("SchoolDetails",school);
+            
+            return View("SchoolDetails", school);
         }
 
 
@@ -135,22 +150,7 @@ namespace UsersSubscriptions.Controllers
             {
                 return StatusCode(403);
             }
-            CourseViewModel model = new CourseViewModel
-            {
-                Id = course.Id,
-                Name = course.Name,
-                Description = course.Description,
-                IsActive = course.IsActive,
-                Price = course.Price,
-                CourseAppUsers = course.CourseAppUsers,
-                SchoolId = course.SchoolId,
-                AllowOneTimePrice = course.AllowOneTimePrice,
-                OneTimePrice=course.OneTimePrice,
-                AllPaymentTypes=teacherRepository.GetSchoolPaymentTyapes(schoolId),
-                ListPaymentTypes = course.CoursePaymentTypes.Select(cpt=>cpt.PaymentType).ToList(),
-            };
-            //foreach(PaymentType type in teacherRepository.GetSchoolPaymentTyapes(schoolId))
-            //var ttt = course.CoursePaymentTypes.Contains()
+            CourseViewModel model = teacherRepository.GetCourseViewModel(id);
             return View(model);
         }
         [HttpPost]
@@ -203,9 +203,9 @@ namespace UsersSubscriptions.Controllers
         public JsonResult GetUserByName(string id)
         {
             IEnumerable<AppUser> appUsers = teacherRepository.FindUserByName(id);
-            if(appUsers==null || appUsers.Count()==0) { return Json(""); }
+            if (appUsers == null || appUsers.Count() == 0) { return Json(""); }
             List<UserJsonResponseModel> responseModel = new List<UserJsonResponseModel>();
-            foreach(AppUser user in appUsers)
+            foreach (AppUser user in appUsers)
             {
                 UserJsonResponseModel userJson = new UserJsonResponseModel
                 {
@@ -263,7 +263,7 @@ namespace UsersSubscriptions.Controllers
             {
                 return RedirectToAction(nameof(Index), new { redirect = "SchoolCalculation" });
             }
-            SchoolCalculationsViewModel model = teacherRepository.GetSchoolDetail(id,"",DateTime.Now,"","");
+            SchoolCalculationsViewModel model = teacherRepository.GetSchoolDetail(id, "", DateTime.Now, "", "");
             if (model == null)
             {
                 return RedirectToAction(nameof(Index), new { redirect = "SchoolCalculation" });

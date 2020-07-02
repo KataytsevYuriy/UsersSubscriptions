@@ -73,6 +73,31 @@ namespace UsersSubscriptions.Models
                 .FirstOrDefault(cour => cour.Id == id); ;
         }
 
+
+        public CourseViewModel GetCourseViewModel(string id)
+        {
+            Course course = _context.Courses
+                            .Include(cour => cour.School).ThenInclude(sch => sch.Owner)
+                            .Include(cour => cour.CourseAppUsers).ThenInclude(appu => appu.AppUser)
+                            .Include(cour => cour.CoursePaymentTypes)
+                            .FirstOrDefault(cour => cour.Id == id); ;
+            CourseViewModel model = new CourseViewModel
+            {
+                Id = course.Id,
+                Name = course.Name,
+                Description = course.Description,
+                IsActive = course.IsActive,
+                Price = course.Price,
+                CourseAppUsers = course.CourseAppUsers,
+                SchoolId = course.SchoolId,
+                AllowOneTimePrice = course.AllowOneTimePrice,
+                OneTimePrice = course.OneTimePrice,
+                AllPaymentTypes = GetSchoolPaymentTyapes(course.SchoolId),
+                ListPaymentTypes = course.CoursePaymentTypes.Select(cpt => cpt.PaymentType).ToList(),
+            };
+            return model;
+        }
+
         public async Task<IdentityResult> CreateCourseAsync(CourseViewModel model)
         {
             if (string.IsNullOrEmpty(model.SchoolId)) return IdentityResult.Failed(new IdentityError { Description = "Школа на задана" });
@@ -599,5 +624,6 @@ namespace UsersSubscriptions.Models
                 _context.SaveChanges();
             }
         }
+
     }
 }

@@ -23,7 +23,6 @@ namespace UsersSubscriptions.Data
             await CreateRolesAsync(roleManager);
             await CreateUsersAsync(userManager);
             await CreateSchoolAsync(_context, userManager);
-            //await CreateSubscriptionsAsync(_context, userManager);
         }
 
         public static async Task CreateRolesAsync(RoleManager<IdentityRole> _roleManager)

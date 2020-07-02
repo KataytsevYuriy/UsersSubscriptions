@@ -5,8 +5,12 @@
     ViewBag.ConfirmMessage = "Видалити школу " + Model.Name + "?";
 
 }
-
-<div class="">
+<div class="float-right" style="display:inline-block">
+    <button class="btn btn-sm " type="button" data-toggle="modal" data-target="#schoolSettings">
+        <i class="fas fa-cog" style="color:gray"></i>
+    </button>
+</div>
+<div>
     <form asp-action="SchoolDetails" method="post" id="form">
         <input type="hidden" name="Id" id="schoolId" value="@Model.Id" />
         <ul class="list-group">
@@ -20,7 +24,6 @@
             </li>
             <li class="list-group-item">
                 <label asp-for="Owner">Власник школи </label>
-                <input value="@Model.Owner.FullName" class="form-control" disabled id="ownerName" />
                 <input asp-for="OwnerId" type="hidden" id="ownerName" />
                 <div class="text-center">
                     <button class="btn mt-3 btn-outline-info" type="button" data-toggle="modal" data-target="#addPhoneModal">Змінити власника</button>
@@ -40,7 +43,7 @@
                 @foreach (var cours in Model.Courses)
                 {
                     <li class="list-group-item">
-                        <a asp-action="CourseDetails" asp-route-id="@cours.Id"> @cours.Name</a>
+                        <a asp-action="CourseDetails" asp-route-id="@cours.Id" asp-route-schoolId="@Model.Id"> @cours.Name</a>
                         @if (cours.IsActive)
                         {
                             <i class="fas fa-check float-right" style="color:green"> </i>
@@ -57,11 +60,15 @@
     <div class="text-center"><a asp-action="CreateCourse" asp-route-id="@Model.Id" class="btn btn-outline-primary mt-3">Додати Курс</a></div>
 </div>
 <partial name="_ConfirmDelete" />
+@await Html.PartialAsync("_SchoolSettingsModal", Model,new ViewDataDictionary(ViewData) {
+    {"ReturnUrl","admin" },
+});
 
 <partial name="_AddUserModal" />
 @section AdminScripts{
     <script src="~/js/jquery.mask.min.js"></script>
     <script src="~/js/addUserModal.js"></script>
+    <script src="~/js/schoolSettings.js"></script>
     <script>
         function updateUser(userIdent) {
             var schoolId = $("#schoolId").val();
