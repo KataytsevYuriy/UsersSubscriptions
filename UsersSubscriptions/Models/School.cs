@@ -22,6 +22,7 @@ namespace UsersSubscriptions.Models
         public string OwnerId { get; set; }
 
         public IEnumerable<Course> Courses { get; set; }
+        public IEnumerable<PaymentType> PaymentTypes { get; set; }
     }
     public class SchoolConfiguration : IEntityTypeConfiguration<School>
     {

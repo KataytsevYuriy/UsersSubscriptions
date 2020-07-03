@@ -33,7 +33,7 @@
         </div>
         <div class="form-group">
             <label asp-for="Month">Дата</label>
-            <input class="form-control" type="date" name="Month" value="@date.ToString("yyyy-MM-dd")"  min="@minDate.ToString("yyyy-MM-dd")"/>
+            <input class="form-control" type="date" name="Month" value="@date.ToString("yyyy-MM-dd")" min="@minDate.ToString("yyyy-MM-dd")" />
         </div>
         <div class="form-group">
             <label>Курс</label>
@@ -42,7 +42,16 @@
                 {
                     @if (cours.AllowOneTimePrice == true)
                     {
-                        <option selected="@(selectedCourse==cours?true:false)" value="@cours.Id" data-price="@cours.OneTimePrice"> @cours.Name </option>
+                        <option selected="@(selectedCourse==cours?true:false)" value="@cours.Id"
+                                data-price="@cours.OneTimePrice"
+                                data-pt="@JsonConvert.SerializeObject(cours.CoursePaymentTypes
+                                        .OrderBy(cpt=>cpt.PaymentType.Priority)
+                                        .Select(cPT => new PaymentTypeView {
+                                            Id =cPT.PaymentType.Id,
+                                            Name=cPT.PaymentType.Name,
+                                            }).ToList())">
+                            @cours.Name
+                        </option>
                     }
                 }
             </select>
@@ -53,7 +62,27 @@
             <input id="Price" asp-for="@selectedCourse.OneTimePrice" class="form-control"
                    name="SelectedCours.Price" value="@selectedCourse.OneTimePrice" />
         </div>
-        <button type="submit" class="btn btn-outline-primary">Додати</button>
+        <div class="form-group">
+            <label asp-for="@selectedCourse.CoursePaymentTypes">Варіант сплати</label>
+            <select class="form-control" name="SelectedPaymentType" id="selectPaymentType">
+                @foreach (PaymentType type in selectedCourse.CoursePaymentTypes
+                 .OrderBy(cpt => cpt.PaymentType.Priority)
+                 .Select(cpt => cpt.PaymentType))
+                {
+                    <option value="@type.Id">@type.Name</option>
+                }
+            </select>
+        </div>
+        <div class="text-center">
+            @if (selectedCourse.CoursePaymentTypes?.Count() > 0)
+            {
+                <button type="submit" id="btnSubmit" class="btn btn-primary">Додати </button>
+            }
+            else
+            {
+                <button type="submit" disabled id="btnSubmit" class="btn btn-primary">Додати </button>
+            }
+        </div>
     </form>
 </div>
 
@@ -73,6 +102,17 @@
         function ChangeCourse(a) {
             var val = a.options[a.selectedIndex].dataset.price;
             $("#Price").val(val);
+            var hasPTypes = false;
+            var pts = JSON.parse(a.options[a.selectedIndex].dataset.pt);
+            $("#selectPaymentType").empty();
+            $.each(pts, function (index, value) {
+                $("#selectPaymentType").append(new Option(value.Name, value.Id));
+                hasPTypes = true;
+            });
+            if (hasPTypes == true) {
+
+            }
+            $("#btnSubmit").prop('disabled', !hasPTypes);
         }
     </script>
     <script>

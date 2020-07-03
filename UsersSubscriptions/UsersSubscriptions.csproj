@@ -9,6 +9,11 @@
     <Compile Remove="Migrations\20200419205341_AddUrlNameToSchool.cs" />
     <Compile Remove="Migrations\20200530171905_addOneTimeSubscription.cs" />
     <Compile Remove="Migrations\20200530172435_addOneTimeSubscription.cs" />
+    <Compile Remove="Migrations\20200611185305_addPaymentTypes.cs" />
+    <Compile Remove="Migrations\20200612061601_addPaymentType.cs" />
+    <Compile Remove="Migrations\20200616065610_test.cs" />
+    <Compile Remove="Migrations\20200616070145_updatePaymentTypes.cs" />
+    <Compile Remove="Migrations\20200618193842_coursePaymentType.cs" />
   </ItemGroup>
 
   <ItemGroup>

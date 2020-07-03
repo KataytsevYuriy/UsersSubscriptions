@@ -14,5 +14,6 @@ namespace UsersSubscriptions.Common
 
         //QRCode
         public const int qrCodeImageSize = 10;
+
     }
 }

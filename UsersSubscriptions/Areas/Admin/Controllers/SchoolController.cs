@@ -103,18 +103,14 @@ namespace UsersSubscriptions.Areas.Admin.Controllers
             return View(course);
         }
 
-        public IActionResult CourseDetails(string id)
+        public IActionResult CourseDetails(string id, string schoolId)
         {
-            Course course =  repositoryTeacher.GetCourse(id);
-            CourseViewModel model = new CourseViewModel
+            CourseViewModel model = repositoryTeacher.GetCourseViewModel(id);
+            if (model == null)
             {
-                Id = course.Id,
-                Name = course.Name,
-                IsActive = course.IsActive,
-                Price = course.Price,
-                CourseAppUsers = course.CourseAppUsers,
-                SchoolId = course.SchoolId,
-            };
+                TempData["ErrorMessage"] = "Курс не знайдено";
+                return RedirectToAction(nameof(SchoolDetails), new { id = schoolId });
+            }
             return View(model);
         }
 

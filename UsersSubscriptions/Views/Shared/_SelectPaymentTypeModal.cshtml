@@ -1,0 +1,50 @@
+﻿<div class="modal" tabindex="-1" id="selectPaymentType" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Варіанти сплати</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                @if (Model.AllPaymentTypes != null && Model.AllPaymentTypes.Count > 0)
+                {
+                    foreach (PaymentType payment in Model.AllPaymentTypes)
+                    {
+                        <div class="form-group" id="CheckboxesSelectPT">
+                            @if (Model.ListPaymentTypes != null
+                            && Model.ListPaymentTypes.Contains(payment))
+                            {
+                                <input type="checkbox" value="@payment.Id" checked />
+                            }
+                            else
+                            {
+                                <input type="checkbox"value="@payment.Id" />
+                            }
+                            <label>@payment.Name</label>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <div class="text-danger">
+                        <h4> Варіанти сплати відсутні </h4>
+                    </div>
+                }
+            </div>
+            <div class="modal-footer">
+                @if (Model.AllPaymentTypes != null && Model.AllPaymentTypes.Count > 0)
+                {
+                    <button type="button" class="btn btn-primary" id="SaveSelectPTModal">Зберегти</button>
+                }
+                else
+                {
+                    <button type="button" class="btn btn-primary" disabled>Зберегти</button>
+                }
+                <button type="button" class="btn btn-secondary" data-dismiss="modal"
+                        id="selectPaymentTypeCancel">Відмінити</button>
+            </div>
+        </div>
+    </div>
+</div>

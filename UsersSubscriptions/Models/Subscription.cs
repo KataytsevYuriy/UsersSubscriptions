@@ -14,6 +14,7 @@ namespace UsersSubscriptions.Models
         public string Id { get; set; }
         [DisplayFormat(DataFormatString ="{0:dd'/'mm'/'yyyy}", ApplyFormatInEditMode =true)]
         public DateTime Month { get; set; }
+        public string Comment { get; set; }
 
         [StringLength(64)]
         public string CourseId { get; set; }
@@ -36,6 +37,9 @@ namespace UsersSubscriptions.Models
         public string PayedToId { get; set; }
         public AppUser PayedTo { get; set; }
         public DateTime PayedDatetime { get; set; }
+        [StringLength(64)]
+        public string PaymentTypeId { get; set; }
+        public PaymentType PaymentType { get; set; }
     }
 
     public class SubscriptionConfiguration : IEntityTypeConfiguration<Subscription>
