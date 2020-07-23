@@ -11,6 +11,8 @@ namespace UsersSubscriptions.Models.ViewModels
         public IList<string> TeachersId { get; set; }
         public IEnumerable<PaymentType> AllPaymentTypes { get; set; }
         public IEnumerable<PaymentType> ListPaymentTypes { get; set; }
+        public bool IsItAdmin { get; set; }
+        public bool IsCreatingNew { get; set; }
         public CourseViewModel()
         {
             TeachersId = new List<string>();

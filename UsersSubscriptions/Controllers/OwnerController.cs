@@ -14,7 +14,7 @@ using Newtonsoft.Json;
 
 namespace UsersSubscriptions.Controllers
 {
-    [Authorize(Roles = Common.UsersConstants.schoolOwner)]
+    [Authorize(Roles = Common.UsersConstants.schoolOwner + "," + Common.UsersConstants.admin)]
     public class OwnerController : Controller
     {
         private readonly SignInManager<AppUser> _signInManager;
@@ -67,110 +67,118 @@ namespace UsersSubscriptions.Controllers
 
 
 
-        public IActionResult SchoolDetails(string id)
+        public IActionResult SchoolDetails(string id, bool isItAdmin)
         {
             if (string.IsNullOrEmpty(id))
             {
-                return RedirectToAction(nameof(Index), new { redirect = "SchoolDetails" });
+                if (isItAdmin)
+                {
+                    return RedirectToAction("Index", "School");
+                }
+                else
+                {
+                    return RedirectToAction(nameof(Index), new { redirect = "SchoolDetails" });
+                }
             }
             School school = teacherRepository.GetSchool(id);
             if (school == null)
             {
-                return RedirectToAction(nameof(Index), new { redirect = "SchoolDetails" });
+                return NotFound();
             }
+            ViewBag.isItAdmin = isItAdmin;
             return View(school);
         }
 
         [HttpPost]
-        public IActionResult SchoolSettings(School model, string redirectUrl)
+        public IActionResult SchoolDetails(School model, bool isItAdmin)
         {
-            if (!string.IsNullOrEmpty(redirectUrl))
+            School school = teacherRepository.GetSchool(model.Id);
+            if (school == null)
             {
-                if (!User.IsInRole(Common.UsersConstants.admin))
-                {
-                    TempData["ErrorMessage"] = "Ви не адмін";
-                    return RedirectToAction("Index", "home");
-                }
+                return NotFound();
             }
-            else
+            if ((!isItAdmin && school.OwnerId != HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier))
+                || (isItAdmin && !User.IsInRole(Common.UsersConstants.admin)))
             {
-                if (!teacherRepository.IsItThisSchoolOwner(model.Id, HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier)))
-                {
-                    TempData["ErrorMessage"] = "Ви не є власник школи";
-                    return RedirectToAction("Index", "home");
-                }
+                return StatusCode(403);
             }
             IdentityResult result = teacherRepository.UpdateSchoolOptions(model);
             if (!result.Succeeded)
             {
                 TempData["ErrorMessage"] = result.Errors.FirstOrDefault().Description;
+                return View(model);
             }
-            if (!string.IsNullOrEmpty(redirectUrl) && redirectUrl.Equals("admin"))
-            {
-                return RedirectToAction("SchoolDetails", "School", new { Area = "Admin", id = model.Id });
-            }
-            School school = teacherRepository.GetSchool(model.Id);
-            if (school == null)
-            {
-                TempData["ErrorMessage"] = "Школу не знайдено";
-                return RedirectToAction("Index", "home");
-            }
-            
-            return View("SchoolDetails", school);
+            school = teacherRepository.GetSchool(model.Id);
+            ViewBag.isItAdmin = isItAdmin;
+            return View(school);
         }
 
 
-        public IActionResult AddCourse(string schoolId)
+        public IActionResult AddCourse(string schoolId, bool isItAdmin)
         {
-            return View(new CourseViewModel { SchoolId = schoolId });
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> AddCourse(CourseViewModel course)
-        {
-            IdentityResult result = await teacherRepository.CreateCourseAsync(course);
-            if (result.Succeeded)
+            return View("CourseDetails", new CourseViewModel
             {
-                TempData["SuccessMessage"] = "Школа додана";
-                return RedirectToAction(nameof(SchoolDetails), new { id = course.SchoolId });
-            }
-            TempData["ErrorMessage"] = result.Errors.FirstOrDefault().Description;
-            return RedirectToAction(nameof(AddCourse), new { schoolId = course.SchoolId });
+                SchoolId = schoolId,
+                IsItAdmin = isItAdmin,
+                IsCreatingNew = true,
+                AllPaymentTypes = teacherRepository.GetSchool(schoolId).PaymentTypes.ToList(),
+            });
         }
 
-        public IActionResult CourseDetails(string id, string schoolId)
+        public IActionResult CourseDetails(string id, string schoolId, bool isItAdmin)
         {
             Course course = teacherRepository.GetCourse(id);
             if (course == null)
             {
-                TempData["ErrorMessage"] = "Курс не знайдено";
-                return RedirectToAction(nameof(SchoolDetails), new { id = schoolId });
+                return NotFound();
             }
-            if (course.School.OwnerId != HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier))
+            if ((!isItAdmin && course.School.OwnerId != HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier))
+                || (isItAdmin && !User.IsInRole(Common.UsersConstants.admin)))
             {
                 return StatusCode(403);
             }
             CourseViewModel model = teacherRepository.GetCourseViewModel(id);
+            model.IsItAdmin = isItAdmin;
             return View(model);
         }
+
         [HttpPost]
         public async Task<IActionResult> CourseDetails(CourseViewModel model)
         {
-            IdentityResult result = await teacherRepository.UpdateCourseAsync(model);
+            IdentityResult result = new IdentityResult();
+            if (model.IsCreatingNew)
+            {
+                result = await teacherRepository.CreateCourseAsync(model);
+            }
+            else
+            {
+                result = await teacherRepository.UpdateCourseAsync(model);
+            }
             if (result.Succeeded)
             {
-                TempData["SuccessMessage"] = "Курс оновлено";
-                return RedirectToAction(nameof(SchoolDetails), new { id = model.SchoolId });
+                if (model.IsCreatingNew)
+                {
+                    TempData["SuccessMessage"] = "Курс додано";
+                    model = teacherRepository.GetCourseViewModelByName(model.Name, model.SchoolId);
+                }
+                else
+                {
+                    TempData["SuccessMessage"] = "Курс оновлено";
+                    model = teacherRepository.GetCourseViewModel(model.Id);
+                }
             }
-            TempData["ErrorMessage"] = result.Errors.FirstOrDefault().Description;
-            return RedirectToAction(nameof(CourseDetails), new { id = model.Id, schoolId = model.SchoolId });
+            else
+            {
+                TempData["ErrorMessage"] = result.Errors.FirstOrDefault().Description;
+            }
+            return View(model);
         }
 
 
         [HttpPost]
         public async Task<IActionResult> DeleteCourse(CourseViewModel course)
         {
-            var result = await teacherRepository.DeleteCourseAsync(course.Id);
+            var result = await teacherRepository.RemoveCourseAsync(course.Id);
             if (result.Succeeded)
             {
                 TempData["SuccessMessage"] = "Курс видалений";
@@ -184,26 +192,28 @@ namespace UsersSubscriptions.Controllers
 
         [HttpPost]
         [AllowAnonymous]
-        public JsonResult GetUserByPhone(string id)
+        public IActionResult GetUserByPhone(string id)
         {
             AppUser user = teacherRepository.GetUserByPhone(id);
-            if (user == null) { return Json(""); }
+            if (user == null) { return NotFound(); }
             return Json(new { id = user.Id, name = user.FullName });
         }
 
         [HttpPost]
-        public async Task<JsonResult> GetUserById(string id)
+        [AllowAnonymous]
+        public async Task<IActionResult> GetUserById(string id)
         {
             AppUser user = await teacherRepository.GetUserAsync(id);
-            if (user == null) { return Json(""); }
+            if (user == null) { return NotFound(); }
             return Json(new { id = user.Id, name = user.FullName });
         }
 
         [HttpPost]
-        public JsonResult GetUserByName(string id)
+        [AllowAnonymous]
+        public IActionResult GetUserByName(string id)
         {
             IEnumerable<AppUser> appUsers = teacherRepository.FindUserByName(id);
-            if (appUsers == null || appUsers.Count() == 0) { return Json(""); }
+            if (appUsers == null || appUsers.Count() == 0) { return NotFound(); }
             List<UserJsonResponseModel> responseModel = new List<UserJsonResponseModel>();
             foreach (AppUser user in appUsers)
             {
@@ -219,19 +229,19 @@ namespace UsersSubscriptions.Controllers
         }
 
         [HttpPost]
-        public async Task<JsonResult> AddTeacherToCourseAsync(string id, string courseId)
+        public async Task<IActionResult> AddTeacherToCourseAsync(string id, string courseId)
         {
             if (id == null || string.IsNullOrEmpty(id) || courseId == null || string.IsNullOrEmpty(courseId))
             {
-                return Json("");
+                return BadRequest();
             }
             if (await teacherRepository.GetUserAsync(id) == null)
             {
-                return Json("");
+                return NotFound();
             }
             if (teacherRepository.GetCourse(courseId) == null)
             {
-                return Json("");
+                return NotFound();
             }
             await teacherRepository.AddTeacherToCourse(id, courseId);
             Course course = teacherRepository.GetCourse(courseId);

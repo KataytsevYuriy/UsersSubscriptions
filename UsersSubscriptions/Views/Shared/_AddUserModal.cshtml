@@ -10,10 +10,10 @@
             <div class="modal-body">
                 <input class="form-control phone-input" id="phoneInput" type="tel" required placeholder="+38(___)___-__-__" />
                 <input class=" form-control my-1 p-1" id="nameInput" placeholder="Ім'я" />
-                <select class="d-none custom-select" id="selectUser" data-st></select>
+                <select class="d-none custom-select " id="selectUser" ></select>
                 <div class="my-1">
                     <div class="alert  text-center">
-                        <div id="info" class=""></div>
+                        <div id="info" onclick="addTeacher()"></div>
                     </div>
                 </div>
                 <div >
@@ -26,11 +26,11 @@
                     <video id="preview" style="width:100%;height:50%;"></video>
                 </div>
             </div>
-            <div class="modal-footer">
+            @*<div class="modal-footer d-none">
                 <button type="button" class="btn btn-primary" disabled id="modalAdd" onclick="addTeacher()">Додати</button>
                 <button type="button" class="btn btn-secondary" data-dismiss="modal" id="modalCancel"
                         onclick="clearUserName()">Відмінити</button>
-            </div>
+            </div>*@
         </div>
     </div>
 </div>

@@ -14,81 +14,83 @@ function sendPhone() {
     var findByName = $("#nameInput").val().toString();
     if (findByName.length > 0) {
         $.post("/Owner/GetUserByName/" + findByName, function (data) {
-            if (data == "") {
+            usersIdents = JSON.parse(data);
+            if (usersIdents.length == 1) {
+                userIdent = usersIdents[0];
+                userName = usersIdents[0].Name;
+                $("#info").append(userName);
+                $("#info").addClass("alert-info");
+                $("#modalAdd").prop("disabled", false);
+            } else {
+                var selectUser = document.getElementById("selectUser");
+                if (usersIdents.length > 5) {
+                    selectUser.size = 5;
+                } else {
+                    selectUser.size = usersIdents.length;
+                }
+                for (let i = 0; i < usersIdents.length; i++) {
+                    var selectOption = document.createElement("option");
+                    selectOption.text = usersIdents[i].Name;
+                    selectOption.value = usersIdents[i].Id;
+                    selectOption.classList.add("alert-success");
+                    selectUser.add(selectOption, selectUser[i]);
+                }
+                $("#selectUser").removeClass("d-none");
+                userName = data.name;
+                $("#info").append(userName);
+                $("#info").addClass("alert-info");
+                $("#info").removeClass("alert-danger");
+                $("#modalAdd").prop("disabled", true);
+            }
+        }, "json")
+            .fail(function () {
                 $("#info").append("Користувача не знайдено");
                 $("#info").addClass("alert-danger");
                 $("#modalAdd").prop("disabled", true);
-            } else {
-                usersIdents = JSON.parse(data);
-                if (usersIdents.length == 1) {
-                    userIdent = usersIdents[0];
-                    userName = usersIdents[0].Name;
-                    $("#info").append(userName);
-                    $("#info").addClass("alert-info");
-                    $("#modalAdd").prop("disabled", false);
-                } else {
-                    var selectUser = document.getElementById("selectUser");
-                    if (usersIdents.length > 5) {
-                        selectUser.size = 5;
-                    } else {
-                        selectUser.size = usersIdents.length;
-                    }
-                    for (let i = 0; i < usersIdents.length; i++) {
-                        var selectOption = document.createElement("option");
-                        selectOption.text = usersIdents[i].Name;
-                        selectOption.value = usersIdents[i].Id;
-                        selectUser.add(selectOption, selectUser[i]);
-                    }
-                    $("#selectUser").removeClass("d-none");
-                    userName = data.name;
-                    $("#info").append(userName);
-                    $("#info").addClass("alert-info");
-                    $("#modalAdd").prop("disabled", true);
-                }
-            }
-        }, "json");
+            });
     } else {
         var dataSend = $("#phoneInput").val().toString();
         $("#info").empty();
         $("#info").removeClass();
         dataSend = dataSend.replace(/[^\d]/g, '');
         $.post("/Owner/GetUserByPhone/" + dataSend, function (data) {
-            if (data == "") {
+            userIdent = data;
+            userName = data.name;
+            $("#info").append(userName);
+            $("#info").addClass("alert-info");
+            $("#modalAdd").prop("disabled", false);
+        }, "json")
+            .fail(function () {
                 $("#info").append("Користувача не знайдено");
                 $("#info").addClass("alert-danger");
                 $("#modalAdd").prop("disabled", true);
-            } else {
-                userIdent = data;
-                userName = data.name;
-                $("#info").append(userName);
-                $("#info").addClass("alert-info");
-                $("#modalAdd").prop("disabled", false);
-            }
-        }, "json");
+            });
     }
 };
 function sendId(content) {
     $("#info").empty();
     $("#info").removeClass();
     $.post("/Owner/GetUserById/" + content, function (data) {
-        if (data == "") {
+        userIdent = data;
+        userName = data.name;
+        $("#info").append(userName);
+        $("#info").addClass("alert-info");
+        $("#modalAdd").prop("disabled", false);
+    }, "json")
+        .fail(function () {
             $("#info").append("Користувача не знайдено");
             $("#info").addClass("alert-danger");
             $("#modalAdd").prop("disabled", true);
-        } else {
-            userIdent = data;
-            userName = data.name;
-            $("#info").append(userName);
-            $("#info").addClass("alert-info");
-            $("#modalAdd").prop("disabled", false);
-        }
-    }, "json");
+        });
 };
 function addTeacher() {
     updateUser(userIdent);
-    $("#modalCancel").click();
+    $("#addPhoneModal").modal("hide");
+    //$("#modalCancel").click();
     $("#modalAdd").prop("disabled", true);
     $("#teacherName").empty();
+    $("#phoneInput").val("");
+    $("#nameInput").val("");
     $("#info").empty();
 }
 function clearUserName() {
@@ -113,6 +115,7 @@ $(function () {
         $("#info").addClass("alert-info");
         $("#selectUser").addClass("d-none");
         $("#modalAdd").prop("disabled", false);
+        addTeacher();
     });
 });
 

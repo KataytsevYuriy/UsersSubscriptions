@@ -13,7 +13,7 @@ namespace UsersSubscriptions.Areas.Admin.Models
         //Users
         IEnumerable<AppUser> GetAllUsers();
         Task UpdateUserAsync(AppUser user, IList<string> newUserRoles);
-        Task<IdentityResult> DeleteUseAsync(string id);
+        Task<IdentityResult> DeleteUserAsync(string id);
 
         //Roles
         List<IdentityRole> GetAllRoles();
@@ -32,7 +32,7 @@ namespace UsersSubscriptions.Areas.Admin.Models
         IEnumerable<School> GetAllSchools();
         Task<IdentityResult> CreateSchoolAsync(School school);
         Task<IdentityResult> UpdateSchoolAsync(School school);
-        Task<IdentityResult> DeleteScoolAsync(string Id);
+        Task<IdentityResult> RemoveScoolAsync(string Id);
 
         //Json
         Task<IdentityResult> ChengeOwnerAsync(string newOwnerId, string schoolId);

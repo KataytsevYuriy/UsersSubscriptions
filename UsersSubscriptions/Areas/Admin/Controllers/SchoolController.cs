@@ -42,20 +42,15 @@ namespace UsersSubscriptions.Areas.Admin.Controllers
             if (result.Succeeded)
             {
                 TempData["SuccessMessage"] = "Школа додана";
-                return RedirectToAction(nameof(Index));
+                School dbSchool = repositoryTeacher.GetSchoolByUrl(school.UrlName);
+                if (dbSchool != null)
+                {
+                    repositoryTeacher.AddDefaultPaymentTypesToSchool(dbSchool.Id);
+                }
+                return RedirectToRoute("default",
+                    new { controller = "Owner", action = "SchoolDetails", id = dbSchool.Id, isItAdmin = true });
             }
             TempData["ErrorMessage"] = result.Errors.FirstOrDefault().Description;
-            return RedirectToAction(nameof(CreateSchool));
-        }
-
-        public IActionResult SchoolDetails(string id)
-        {
-            School school = repositoryTeacher.GetSchool(id);
-            if (school == null)
-            {
-                TempData["ErrorMessage"] = "Школа не знайдена";
-                return RedirectToAction(nameof(Index));
-            }
             return View(school);
         }
 
@@ -66,103 +61,52 @@ namespace UsersSubscriptions.Areas.Admin.Controllers
             if (result.Succeeded)
             {
                 TempData["SuccessMessage"] = "Школа оновлена";
-                return RedirectToAction(nameof(Index));
+                school = repositoryTeacher.GetSchool(school.Id);
             }
-            TempData["ErrorMessage"] = result.Errors.FirstOrDefault().Description;
-            return RedirectToAction(nameof(SchoolDetails), new { id = school.Id });
+            else
+            {
+                TempData["ErrorMessage"] = result.Errors.FirstOrDefault().Description;
+            }
+            ViewBag.isItAdmin = true;
+            return View("../Owner/SchoolDetails", school);
         }
 
         [HttpPost]
-        public async Task<IActionResult> DeleteSchool(School school)
+        public async Task<IActionResult> RemoveSchool(School school)
         {
-            IdentityResult result = await repository.DeleteScoolAsync(school.Id);
+            IdentityResult result = await repository.RemoveScoolAsync(school.Id);
             if (result.Succeeded)
             {
                 TempData["SuccessMessage"] = "Школа видалена";
                 return RedirectToAction(nameof(Index));
             }
             TempData["ErrorMessage"] = result.Errors.FirstOrDefault().Description;
-            return RedirectToAction(nameof(Index));
-        }
-
-        public IActionResult CreateCourse(string id)
-        {
-            return View(new CourseViewModel { SchoolId = id });
+            return RedirectToRoute("default",
+                new { controller = "Owner", action = "SchoolDetails", id = school.Id, isItAdmin = true });
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateCourse(CourseViewModel course)
-        {
-            IdentityResult result = await repositoryTeacher.CreateCourseAsync(course);
-            if (result.Succeeded)
-            {
-                TempData["SuccessMessage"] = "Курс доданий";
-                return RedirectToAction(nameof(SchoolDetails), new { id = course.SchoolId });
-            }
-            TempData["ErrorMessage"] = result.Errors.FirstOrDefault().Description;
-            return View(course);
-        }
-
-        public IActionResult CourseDetails(string id, string schoolId)
-        {
-            CourseViewModel model = repositoryTeacher.GetCourseViewModel(id);
-            if (model == null)
-            {
-                TempData["ErrorMessage"] = "Курс не знайдено";
-                return RedirectToAction(nameof(SchoolDetails), new { id = schoolId });
-            }
-            return View(model);
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> UpdateCourse(CourseViewModel course)
-        {
-            IdentityResult result = await repositoryTeacher.UpdateCourseAsync(course);
-            if (result.Succeeded)
-            {
-                TempData["SuccessMessage"] = "Курс оновлений";
-                return RedirectToAction(nameof(SchoolDetails), new { id = course.SchoolId });
-            }
-            TempData["ErrorMessage"] = result.Errors.FirstOrDefault().Description;
-            return RedirectToAction(nameof(CourseDetails), new { id = course.Id });
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> DeleteCourse(Course course)
-        {
-            IdentityResult result = await  repositoryTeacher.DeleteCourseAsync(course.Id);
-            if (result.Succeeded)
-            {
-                TempData["SuccessMessage"] = "Курс видалений";
-            } else
-            {
-            TempData["ErrorMessage"] = result.Errors.FirstOrDefault().Description;
-            }
-            return RedirectToAction(nameof(SchoolDetails), new { id = course.SchoolId });
-        }
-
-        [HttpPost]
-        public async Task<JsonResult> ChangeSchoolOwnerAsync(string id, string schoolId)
+        public async Task<IActionResult> ChangeSchoolOwnerAsync(string id, string schoolId)
         { 
             if (id == null || string.IsNullOrEmpty(id)
                 || schoolId == null || string.IsNullOrEmpty(schoolId))
             {
-                return Json("");
+                return BadRequest();
             }
             if (await repositoryTeacher.GetUserAsync(id) == null)
             {
-                return Json("");
+                return NotFound();
             }
             if ( repositoryTeacher.GetSchool(schoolId) == null)
             {
-                return Json("");
+                return NotFound();
             }
             IdentityResult result = await repository.ChengeOwnerAsync(id, schoolId);
             if (!result.Succeeded)
             {
-                return Json("");
+                return Conflict();
             }
-            return Json("true");
+            return Ok(result);
         }
     }
 }

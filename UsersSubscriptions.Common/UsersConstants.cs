@@ -14,6 +14,7 @@ namespace UsersSubscriptions.Common
 
         //QRCode
         public const int qrCodeImageSize = 10;
-
+        //PaymentTypes
+        public const int pTPriorityCount = 11;
     }
 }

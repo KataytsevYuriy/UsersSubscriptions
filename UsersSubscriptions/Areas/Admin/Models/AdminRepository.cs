@@ -15,13 +15,16 @@ namespace UsersSubscriptions.Areas.Admin.Models
         private ApplicationDbContext _context;
         private UserManager<AppUser> _userManager;
         private RoleManager<IdentityRole> _roleManager;
+        private ITeacherRepository _teacherRepository;
         public AdminRepository(ApplicationDbContext ctx,
                                 UserManager<AppUser> manager,
-                                RoleManager<IdentityRole> roleManager)
+                                RoleManager<IdentityRole> roleManager,
+                                ITeacherRepository teacherRepository)
         {
             _userManager = manager;
             _roleManager = roleManager;
             _context = ctx;
+            _teacherRepository = teacherRepository;
         }
 
         //user
@@ -48,7 +51,7 @@ namespace UsersSubscriptions.Areas.Admin.Models
             }
         }
 
-        public async Task<IdentityResult> DeleteUseAsync(string id)
+        public async Task<IdentityResult> DeleteUserAsync(string id)
         {
             IdentityResult result = new IdentityResult();
             AppUser user = await _userManager.FindByIdAsync(id);
@@ -169,8 +172,8 @@ namespace UsersSubscriptions.Areas.Admin.Models
             {
                 subscriptions = subscriptions
                     .Where(sub =>
-                    (sub.AppUser!=null && sub.AppUser.FullName.ToLower().Contains(searchByName.ToLower()))
-                    ||(sub.AppUser==null && !string.IsNullOrEmpty(sub.FullName) && sub.FullName.ToLower().Contains(searchByName.ToLower())));
+                    (sub.AppUser != null && sub.AppUser.FullName.ToLower().Contains(searchByName.ToLower()))
+                    || (sub.AppUser == null && !string.IsNullOrEmpty(sub.FullName) && sub.FullName.ToLower().Contains(searchByName.ToLower())));
 
             }
             return subscriptions;
@@ -217,6 +220,10 @@ namespace UsersSubscriptions.Areas.Admin.Models
             if (newOwner == null)
             {
                 return IdentityResult.Failed(new IdentityError { Description = "Додайте диретора" });
+            }
+            if (_context.Schools.FirstOrDefault(sc => sc.UrlName == school.UrlName) != null)
+            {
+                return IdentityResult.Failed(new IdentityError { Description = "Школа з такою URL адресою вже існує" });
             }
             var state = await _context.Schools.AddAsync(school);
             if (state.State != EntityState.Added)
@@ -284,26 +291,49 @@ namespace UsersSubscriptions.Areas.Admin.Models
             return IdentityResult.Success;
         }
 
-        public async Task<IdentityResult> DeleteScoolAsync(string Id)
+        public async Task<IdentityResult> RemoveScoolAsync(string Id)
         {
+            IdentityResult result = IdentityResult.Success;
             School dbSchool = await _context.Schools
                 .Include(sch => sch.Courses)
+                .Include(sc => sc.PaymentTypes)
                 .FirstOrDefaultAsync(sch => sch.Id == Id);
             if (dbSchool == null)
             {
                 return IdentityResult.Failed(new IdentityError { Description = "Школа на знайдена" });
             }
-            if (dbSchool.Courses.Count() > 0)
+            if (result.Succeeded && dbSchool.Courses.Count() > 0)
             {
-                return IdentityResult.Failed(new IdentityError { Description = "Школа має курси, видаліть їх спочатку." });
+                List<string> coursesId = dbSchool.Courses.Select(cour => cour.Id).ToList();
+                foreach (string courseId in coursesId)
+                {
+                    if (result.Succeeded)
+                    {
+                        result = await _teacherRepository.RemoveCourseAsync(courseId);
+                    }
+                }
             }
-            var state = _context.Schools.Remove(dbSchool);
-            if (state.State != EntityState.Deleted)
+            if (result.Succeeded && dbSchool.PaymentTypes?.Count() > 0)
             {
-                return IdentityResult.Failed(new IdentityError { Description = "Школа не видалена" });
+                foreach (PaymentType paymentType in dbSchool.PaymentTypes)
+                {
+                    if (result.Succeeded && _context.PaymentTypes.Remove(paymentType).State
+                                                                      != EntityState.Deleted)
+                    {
+                        result = IdentityResult.Failed(new IdentityError { Description = "Тип оплати не видалений" });
+                    }
+                }
             }
+            if (result.Succeeded && _context.Schools.Remove(dbSchool).State != EntityState.Deleted)
+            {
+                result = IdentityResult.Failed(new IdentityError { Description = "Школа не видалена" });
+
+            }
+            if (result.Succeeded)
+            {
             await _context.SaveChangesAsync();
-            return IdentityResult.Success;
+            }
+            return result;
         }
 
         public async Task<IdentityResult> ChengeOwnerAsync(string newOwnerId, string schoolId)

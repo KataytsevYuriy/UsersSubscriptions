@@ -3,8 +3,89 @@
     Layout = "_Layout";
 }
 
+<form asp-action="AddCourse" method="post" id="form">
+    <input type="hidden" name="Id" id="courseId" value="@Model.Id" />
+    <input type="hidden" name="SchoolId" id="schoolId" value="@Model.SchoolId" />
+    <input type="hidden" asp-for="IsItAdmin" />
+    <input type="hidden" asp-for="IsCreatingNew" />
+    <ul class="list-group">
+        <li class="list-group-item">
+            <label asp-for="Name">Назва</label>
+            <input asp-for="Name" class="form-control" />
+        </li>
+        <li class="list-group-item">
+            <label asp-for="IsActive">Активний</label>
+            <select name="IsActive" class="form-control">
+                @if (Model.IsActive)
+                {
+                    <option value="@true" selected>Так</option>
+                    <option value="@false">Ні</option>
+                }
+                else
+                {
+                    <option value="@true">Так</option>
+                    <option value="@false" selected>Ні</option>
+                }
+            </select>
+        </li>
+        <li class="list-group-item">
+            <label asp-for="Price">Ціна</label>
+            <input asp-for="Price" class=" form-control" />
+            <br />
+            @if (Model.AllPaymentTypes != null && Model.AllPaymentTypes.Count() > 0)
+            {
+                <div class="form-group">
+                    <button class="mb-2 float-right btn btn-outline-secondary" type="button" data-toggle="modal"
+                            data-target="#selectPaymentType">
+                        Варіанти сплати
+                    </button>
+                </div>
+            }
+            else
+            {
+                <div class="text-danger form-group">
+                    <h4 class="float-right"> Варіанти сплати відсутні </h4>
+                </div>
+            }
+        </li>
+        <li class="list-group-item">
+            <div class="form-group">
+                <label asp-for="AllowOneTimePrice">Дозволити разове відвідування</label>
+                <input asp-for="AllowOneTimePrice" id="AllowOneTimePrice" />
+            </div>
+
+            <div class="form-group">
+                <label asp-for="OneTimePrice">Ціна разового відвідування</label>
+                @if (Model.AllowOneTimePrice)
+                {
+                    <input asp-for="OneTimePrice" class="form-control" id="OneTimePrice" />
+                }
+                else
+                {
+                    <input asp-for="OneTimePrice" class="form-control" id="OneTimePrice" disabled />
+                }
+            </div>
+        </li>
+        <li class="list-group-item">
+            <div class=" form-group">
+                <label asp-for="CourseAppUsers">Вчителі</label>
+                <div class="teachers" id="teachers">
+                    @foreach (var teacher in Model.CourseAppUsers)
+                    {
+                        <input type="checkbox" name="TeachersId" value="@teacher.AppUserId" checked />@teacher.AppUser.FullName
+                        <br />
+                    }
+                </div>
+                <button class="btn mt-3" type="button" data-toggle="modal" data-target="#addPhoneModal">Додати викладача</button>
+            </div>
+        </li>
+    </ul>
+    <button type="submit" class="btn btn-light mt-2">Зберегти</button>
+    <button type="button" class="btn btn-outline-danger float-right mt-2" data-toggle="modal" data-target="#confirmDelete">Видалити</button>
+</form>
 <form asp-action="AddCourse" method="post">
     <input type="hidden" name="SchoolId" value="@Model.SchoolId" />
+    <input type="hidden" asp-for="IsItAdmin" />
     <div class=" form-group">
         <label asp-for="Name">Назва</label>
         <input asp-for="Name" class="form-control" />

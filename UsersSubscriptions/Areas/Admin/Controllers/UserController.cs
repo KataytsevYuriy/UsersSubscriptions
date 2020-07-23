@@ -71,7 +71,7 @@ namespace UsersSubscriptions.Areas.Admin.Controllers
         public async Task<IActionResult> DeleteUser(AppUser model)
         {
             
-            IdentityResult result = await repository.DeleteUseAsync(model.Id);
+            IdentityResult result = await repository.DeleteUserAsync(model.Id);
             if (result.Succeeded)
             {
                 TempData["SuccessMessage"] = "Корстувача видалено";

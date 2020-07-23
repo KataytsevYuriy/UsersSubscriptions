@@ -21,11 +21,12 @@ namespace UsersSubscriptions.Models
         //course
         Course GetCourse(string id);
         CourseViewModel GetCourseViewModel(string id);
+        CourseViewModel GetCourseViewModelByName(string name, string schoolId);
         Task<IdentityResult> CreateCourseAsync(CourseViewModel course);
         Task<IdentityResult> UpdateCourseAsync(CourseViewModel course);
         IEnumerable<Course> GetTeacherCourses(string teacherId, string schoolId, bool onlyActive);
         Task AddTeacherToCourse(string userId, string courseId);
-        Task<IdentityResult> DeleteCourseAsync(string Id);
+        Task<IdentityResult> RemoveCourseAsync(string Id);
         bool CourseHasSubscriptions(string id);
 
         //Subscription
@@ -46,5 +47,6 @@ namespace UsersSubscriptions.Models
 
         //PaymentType
         IdentityResult UpdateCoursePaymentTypes(string schoolId, string courseId, List<string> pTypes);
+        void AddDefaultPaymentTypesToSchool(string schoolId);
     }
 }

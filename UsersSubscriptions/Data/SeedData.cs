@@ -53,6 +53,14 @@ namespace UsersSubscriptions.Data
                     PhoneNumber="+38(099)000-00-00",
                     IsActive=true,
                 },
+                new AppUser
+                {
+                    UserName="owner@mail.com",
+                    Email="owner@mail.com",
+                    FullName="Директор",
+                    PhoneNumber="+38(099)000-10-00",
+                    IsActive=true,
+                },
                new AppUser
                 {
                     UserName="yuriy.kataytsev@gmail.com",
@@ -116,7 +124,7 @@ namespace UsersSubscriptions.Data
                     PhoneNumber="+38(095)000-00-05",
                     IsActive=true,
                 },
-new AppUser
+                new AppUser
                 {
                     UserName="Pushkin@mail.com",
                     Email="teacher@mail.com",
@@ -124,7 +132,7 @@ new AppUser
                     PhoneNumber="+38(095)000-00-06",
                     IsActive=true,
                 },
-new AppUser
+                new AppUser
                 {
                     UserName="vlad.vys@mail.com",
                     Email="teacher@mail.com",
@@ -164,9 +172,11 @@ new AppUser
                 }
                 if (userName.ToLower().Contains("admin@mail.com"))
                 {
-                    //await _userManager.AddToRoleAsync(user, UsersConstants.teacher);
                     await _userManager.AddToRoleAsync(user, UsersConstants.admin);
-                    //await _userManager.AddToRoleAsync(user, UsersConstants.schoolOwner);
+                }
+                if (userName.ToLower().Contains("owner@mail.com"))
+                {
+                    await _userManager.AddToRoleAsync(user, UsersConstants.schoolOwner);
                 }
 
                 if (userName.ToLower().Contains("teacher@mail.com"))
@@ -198,7 +208,9 @@ new AppUser
                 };
                 _context.Schools.Add(newSchool);
                 _context.SaveChanges();
+                await _userManager.AddToRoleAsync(user, UsersConstants.schoolOwner);
                 school = _context.Schools.FirstOrDefault(sch => sch.Name == schoolName);
+                CreatePaymentTypesToSchool(_context, school.Id);
                 await CreateCoursesAsync(_context, _userManager, school.Id, schoolName);
             }
             schoolName = "КОРАТ";
@@ -206,7 +218,7 @@ new AppUser
             school = _context.Schools.FirstOrDefault(sch => sch.Name == schoolName);
             if (school == null)
             {
-                AppUser user = await _userManager.FindByNameAsync("tester@mail.com");
+                AppUser user = await _userManager.FindByNameAsync("owner@mail.com");
                 School newSchool = new School
                 {
                     Name = schoolName,
@@ -215,8 +227,21 @@ new AppUser
                 };
                 _context.Schools.Add(newSchool);
                 _context.SaveChanges();
+                await _userManager.AddToRoleAsync(user, UsersConstants.schoolOwner);
                 school = _context.Schools.FirstOrDefault(sch => sch.Name == schoolName);
+                CreatePaymentTypesToSchool(_context, school.Id);
                 await CreateCoursesAsync(_context, _userManager, school.Id, schoolName);
+            }
+        }
+
+        public static void CreatePaymentTypesToSchool(ApplicationDbContext _context, string schoolId)
+        {
+            if (_context.PaymentTypes.FirstOrDefault(pt => pt.SchoolId == schoolId) == null)
+            {
+                _context.PaymentTypes.Add(new PaymentType { Priority = 2, Name = "Готівка", SchoolId = schoolId });
+                _context.PaymentTypes.Add(new PaymentType { Priority = 4, Name = "Карткою", SchoolId = schoolId });
+                _context.PaymentTypes.Add(new PaymentType { Priority = 6, Name = "Інші варіанти", SchoolId = schoolId });
+                _context.SaveChanges();
             }
         }
 
@@ -288,7 +313,7 @@ new AppUser
             }
 
             List<AppUser> teachers = new List<AppUser> {
-                await _userManager.FindByNameAsync("yuriy.kataytsev@gmail.com"),
+                await _userManager.FindByNameAsync("teacher@mail.com"),
                 await _userManager.FindByNameAsync("tester@mail.com"),
             };
             foreach (Course curCours in courses)
