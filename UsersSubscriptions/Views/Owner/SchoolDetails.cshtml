@@ -99,10 +99,10 @@ asp-route-id="@course.Id" asp-route-isItAdmin="@isItAdmin" asp-route-schoolId="@
         function updateUser(userIdent) {
             var schoolId = $("#schoolId").val();
             var oldOwner = $("#ownerId").val()
-            if (oldOwner !== userIdent.id) {
-                $.post("/Admin/School/ChangeSchoolOwnerAsync/" + userIdent.id + "?schoolId=" + schoolId,
+            if (oldOwner !== userIdent.Id) {
+                $.post("/Admin/School/ChangeSchoolOwnerAsync/" + userIdent.Id + "?schoolId=" + schoolId,
                     function () {
-                            $("#ownerId").val(userIdent.id);
+                            $("#ownerId").val(userIdent.Id);
                         $("#ownerName").html(userIdent.name);
                     }, "json");
             }

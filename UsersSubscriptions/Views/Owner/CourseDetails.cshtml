@@ -106,12 +106,12 @@
     <script>
         function updateUser(userIdent) {
             if ($("#isCreatingNew").val()=="True") {
-                var newTeacher = " <input type=\"checkbox\" name=\"TeachersId\" value=\"" + userIdent.id
+                var newTeacher = " <input type=\"checkbox\" name=\"TeachersId\" value=\"" + userIdent.Id
                     + "\" checked > " + userIdent.name + "<br>";
                 $("#teachers").append(newTeacher);
             } else {
                 var courseId = $("#courseId").val();
-                $.post("/Owner/AddTeacherToCourseAsync/" + userIdent.id + "?courseId=" + courseId,
+                $.post("/Owner/AddTeacherToCourseAsync/" + userIdent.Id + "?courseId=" + courseId,
                     function (content) {
                         $("#teachers").empty();
                         $("#teachers").append(content);
