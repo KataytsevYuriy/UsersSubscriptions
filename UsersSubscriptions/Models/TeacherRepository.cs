@@ -7,6 +7,7 @@ using UsersSubscriptions.Models.ViewModels;
 using UsersSubscriptions.Data;
 using Microsoft.EntityFrameworkCore;
 using System.Text.RegularExpressions;
+//using UsersSubscriptions.Data;
 
 namespace UsersSubscriptions.Models
 {
@@ -61,7 +62,6 @@ namespace UsersSubscriptions.Models
             return appUsers;
         }
 
-
         //course
 
         public Course GetCourse(string id)
@@ -92,10 +92,20 @@ namespace UsersSubscriptions.Models
                 SchoolId = course.SchoolId,
                 AllowOneTimePrice = course.AllowOneTimePrice,
                 OneTimePrice = course.OneTimePrice,
+                IsCreatingNew = false,
                 AllPaymentTypes = GetSchoolPaymentTyapes(course.SchoolId),
                 ListPaymentTypes = course.CoursePaymentTypes.Select(cpt => cpt.PaymentType).ToList(),
             };
             return model;
+        }
+        public CourseViewModel GetCourseViewModelByName(string name, string schoolId)
+        {
+            Course course = _context.Courses.FirstOrDefault(cour => cour.Name == name && cour.SchoolId == schoolId);
+            if (course == null)
+            {
+                return new CourseViewModel();
+            }
+            return GetCourseViewModel(course.Id);
         }
 
         public async Task<IdentityResult> CreateCourseAsync(CourseViewModel model)
@@ -105,17 +115,21 @@ namespace UsersSubscriptions.Models
             Course course = _context.Courses
                 .FirstOrDefault(cour => cour.Name == model.Name && cour.SchoolId == model.SchoolId);
             if (course != null) return IdentityResult.Failed(new IdentityError { Description = "Такий курс вже існує" });
-            course = new Course();
-            course.Name = model.Name;
-            course.IsActive = model.IsActive;
-            course.Price = model.Price;
-            course.SchoolId = model.SchoolId;
+            course = new Course
+            {
+                Name = model.Name,
+                IsActive = model.IsActive,
+                Price = model.Price,
+                SchoolId = model.SchoolId,
+                AllowOneTimePrice = model.AllowOneTimePrice,
+                OneTimePrice = model.OneTimePrice,
+            };
             var state = _context.Courses.Add(course);
             if (state.State != EntityState.Added)
             {
                 return IdentityResult.Failed(new IdentityError { Description = "Курс не доданий" });
             }
-            await _context.SaveChangesAsync();
+            _context.SaveChanges();
             course = _context.Courses
                 .FirstOrDefault(cour => cour.Name == model.Name && cour.SchoolId == model.SchoolId);
             if (course == null)
@@ -126,21 +140,19 @@ namespace UsersSubscriptions.Models
             {
                 foreach (string teacherId in model.TeachersId)
                 {
-                    AppUser teacher = await _userManager.FindByIdAsync(teacherId);
-                    if (teacher != null)
-                    {
-                        await _context.CourseAppUsers.AddAsync(new CourseAppUser
-                        {
-                            AppUserId = teacher.Id,
-                            CourseId = course.Id,
-                        });
-                        if (!(await _userManager.IsInRoleAsync(teacher, Common.UsersConstants.teacher)))
-                        {
-                            await _userManager.AddToRoleAsync(teacher, Common.UsersConstants.teacher);
-                        }
-                    }
+                    await AddTeacherToCourse(teacherId, course.Id);
                 }
                 await _context.SaveChangesAsync();
+            }
+            List<string> paymentTypesId = _context.PaymentTypes.Where(pt => pt.SchoolId == model.SchoolId).Select(pt => pt.Id).ToList();
+            if (paymentTypesId != null && paymentTypesId.Count() > 0)
+            {
+                foreach (string pt in paymentTypesId)
+                {
+                    _context.CoursePaymentTypes.Add(new CoursePaymentType
+                    { CourseId = course.Id, PaymentTypeId = pt });
+                }
+                _context.SaveChanges();
             }
             return IdentityResult.Success;
         }
@@ -166,32 +178,11 @@ namespace UsersSubscriptions.Models
             await _context.SaveChangesAsync();
             foreach (string teacher in addedTeachers)
             {
-                AppUser user = await _userManager.FindByIdAsync(teacher);
-                if (user != null)
-                {
-                    await _context.CourseAppUsers.AddAsync(new CourseAppUser
-                    {
-                        AppUserId = user.Id,
-                        CourseId = dbCourse.Id,
-                    });
-                    if (!(await _userManager.IsInRoleAsync(user, Common.UsersConstants.teacher)))
-                        await _userManager.AddToRoleAsync(user, Common.UsersConstants.teacher);
-                }
+                await AddTeacherToCourse(teacher, dbCourse.Id);
             }
             foreach (string teacher in removedTeachers)
             {
-                CourseAppUser courseAppUser = _context.CourseAppUsers
-                    .FirstOrDefault(cau => cau.AppUserId == teacher && cau.CourseId == dbCourse.Id);
-                if (courseAppUser != null)
-                {
-                    _context.CourseAppUsers.Remove(courseAppUser);
-                    if (_context.CourseAppUsers.Where(teach => teach.AppUserId == teacher).Count() == 1)
-                    {
-                        AppUser user = await _userManager.FindByIdAsync(teacher);
-                        if (user != null)
-                            await _userManager.RemoveFromRoleAsync(user, Common.UsersConstants.teacher);
-                    }
-                }
+                await RemoveTeacherFromCourse(teacher, dbCourse.Id);
             }
             await _context.SaveChangesAsync();
             return IdentityResult.Success;
@@ -202,8 +193,8 @@ namespace UsersSubscriptions.Models
             IEnumerable<Course> courses = _context.Courses
                 .Include(cour => cour.School)
                 .Include(cu => cu.CourseAppUsers)
-                .Include(cu=>cu.CoursePaymentTypes)
-                .ThenInclude(cpt=>cpt.PaymentType)
+                .Include(cu => cu.CoursePaymentTypes)
+                .ThenInclude(cpt => cpt.PaymentType)
                     .Where(cour =>
                         cour.CourseAppUsers.Any(dd => dd.AppUserId == teacherId)
                         && cour.SchoolId == schoolId
@@ -217,6 +208,14 @@ namespace UsersSubscriptions.Models
 
         public async Task AddTeacherToCourse(string userId, string courseId)
         {
+            if (string.IsNullOrEmpty(userId) && _context.Users.FirstOrDefault(ap => ap.Id == userId) == null)
+            {
+                return;
+            }
+            if (string.IsNullOrEmpty(courseId) && _context.Courses.FirstOrDefault(cour => cour.Id == courseId) == null)
+            {
+                return;
+            }
             if ((await _context.CourseAppUsers.FirstOrDefaultAsync(capu => capu.AppUserId == userId && capu.CourseId == courseId)) != null)
             {
                 return;
@@ -231,58 +230,92 @@ namespace UsersSubscriptions.Models
                     await _userManager.AddToRoleAsync(user, Common.UsersConstants.teacher);
                 }
             }
-
         }
 
-        public async Task<IdentityResult> DeleteCourseAsync(string Id)
+        async Task RemoveTeacherFromCourse(string userId, string courseId)
+        {
+            if (string.IsNullOrEmpty(courseId))
+            {
+                return;
+            }
+            CourseAppUser courseAppUser = _context.CourseAppUsers.FirstOrDefault(capu => capu.AppUserId == userId && capu.CourseId == courseId);
+            if (courseAppUser == null)
+            {
+                return;
+            }
+            _context.CourseAppUsers.Remove(courseAppUser);
+            _context.SaveChanges();
+            if (string.IsNullOrEmpty(userId)) return;
+            AppUser user = await _userManager.FindByIdAsync(userId);
+            if (user != null && _context.CourseAppUsers.FirstOrDefault(cap => cap.AppUserId == userId) == null)
+            {
+                if (await _userManager.IsInRoleAsync(user, Common.UsersConstants.teacher))
+                {
+                    await _userManager.RemoveFromRoleAsync(user, Common.UsersConstants.teacher);
+                }
+            }
+        }
+
+        public async Task<IdentityResult> RemoveCourseAsync(string Id)
         {
             Course course = _context.Courses
                 .Include(sub => sub.Subscriptions)
                 .Include(teach => teach.CourseAppUsers)
+                .Include(cpt => cpt.CoursePaymentTypes)
                 .FirstOrDefault(co => co.Id == Id);
             IEnumerable<string> deletingTeacherIds = course.CourseAppUsers.Select(cap => cap.AppUserId).ToList();
             if (course.CourseAppUsers.Count() > 0)
             {
-                foreach (CourseAppUser courseAppUser in course.CourseAppUsers)
+                foreach (string teacherId in deletingTeacherIds)
                 {
-                    CourseAppUser deletedCourseAppUser = _context.CourseAppUsers.FirstOrDefault(cap =>
-                                  cap.AppUserId == courseAppUser.AppUserId && cap.CourseId == courseAppUser.CourseId);
-                    if (deletedCourseAppUser != null)
-                    {
-                        _context.CourseAppUsers.Remove(courseAppUser);
-                    }
+                    await RemoveTeacherFromCourse(teacherId, course.Id);
                 }
             }
             if (course.Subscriptions.Count() > 0)
             {
                 foreach (Subscription sub in course.Subscriptions)
                 {
-                    Subscription subscription = _context.Subscriptions.FirstOrDefault(subs => subs.Id == sub.Id);
-                    if (subscription != null)
+                    if (_context.Subscriptions.Remove(sub).State != EntityState.Deleted)
                     {
-                        _context.Remove(subscription);
+                        return IdentityResult.Failed(new IdentityError
+                        { Description = "Неможливо видалити абонемент" });
                     }
                 }
             }
-            var state = _context.Courses.Remove(course);
-            if (state.State == EntityState.Deleted)
+            if (course.CoursePaymentTypes.Count() > 0)
             {
-                if (course.CourseAppUsers.Count() > 0)
+                foreach (CoursePaymentType cpt in course.CoursePaymentTypes)
                 {
-                    foreach (CourseAppUser courseAppUser in course.CourseAppUsers)
+                    if (_context.CoursePaymentTypes.Remove(cpt).State
+                                                != EntityState.Deleted)
                     {
-                        AppUser deletingTeacher = await GetUserAsync(courseAppUser.AppUserId);
+                        return IdentityResult.Failed(new IdentityError
+                        { Description = "Неможливо видалити спосіб оплати" });
+                    }
+                }
+            }
+            if (_context.Courses.Remove(course).State != EntityState.Deleted)
+            {
+                return IdentityResult.Failed(new IdentityError
+                { Description = "Неможливо видалити курс" });
+            }
+            _context.SaveChanges();
+            if (deletingTeacherIds.Count() > 0)
+            {
+                foreach (string deletingTeacherId in deletingTeacherIds)
+                {
+                    if (_context.CourseAppUsers.FirstOrDefault(cap => cap.AppUserId == deletingTeacherId) == null)
+                    {
+                        AppUser deletingTeacher = await GetUserAsync(deletingTeacherId);
                         if (deletingTeacher != null
-                            && (await _userManager.IsInRoleAsync(deletingTeacher, Common.UsersConstants.teacher)))
+                        && (await _userManager.IsInRoleAsync(deletingTeacher, Common.UsersConstants.teacher)))
                         {
                             await _userManager.RemoveFromRoleAsync(deletingTeacher, Common.UsersConstants.teacher);
                         }
                     }
                 }
-                _context.SaveChanges();
-                return IdentityResult.Success;
             }
-            return IdentityResult.Failed(new IdentityError { Description = "Курс не видалений" });
+            return IdentityResult.Success;
         }
 
         public bool CourseHasSubscriptions(string id)
@@ -326,7 +359,7 @@ namespace UsersSubscriptions.Models
             {
                 return IdentityResult.Failed(new IdentityError { Description = "Такий абонемент вже існує" });
             }
-            if(string.IsNullOrEmpty(subscription.PaymentTypeId))
+            if (string.IsNullOrEmpty(subscription.PaymentTypeId))
             {
                 return IdentityResult.Failed(new IdentityError { Description = "Виберіть спосіб оплати" });
             }
@@ -412,6 +445,17 @@ namespace UsersSubscriptions.Models
                 {
                     foreach (string pTId in removedPaymentTypes)
                     {
+                        List<CoursePaymentType> coursePaymentTypes = _context.CoursePaymentTypes
+                                .Where(cpt => cpt.PaymentTypeId == pTId).ToList();
+                        if (coursePaymentTypes != null && coursePaymentTypes.Count() > 0)
+                        {
+                            _context.CoursePaymentTypes.RemoveRange(coursePaymentTypes);
+                        }
+                        if (_context.Subscriptions.FirstOrDefault(sub => sub.PaymentTypeId == pTId) != null)
+                        {
+                            return IdentityResult.Failed(new IdentityError
+                            { Description = "Неможливо видалити спосіб оплати доки існують абенементи сплачені цим способом" });
+                        }
                         PaymentType paymentToRemove = _context.PaymentTypes.FirstOrDefault(pt => pt.Id == pTId);
                         _context.PaymentTypes.Remove(paymentToRemove);
                     }
@@ -572,7 +616,7 @@ namespace UsersSubscriptions.Models
                 return IdentityResult.Failed(new IdentityError
                 { Description = "Варіанти сплати відсутні" });
             }
-            if(pTypes.Except(schoolPTypes).ToList().Count()>0)
+            if (pTypes.Except(schoolPTypes).ToList().Count() > 0)
             {
                 return IdentityResult.Failed(new IdentityError
                 { Description = "Варіанти сплати не відносяться до школи" });
@@ -596,7 +640,7 @@ namespace UsersSubscriptions.Models
                 List<string> cptToRemove = coursePTypes.Except(pTypes).ToList();
                 if (cptToRemove.Count() > 0)
                 {
-                    foreach(string cptId in cptToRemove)
+                    foreach (string cptId in cptToRemove)
                     {
                         RemoveCoursePaymentType(courseId, cptId);
                     }
@@ -623,6 +667,11 @@ namespace UsersSubscriptions.Models
                 _context.CoursePaymentTypes.Remove(coursePT);
                 _context.SaveChanges();
             }
+        }
+
+        public void AddDefaultPaymentTypesToSchool(string schoolId)
+        {
+            SeedData.CreatePaymentTypesToSchool(_context, schoolId);
         }
 
     }

@@ -76,10 +76,9 @@
             if (oldOwner !== userIdent.id) {
                 $.post("/Admin/School/ChangeSchoolOwnerAsync/" + userIdent.id + "?schoolId=" + schoolId,
                     function (content) {
-                        if (content == "true") {
                             $("#ownerId").val(userIdent.id);
-                            $("#ownerName").val(userIdent.name);
-                        }
+                        $("#ownerName").val(userIdent.name);
+                        debugger;
                     }, "json");
             }
         };

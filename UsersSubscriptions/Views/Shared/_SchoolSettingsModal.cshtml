@@ -7,12 +7,9 @@
         paymentTypesCount = Model.PaymentTypes.Count();
         paymentTypes = Model.PaymentTypes.OrderBy(pt => pt.Priority).ToList();
     }
-    string redirectUrl = "111";
-    if (ViewData["ReturnUrl"] != null) {
-        redirectUrl = ViewData["ReturnUrl"].ToString();
-    }
-}
+    bool isItAdmin = ViewBag.isItAdmin ?? false;
 
+    }
 <div class="modal" tabindex="-1" id="schoolSettings" role="dialog">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
@@ -23,10 +20,9 @@
                 </button>
             </div>
             <div class="modal-body">
-                <form method="post" asp-area="" asp-controller="Owner" asp-action="SchoolSettings"
-asp-route-redirectUrl="@redirectUrl" id="schoolSettings">
+                <form method="post" asp-area="" asp-controller="Owner" asp-action="SchoolDetails"
+asp-route-isItAdmin="@isItAdmin" id="schoolSettings">
                     <input type="hidden" asp-for="@Model.Id" />
-                    @ViewData["ReturnUrl"]
                     <table id="tablePT">
                         <tr><th>Пріоритет</th><th class="text-center">Назва</th><th></th></tr>
                         @if (paymentTypes.Count() > 0)
@@ -36,7 +32,7 @@ asp-route-redirectUrl="@redirectUrl" id="schoolSettings">
                                 <tr id="formRow@(j)">
                                     <td>
                                         <select name="PaymentTypes[@j].Priority" class="form-control">
-                                            @for (int i = 0; i < 11; i++)
+                                            @for (int i = 0; i < Common.UsersConstants.pTPriorityCount ; i++)
                                             {
                                                 if (paymentTypes[j].Priority == i)
                                                 {
