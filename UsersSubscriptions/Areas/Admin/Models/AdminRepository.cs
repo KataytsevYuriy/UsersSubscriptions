@@ -225,6 +225,7 @@ namespace UsersSubscriptions.Areas.Admin.Models
             {
                 return IdentityResult.Failed(new IdentityError { Description = "Школа з такою URL адресою вже існує" });
             }
+            school.Balance = 0;
             var state = await _context.Schools.AddAsync(school);
             if (state.State != EntityState.Added)
             {
@@ -263,6 +264,7 @@ namespace UsersSubscriptions.Areas.Admin.Models
             dbSchool.Name = school.Name;
             dbSchool.OwnerId = school.OwnerId;
             dbSchool.UrlName = school.UrlName;
+            dbSchool.Enable = school.Enable;
             var state = _context.Schools.Update(dbSchool);
             if (state.State != EntityState.Modified)
             {
@@ -331,9 +333,20 @@ namespace UsersSubscriptions.Areas.Admin.Models
             }
             if (result.Succeeded)
             {
-            await _context.SaveChangesAsync();
+                await _context.SaveChangesAsync();
             }
             return result;
+        }
+        
+        public School GetSchooloFinance(string schoolId)
+        {
+            School school= _context.Schools
+                .FirstOrDefault(sch => sch.Id == schoolId);
+            school.SchoolTransactions = _context.SchoolTransactions
+                .Where(st => st.SchoolId == schoolId)
+                .OrderByDescending(st => st.PayedDateTime)
+                .ToList();
+            return school;
         }
 
         public async Task<IdentityResult> ChengeOwnerAsync(string newOwnerId, string schoolId)
@@ -373,7 +386,6 @@ namespace UsersSubscriptions.Areas.Admin.Models
             await _context.SaveChangesAsync();
             return IdentityResult.Success;
         }
-
 
     }
 }

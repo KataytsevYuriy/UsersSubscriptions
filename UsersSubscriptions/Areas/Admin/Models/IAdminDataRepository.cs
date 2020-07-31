@@ -34,6 +34,9 @@ namespace UsersSubscriptions.Areas.Admin.Models
         Task<IdentityResult> UpdateSchoolAsync(School school);
         Task<IdentityResult> RemoveScoolAsync(string Id);
 
+        //Finance
+        School GetSchooloFinance(string schoolId);
+
         //Json
         Task<IdentityResult> ChengeOwnerAsync(string newOwnerId, string schoolId);
     }

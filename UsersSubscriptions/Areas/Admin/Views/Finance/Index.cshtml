@@ -1,0 +1,38 @@
+﻿@model IEnumerable<School>
+@{
+    Layout = "_AdminLayout";
+    ViewData["Description"] = "Школи";
+}
+
+    <table class="table table-bordered table-striped">
+        <tr><th class="text-center">Назва</th><th class="text-center">Баланс</th></tr>
+        @if (Model.Count() > 0)
+        {
+            @foreach (var school in Model)
+            {
+        <tr>
+            <td class="text-center" style="vertical-align:middle"><a asp-action="SchoolDetails" asp-route-schoolId="@school.Id">@school.Name</a></td>
+            @if (school.Enable & school.IsPayed)
+            {
+                <td class="text-center text-danger" style="vertical-align:middle">@school.Balance</td>
+            }
+            else if (school.Price==0)
+            {
+                <td class="text-center text-info" style="vertical-align:middle">@school.Balance</td>
+            }
+            else if (school.Balance > school.Price)
+            {
+                <td class="text-center text-success" style="vertical-align:middle">@school.Balance</td>
+            }
+            else
+            {
+                <td class="text-center text-warning" style="vertical-align:middle">@school.Balance</td>
+            }
+        </tr>
+            }
+        }
+        else
+        {
+            <tr><td colspan="2" class="text-center"><h3 class="text-danger">Школи відсутні</h3></td></tr>
+        }
+    </table>

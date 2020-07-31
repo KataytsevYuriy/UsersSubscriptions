@@ -1,0 +1,68 @@
+﻿@model School
+@{
+    Layout = "_AdminLayout";
+    ViewData["Description"] = "Школа " + Model.Name;
+    if (!Model.Enable)
+    {
+        ViewData["DescriptionDanger"] = "Школа блокована";
+    }
+    else if (!Model.IsPayed)
+    {
+        ViewData["DescriptionDanger"] = "Школа не сплачена";
+    }
+}
+
+<form asp-action="SchoolDetails" method="post">
+    <input type="hidden" asp-for="Id" />
+    <ul class="list-group">
+        <li class="list-group-item">
+            <label asp-for="Balance">Баланс</label>
+            <input asp-for="Balance" disabled />
+        </li>
+        <li class="list-group-item">
+            <label asp-for="Price">Вартість</label>
+            <input asp-for="Price" />
+        </li>
+        <li class="list-group-item">
+            <label asp-for="AllowTestUntil">Дозволити тестування до </label>
+            <input class="form-control" type="date" name="Month" value="@Model.AllowTestUntil.ToString("yyyy-MM-dd")" min="@Model.AllowTestUntil.ToString("yyyy-MM-dd")" />
+        </li>
+    </ul>
+    <button type="submit" class="btn btn-primary my-1">Зберегти </button>
+</form>
+<table class="table table-bordered table-striped">
+    <tbody class="pre-scrollable">
+        @if (Model.SchoolTransactions != null && Model.SchoolTransactions.Count() > 0)
+        {
+            @foreach (var transaction in Model.SchoolTransactions)
+            {
+                <tr>
+                    <td class="text-center" style="vertical-align:middle">
+                        @transaction.PayedDateTime.ToString("yyyy-MM-dd")
+                    </td>
+                    <td style="vertical-align:middle">
+                        Сплачено:
+                        @if (transaction.Payed > 0)
+                        {
+                            <span>@transaction.Payed</span>
+                        }
+                        else
+                        {
+                            <span class="text-success">@transaction.Payed</span>
+                        }
+                        <br>
+                        Доступно: @transaction.NewBalance
+                        <br />
+                        @transaction.Description
+                    </td>
+                </tr>
+            }
+        }
+        else
+        {
+            <tr>
+                <td ><h3 class="text-center text-danger">Курси відсутні</h3></td>
+            </tr>
+        }
+    </tbody>
+</table>

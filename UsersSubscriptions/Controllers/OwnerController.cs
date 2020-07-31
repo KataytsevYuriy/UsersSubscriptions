@@ -85,6 +85,10 @@ namespace UsersSubscriptions.Controllers
             {
                 return NotFound();
             }
+            if(!isItAdmin && !school.Enable)
+            {
+                return NotFound();
+            }
             ViewBag.isItAdmin = isItAdmin;
             return View(school);
         }
@@ -94,6 +98,10 @@ namespace UsersSubscriptions.Controllers
         {
             School school = teacherRepository.GetSchool(model.Id);
             if (school == null)
+            {
+                return NotFound();
+            }
+            if (!isItAdmin && !school.Enable)
             {
                 return NotFound();
             }
@@ -127,6 +135,15 @@ namespace UsersSubscriptions.Controllers
 
         public IActionResult CourseDetails(string id, string schoolId, bool isItAdmin)
         {
+            School school = teacherRepository.GetSchool(schoolId);
+            if (school == null)
+            {
+                return NotFound();
+            }
+            if (!isItAdmin && !school.Enable)
+            {
+                return NotFound();
+            }
             Course course = teacherRepository.GetCourse(id);
             if (course == null)
             {
