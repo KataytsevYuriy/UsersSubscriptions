@@ -77,7 +77,7 @@
                 $.post("/Admin/School/ChangeSchoolOwnerAsync/" + userIdent.Id + "?schoolId=" + schoolId,
                     function (content) {
                             $("#ownerId").val(userIdent.Id);
-                        $("#ownerName").val(userIdent.name);
+                        $("#ownerName").val(userIdent.Name);
                     }, "json");
             }
         };

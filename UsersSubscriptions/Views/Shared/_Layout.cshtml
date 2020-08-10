@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - BDSL</title>
+    <title>@ViewData["Title"] - Eventus</title>
     <link href="~/css/validation-errors.css" rel="stylesheet" />
     <environment include="Development">
         <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.css" />
@@ -15,8 +15,8 @@
               asp-fallback-test-class="sr-only" asp-fallback-test-property="position" asp-fallback-test-value="absolute" />
         <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     </environment>
+    @RenderSection("styles", false)
     <script src="https://kit.fontawesome.com/074d995d01.js" crossorigin="anonymous"></script> @*Font-Avesome*@
-
 </head>
 <body>
     @if (User.Identity.IsAuthenticated)

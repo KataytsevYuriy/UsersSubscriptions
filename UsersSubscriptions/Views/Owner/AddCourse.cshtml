@@ -29,7 +29,7 @@
             </select>
         </li>
         <li class="list-group-item">
-            <label asp-for="Price">Ціна</label>
+            <label asp-for="Price">Ціна абонементу</label>
             <input asp-for="Price" class=" form-control" />
             <br />
             @if (Model.AllPaymentTypes != null && Model.AllPaymentTypes.Count() > 0)
@@ -97,7 +97,7 @@
             <option value="@false">Ні</option>
         </select>
     </div><div class="form-group">
-        <label asp-for="Price">Ціна</label>
+        <label asp-for="Price">Ціна абонементу</label>
         <input asp-for="Price" class="form-control" />
     </div>
     <div class=" form-group">
@@ -116,7 +116,7 @@
     <script>
         function updateUser(userIdent) {
             var content = " <input type=\"checkbox\" name=\"TeachersId\" value=\"" + userIdent.Id
-                + "\" checked > " + userIdent.name + "<br>";
+                + "\" checked > " + userIdent.Name + "<br>";
             $("#teachers").append(content);
         };
     </script>

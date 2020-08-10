@@ -8,17 +8,22 @@
                 </button>
             </div>
             <div class="modal-body">
+                <label>Номер телефону</label>
                 <input class="form-control phone-input" id="phoneInput" type="tel" required placeholder="+38(___)___-__-__" />
-                <input class=" form-control my-1 p-1" id="nameInput" placeholder="Ім'я" />
-                <select class="d-none custom-select " id="selectUser" ></select>
+                <div>
+                    або
+                </div>
+                <label>Ім'я чи Прізвище</label>
+                <input class=" form-control my-1 p-1" id="nameInput" />
+                <select class="d-none custom-select " id="selectUser"></select>
                 <div class="my-1">
                     <div class="alert text-center">
                         <div id="info" onclick="addTeacher()" class="padding-5 pointer display-none"></div>
                     </div>
                 </div>
-                <div >
+                <div>
                     <button id="scanQR" class="btn float-left">Сканувати QrCode</button>
-                    <button id="addByPhone" class="btn float-right" onclick="sendPhone()">Пошук</button>
+                    <button id="addByPhone" class="btn btn-info float-right" onclick="sendPhone()">Пошук</button>
                 </div>
                 <div class="d-none" id="cameraVideo">
                     <div id="area-cameras-list">

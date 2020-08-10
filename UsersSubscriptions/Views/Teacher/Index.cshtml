@@ -2,18 +2,26 @@
 @{
     Layout = "_Layout";
 }
-
-<div class="text-center">
-    <button class="btn btn-outline-primary" type="button" data-toggle="modal" data-target="#addPhoneModal">За номером телефону</button>
-</div>
-@if (ViewBag.hasOneTimeCourses != null && ViewBag.hasOneTimeCourses == true)
-{
-    <div class="text-center my-2">
-        <a class="btn btn-outline-primary" asp-action="AddOneTimeSubscription" asp-route-schoolId="@ViewBag.schoolId">
-            Додати разове відвідуівння
-        </a>
-    </div>
+@section styles{
+    <link href="~/lib/bootstrap/dist/css/bootstrap-grid.css" rel="stylesheet" />
 }
+<div class="d-flex justify-content-between" style="margin-top:10px;">
+    <div class="text-center flex-column">
+        <button class="btn btn-outline-primary" type="button" data-toggle="modal" data-target="#addPhoneModal">
+            <i class="fas fa-search"></i>
+            Пошук вручну
+        </button>
+    </div>
+    @if (ViewBag.hasOneTimeCourses != null && ViewBag.hasOneTimeCourses == true)
+    {
+        <div class="text-center flex-column">
+            <a class="btn btn-outline-primary" asp-action="AddOneTimeSubscription" asp-route-schoolId="@ViewBag.schoolId">
+                <i class="fa fa-edit"></i>
+                Разове відвідуівння
+            </a>
+        </div>
+    }
+</div>
 <p style="font-size:1.2em">
     Відскануйте QR код абонементу
 </p>

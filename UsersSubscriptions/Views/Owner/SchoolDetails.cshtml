@@ -103,7 +103,7 @@ asp-route-id="@course.Id" asp-route-isItAdmin="@isItAdmin" asp-route-schoolId="@
                 $.post("/Admin/School/ChangeSchoolOwnerAsync/" + userIdent.Id + "?schoolId=" + schoolId,
                     function () {
                             $("#ownerId").val(userIdent.Id);
-                        $("#ownerName").html(userIdent.name);
+                        $("#ownerName").html(userIdent.Name);
                     }, "json");
             }
         };

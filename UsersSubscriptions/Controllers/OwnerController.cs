@@ -118,6 +118,7 @@ namespace UsersSubscriptions.Controllers
         {
             return View("CourseDetails", new CourseViewModel
             {
+                IsActive = true,
                 SchoolId = schoolId,
                 IsItAdmin = isItAdmin,
                 IsCreatingNew = true,

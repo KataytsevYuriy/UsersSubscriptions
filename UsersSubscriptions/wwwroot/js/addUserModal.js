@@ -105,7 +105,7 @@ $(function () {
             if (usersIdents[i].Id == selectedUserId) {
                 userIdent = new Object;
                 userIdent.Id = selectedUserId;
-                userIdent.name = usersIdents[i].Name;
+                userIdent.Name = usersIdents[i].Name;
                 userName = usersIdents[i].Name;
                 break;
             }
