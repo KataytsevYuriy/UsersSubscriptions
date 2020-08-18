@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using System.Text.Encodings.Web;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
@@ -109,6 +110,7 @@ namespace UsersSubscriptions.Areas.Identity.Pages.Account
                     {
                         ModelState.AddModelError("Password", error.Description);
                     }
+                    TempData["ErrorMessage"] = string.Join("<br/>", ModelState.Values.SelectMany(entry => entry.Errors).Select(entry => entry.ErrorMessage));
                 }
             }
 

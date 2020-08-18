@@ -157,22 +157,13 @@ namespace UsersSubscriptions.Controllers
             }
             if (result.Succeeded)
             {
-                if (model.IsCreatingNew)
-                {
-                    TempData["SuccessMessage"] = "Курс додано";
-                    model = teacherRepository.GetCourseViewModelByName(model.Name, model.SchoolId);
-                }
-                else
-                {
-                    TempData["SuccessMessage"] = "Курс оновлено";
-                    model = teacherRepository.GetCourseViewModel(model.Id);
-                }
+                TempData["SuccessMessage"] = "Курс збережено";
             }
             else
             {
                 TempData["ErrorMessage"] = result.Errors.FirstOrDefault().Description;
             }
-            return View(model);
+            return RedirectToAction(nameof(SchoolDetails), new { id = model.SchoolId });
         }
 
 

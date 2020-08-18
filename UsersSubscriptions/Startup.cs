@@ -88,7 +88,6 @@ namespace UsersSubscriptions
 
             app.UseHttpsRedirection();
             app.UseStaticFiles();
-            app.UseCookiePolicy();
 
             app.UseAuthentication();
             app.UseSession();
@@ -102,6 +101,7 @@ namespace UsersSubscriptions
                     name: "default",
                     template: "{controller=Home}/{action=Index}/{id?}");
             });
+            app.UseCookiePolicy();
         }
     }
 }

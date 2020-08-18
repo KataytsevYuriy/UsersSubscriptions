@@ -50,17 +50,23 @@
 </div>
 <br />
 <table class="table table-striped table-bordered">
-    <tr><th class="text-center">Ім'я</th><th class="text-center">Телефон</th><th class="text-center">Сума</th></tr>
+    <tr>
+        <th class="text-center">Ім'я</th>
+        <th class="text-center">Телефон</th>
+        <th class="text-center">Метод оплати</th>
+        <th class="text-center">Сума</th>
+    </tr>
     @foreach (var stud in Model.Students)
     {
         sum += stud.Price;
         <tr>
             <td class="text-center" style="vertical-align:middle">@stud.StudentName.ToUpperInvariant()</td>
             <td class="text-center" style="vertical-align:middle">@stud.Phone</td>
+            <td class="text-center" style="vertical-align:middle">@stud.PaymentName</td>
             <td class="text-center" style="vertical-align:middle">@stud.Price</td>
         </tr>
     }
-    <tr><td colspan="2" class="text-right">Разом</td><td>@sum</td></tr>
+    <tr><td colspan="3" class="text-right">Разом</td><td>@sum</td></tr>
 </table>
 @section Scripts{
     <script>

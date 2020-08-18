@@ -17,5 +17,6 @@ namespace UsersSubscriptions.Models.ViewModels
         public string StudentName { get; set; }
         public string Phone { get; set; }
         public int Price { get; set; }
+        public string PaymentName { get; set; }
     }
 }
