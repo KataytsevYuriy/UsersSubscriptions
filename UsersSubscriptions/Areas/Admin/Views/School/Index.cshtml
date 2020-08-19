@@ -12,7 +12,21 @@
             @foreach (var school in Model)
             {
                 <tr>
-                    <td class="text-center" style="vertical-align:middle"><a asp-area="" asp-controller="Owner" asp-action="SchoolDetails" asp-route-id="@school.Id" asp-route-isItAdmin="true">@school.Name</a></td>
+                    <td class="text-center" style="vertical-align:middle">
+                        <a asp-area="" asp-controller="Owner" asp-action="SchoolDetails" asp-route-id="@school.Id" asp-route-isItAdmin="true">@school.Name</a>
+                       @if (!school.Enable)
+                        {
+                            <i class="fas fa-times float-right" style="color:red"> </i>
+                        }
+                        else if (!school.IsPayed)
+                        {
+                            <i class="fas  fa-money-bill-alt float-right" style="color:red"> </i>
+                        }
+                        else
+                        {
+                            <i class="fas fa-check float-right" style="color:green"> </i>
+                        }
+                    </td>
                     <td class="text-center" style="vertical-align:middle">@school.Owner?.FullName</td>
                 </tr>
             }

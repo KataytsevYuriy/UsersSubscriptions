@@ -35,7 +35,9 @@ namespace UsersSubscriptions.Areas.Admin.Models
         Task<IdentityResult> RemoveScoolAsync(string Id);
 
         //Finance
-        School GetSchooloFinance(string schoolId);
+        School GetSchoolFinance(string schoolId);
+        IdentityResult UpdateSchoolFinance(School school);
+        IdentityResult AddSchoolTransaction(SchoolTransaction transaction);
 
         //Json
         Task<IdentityResult> ChengeOwnerAsync(string newOwnerId, string schoolId);
