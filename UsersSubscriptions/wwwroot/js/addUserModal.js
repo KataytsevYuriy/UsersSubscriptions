@@ -8,6 +8,7 @@ function sendPhone() {
     if (scanner != undefined) {
         scanner.stop();
     }
+    $("#info").show();
     $("#info").empty();
     $("#selectUser").empty();
     $("#selectUser").addClass("d-none");
@@ -97,15 +98,14 @@ function clearUserName() {
     $("#info").empty();
 }
 
-
 $(function () {
     $("#selectUser").change(function () {
         var selectedUserId = $(this).val();
         for (let i = 0; i < usersIdents.length; i++) {
             if (usersIdents[i].Id == selectedUserId) {
                 userIdent = new Object;
-                userIdent.id = selectedUserId;
-                userIdent.name = usersIdents[i].Name;
+                userIdent.Id = selectedUserId;
+                userIdent.Name = usersIdents[i].Name;
                 userName = usersIdents[i].Name;
                 break;
             }

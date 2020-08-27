@@ -547,6 +547,7 @@ namespace UsersSubscriptions.Models
         public IEnumerable<Student> GetTeacherMonthStudents(string courseId, DateTime month)
         {
             IEnumerable<Subscription> TeacherSubscriptions = _context.Subscriptions
+                    .Include(us => us.PaymentType)
                     .Include(us => us.AppUser)
                     .Where(cour => cour.CourseId == courseId
                         && cour.Month.Year == month.Year
@@ -560,6 +561,7 @@ namespace UsersSubscriptions.Models
                     StudentName = subscr.AppUser == null ? subscr.FullName : subscr.AppUser.FullName,
                     Phone = subscr.AppUser == null ? subscr.Phone : subscr.AppUser.PhoneNumber,
                     Price = subscr.Price,
+                    PaymentName = subscr.PaymentType.Name
                 });
             }
             return students;

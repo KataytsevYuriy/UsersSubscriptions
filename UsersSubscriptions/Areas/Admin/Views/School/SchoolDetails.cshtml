@@ -1,0 +1,95 @@
+﻿@model School
+@{
+    Layout = "_AdminLayout";
+    ViewData["Description"] = "Школа";
+    ViewBag.ConfirmMessage = "Видалити школу " + Model.Name + "?";
+
+}
+<div class="float-right" style="display:inline-block">
+    <button class="btn btn-sm " type="button" data-toggle="modal" data-target="#schoolSettings">
+        <i class="fas fa-cog" style="color:gray"></i>
+    </button>
+</div>
+<div>
+    <form asp-action="SchoolDetails" method="post" id="form">
+        <input type="hidden" name="Id" id="schoolId" value="@Model.Id" />
+        <ul class="list-group">
+            <li class="list-group-item">
+                <label asp-for="Name">Назва</label>
+                <input asp-for="Name" class="form-control" />
+            </li>
+            <li class="list-group-item">
+                <label asp-for="UrlName">Url назва</label>
+                <input asp-for="UrlName" class="form-control" />
+            </li>
+            <li class="list-group-item">
+                <label asp-for="Owner">Власник школи </label>
+                <input asp-for="OwnerId" type="hidden" id="ownerName" />
+                <div class="text-center">
+                    <button class="btn mt-3 btn-outline-info" type="button" data-toggle="modal" data-target="#addPhoneModal">Змінити власника</button>
+                </div>
+            </li>
+            <li class="list-group-item">
+                <button class="btn-default btn" type="submit">Зберегти</button>
+                <button type="button" class="btn btn-outline-danger float-right" data-toggle="modal" data-target="#confirmDelete">Видалити</button>
+            </li>
+        </ul>
+    </form>
+    <div>
+        <div class="text-center"><h4>Курси</h4></div>
+        @if (Model.Courses != null && Model.Courses.Count() > 0)
+        {
+            <ul class="list-group">
+                @foreach (var cours in Model.Courses)
+                {
+                    <li class="list-group-item">
+                        <a asp-action="CourseDetails" asp-route-id="@cours.Id" asp-route-schoolId="@Model.Id"> @cours.Name</a>
+                        @if (cours.IsActive)
+                        {
+                            <i class="fas fa-check float-right" style="color:green"> </i>
+                        }
+                        else
+                        {
+                            <i class="fas fa-times float-right" style="color:red"> </i>
+                        }
+                    </li>
+                }
+            </ul>
+        }
+    </div>
+    <div class="text-center"><a asp-action="CreateCourse" asp-route-id="@Model.Id" class="btn btn-outline-primary mt-3">Додати Курс</a></div>
+</div>
+<partial name="_ConfirmDelete" />
+@await Html.PartialAsync("_SchoolSettingsModal", Model,new ViewDataDictionary(ViewData) {
+    {"ReturnUrl","admin" },
+});
+
+<partial name="_AddUserModal" />
+@section AdminScripts{
+    <script src="~/js/jquery.mask.min.js"></script>
+    <script src="~/js/addUserModal.js"></script>
+    <script src="~/js/schoolSettings.js"></script>
+    <script>
+        function updateUser(userIdent) {
+            var schoolId = $("#schoolId").val();
+            var oldOwner = $("#ownerId").val()
+            if (oldOwner !== userIdent.Id) {
+                $.post("/Admin/School/ChangeSchoolOwnerAsync/" + userIdent.Id + "?schoolId=" + schoolId,
+                    function (content) {
+                            $("#ownerId").val(userIdent.Id);
+                        $("#ownerName").val(userIdent.Name);
+                    }, "json");
+            }
+        };
+    </script>
+    <script>
+        $(function () {
+            $("#deleteButton").click(function () {
+                var action = "/Admin/School/DeleteSchool"
+                var form = document.getElementById("form");
+                form.action = action;
+                form.submit();
+            });
+        });
+    </script>
+}

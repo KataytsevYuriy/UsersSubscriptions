@@ -195,7 +195,7 @@ namespace UsersSubscriptions.Controllers
                 }
                 TempData["ErrorMessage"] = erorMessage;
             }
-            return RedirectToAction(nameof(AddOneTimeSubscription), new { schoolId = model.SchoolId });
+            return RedirectToAction(nameof(Index));
         }
 
         public async Task<IActionResult> StudentInfo(string studentId, string schoolId, DateTime Month)
@@ -310,7 +310,7 @@ namespace UsersSubscriptions.Controllers
             {
                 Students = students,
                 Month = month,
-                CurrentCourse = course,
+                CurrentCourse = course
             };
             return View(model);
         }
