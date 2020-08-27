@@ -33,6 +33,7 @@ function sendPhone() {
                     selectOption.text = usersIdents[i].Name;
                     selectOption.value = usersIdents[i].Id;
                     selectOption.classList.add("alert-success");
+                    selectOption.classList.add("my-1");
                     selectUser.add(selectOption, selectUser[i]);
                 }
                 $("#selectUser").removeClass("d-none");
@@ -86,7 +87,6 @@ function sendId(content) {
 function addTeacher() {
     updateUser(userIdent);
     $("#addPhoneModal").modal("hide");
-    //$("#modalCancel").click();
     $("#modalAdd").prop("disabled", true);
     $("#teacherName").empty();
     $("#phoneInput").val("");

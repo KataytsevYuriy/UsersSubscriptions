@@ -141,21 +141,21 @@ namespace UsersSubscriptions.Controllers
                 TempData["ErrorMessage"] = "Ім'я повинно бути довше 5 символів";
                 return View(model);
             }
-            if(string.IsNullOrEmpty(model.Student.PhoneNumber))
-            {
-                TempData["ErrorMessage"] = "Додайте телефон";
-                return View(model);
-            }
+            //if(string.IsNullOrEmpty(model.Student.PhoneNumber))
+            //{
+            //    TempData["ErrorMessage"] = "Додайте телефон";
+            //    return View(model);
+            //}
             if(string.IsNullOrEmpty(model.SelectedPaymentType))
             {
                 TempData["ErrorMessage"] = "Виберіть тип оплати";
                 return View(model);
             }
-            if (string.IsNullOrEmpty(model.Student.Id) && (model.Student.PhoneNumber.Length < 17))
-            {
-                TempData["ErrorMessage"] = "Введіть телефон повністю";
-                return View(model);
-            }
+            //if (string.IsNullOrEmpty(model.Student.Id) && (model.Student.PhoneNumber.Length < 17))
+            //{
+            //    TempData["ErrorMessage"] = "Введіть телефон повністю";
+            //    return View(model);
+            //}
             if (model.Month.Year < 2000) return RedirectToAction(nameof(AddOneTimeSubscription));
             if (model.SelectedCours == null || string.IsNullOrEmpty(model.SelectedCours.Id))
                 return RedirectToAction(nameof(AddOneTimeSubscription));

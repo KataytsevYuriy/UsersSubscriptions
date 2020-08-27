@@ -1,9 +1,8 @@
 ﻿@model SchoolCalculationsViewModel
 @{
     Layout = "_Layout";
-    int startYear = 2019;
-    var monthes = new List<string>{"Січень", "Лютий", "Березень", "Квітень", "Травень", "Червень",
-"Липень", "Серпень", "Вересень", "Жовтень", "Листопад",  "Грудень"};
+    int startYear = Common.UsersConstants.startYear;
+    var monthes = Common.UsersConstants.monthes;
 }
 <form asp-action="SchoolCalculation" method="post" class="fm-date my-1">
     <input type="hidden" value="@Model.SchoolId" name="SchoolId" />

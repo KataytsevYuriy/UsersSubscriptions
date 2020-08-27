@@ -111,7 +111,7 @@
                 $("#teachers").append(newTeacher);
             } else {
                 var courseId = $("#courseId").val();
-                $.post("/Owner/AddTeacherToCourseAsync/" + userIdent.id + "?courseId=" + courseId,
+                $.post("/Owner/AddTeacherToCourseAsync/" + userIdent.Id + "?courseId=" + courseId,
                     function (content) {
                         $("#teachers").empty();
                         $("#teachers").append(content);

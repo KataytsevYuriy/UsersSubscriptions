@@ -16,13 +16,13 @@
                             @if (Model.ListPaymentTypes != null
                             && Model.ListPaymentTypes.Contains(payment))
                             {
-                                <input type="checkbox" value="@payment.Id" checked />
+                                <input type="checkbox" value="@payment.Id" checked id="@payment.Id"/>
                             }
                             else
                             {
-                                <input type="checkbox"value="@payment.Id" />
+                                <input type="checkbox"value="@payment.Id" id="@payment.Id"/>
                             }
-                            <label>@payment.Name</label>
+                            <label for="@payment.Id">@payment.Name</label>
                         </div>
                     }
                 }
