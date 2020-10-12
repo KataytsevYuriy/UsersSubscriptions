@@ -46,7 +46,7 @@
                         foreach (var school in Model.Schools)
                         {
                             @if (school.Courses != null
-                     && (string.IsNullOrEmpty(Model.SelectedSchoolId) || school.Id == Model.SelectedSchoolId))
+                  && (string.IsNullOrEmpty(Model.SelectedSchoolId) || school.Id == Model.SelectedSchoolId))
                             {
                                 foreach (var course in school.Courses)
                                 {
@@ -115,9 +115,29 @@
                         @(subs.AppUser == null ? subs.Month.ToString("dd:MMMM:yyyy") : subs.Month.ToString("MMMM:yyyy") )
                     </td>
                     <td class="text-center" style="vertical-align:middle">
-                        @subs.Price
+                        @if (subs.Price == subs.Payments?.Select(pay => pay.Price).Sum())
+                        {
+                            <span>@subs.Price</span>
+                        }
+                        else
+                        {
+                            <span class="text-danger">
+                                @subs.Payments?.Select(pay => pay.Price).Sum() з  @subs.Price
+                            </span>
+                        }
                         <br />
-                        @if (subs.PayedTo == null)
+                        @if (subs.Payments.Count() > 0)
+                        {
+                            foreach (Payment payment in subs.Payments)
+                            {
+                                @if (payment.Price != subs.Price)
+                                {@payment.Price}<span> </span> @payment.PaymentType.Name<Br />
+                                @payment.PayedTo?.FullName<br />
+                                @payment.DateTime.ToString("dd:MMMM:yyyy")<br />
+
+                            }
+                        }
+                        else if (subs.PayedTo == null)
                         {
                             <span class="text-danger">Не сполачено </span>
                         }
@@ -133,7 +153,8 @@
                     </td>
                 </tr>
             }
-        } else
+        }
+        else
         {
             <tr>
                 <td colspan="4"><h3 class=" text-danger">Відвідування відсутні</h3></td>

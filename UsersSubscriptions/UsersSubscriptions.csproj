@@ -14,6 +14,7 @@
     <Compile Remove="Migrations\20200616065610_test.cs" />
     <Compile Remove="Migrations\20200616070145_updatePaymentTypes.cs" />
     <Compile Remove="Migrations\20200618193842_coursePaymentType.cs" />
+    <Compile Remove="Migrations\20200918102559_addPaymentToSubscriptions.cs" />
   </ItemGroup>
 
   <ItemGroup>

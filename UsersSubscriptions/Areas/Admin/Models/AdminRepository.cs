@@ -154,6 +154,7 @@ namespace UsersSubscriptions.Areas.Admin.Models
                                         .Include(cour => cour.Course).ThenInclude(cou => cou.School)
                                         .Include(payed => payed.PayedTo)
                                         .Include(user => user.AppUser)
+                                        .Include(pay=>pay.Payments).ThenInclude(paymen=>paymen.PaymentType)
                                         .ToList();
             if (!string.IsNullOrEmpty(schoolId))
             {
@@ -313,6 +314,7 @@ namespace UsersSubscriptions.Areas.Admin.Models
                     }
                 }
             }
+            _context.SaveChanges();
             if (result.Succeeded && dbSchool.PaymentTypes?.Count() > 0)
             {
                 foreach (PaymentType paymentType in dbSchool.PaymentTypes)
@@ -324,7 +326,9 @@ namespace UsersSubscriptions.Areas.Admin.Models
                     }
                 }
             }
-            if (result.Succeeded && _context.Schools.Remove(dbSchool).State != EntityState.Deleted)
+            _context.SaveChanges();
+            School schoolToRemove = _context.Schools.FirstOrDefault(sch => sch.Id == dbSchool.Id);
+            if (result.Succeeded && _context.Schools.Remove(schoolToRemove).State != EntityState.Deleted)
             {
                 result = IdentityResult.Failed(new IdentityError { Description = "Школа не видалена" });
 

@@ -22,6 +22,7 @@ namespace UsersSubscriptions.Models
         public IEnumerable<CourseAppUser> CourseAppUsers { get; set; }
         public IEnumerable<Subscription> Subscriptions { get; set; }
         public IEnumerable<Subscription> SubscriptionPayedTo { get; set; }
+        public IEnumerable<Payment> Payments { get; set; }
         public IEnumerable<School> Schools { get; set; }
     }
     public class AppUserConfiguration : IEntityTypeConfiguration<AppUser>

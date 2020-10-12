@@ -9,6 +9,7 @@ namespace UsersSubscriptions.Models.ViewModels
     public class CourseViewModel : Course
     {
         public IList<string> TeachersId { get; set; }
+        public IList<string> PTIds { get; set; }
         public IEnumerable<PaymentType> AllPaymentTypes { get; set; }
         public IEnumerable<PaymentType> ListPaymentTypes { get; set; }
         public bool IsItAdmin { get; set; }
@@ -16,6 +17,7 @@ namespace UsersSubscriptions.Models.ViewModels
         public CourseViewModel()
         {
             TeachersId = new List<string>();
+            PTIds = new List<string>();
             AllPaymentTypes = new List<PaymentType>();
         }
     }

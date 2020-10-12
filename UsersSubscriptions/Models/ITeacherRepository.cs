@@ -28,10 +28,13 @@ namespace UsersSubscriptions.Models
         Task AddTeacherToCourse(string userId, string courseId);
         Task<IdentityResult> RemoveCourseAsync(string Id);
         bool CourseHasSubscriptions(string id);
+        IEnumerable<Payment> GetCoursePayment(string Id);
 
         //Subscription
         Task<IdentityResult> CreateSubscriptionAsync(Subscription subscription);
         IEnumerable<Subscription> GetUserSubscriptions(string userId, string schoolId, DateTime month);
+        Subscription GetSubscription(string Id);
+        IdentityResult UpdateSubscription(Subscription subscription, string teacherId);
         void RemoveSubscription(string id);
 
         //school
@@ -40,7 +43,7 @@ namespace UsersSubscriptions.Models
         SchoolCalculationsViewModel GetSchoolDetail(string schoolId, string courseId, DateTime month, string selectedNavId, string selectedTeacherId);
         School GetSchoolByUrl(string url);
         IEnumerable<School> GetUsersSchools(string userId);
-        IEnumerable<Student> GetTeacherMonthStudents(string courseId, DateTime month);
+        IEnumerable<Subscription> GetTeacherMonthSubscriptions(string courseId, DateTime month);
         IEnumerable<PaymentType> GetSchoolPaymentTyapes(string schoolId);
         bool IsItThisSchoolOwner(string schoolId, string ownerId);
         bool IsItThisSchoolTeacher(string schoolId, string teacherId);

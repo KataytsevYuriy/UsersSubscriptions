@@ -12,5 +12,6 @@ namespace UsersSubscriptions.Models.ViewModels
         public IEnumerable<Subscription> Subscriptions { get; set; }
         public DateTime Month { get; set; }
         public string ScholId { get; set; }
+        public string TeacherId { get; set; }
     }
 }

@@ -1,53 +1,42 @@
 ﻿$('.phone-input').mask("+38(000)000-00-00", { placeholder: "+38(___)___-__-__" });
 
 
-var userIdent, userName, usersIdents;
+var userIdent, userName, usersIdents, userId;
 
 function sendPhone() {
     $("#cameraVideo").addClass("d-none");
     if (scanner != undefined) {
         scanner.stop();
     }
-    $("#info").show();
-    $("#info").empty();
+    //$("#info").show();
+    //$("#info").empty();
+    clearUserName();
     $("#selectUser").empty();
     $("#selectUser").addClass("d-none");
     var findByName = $("#nameInput").val().toString();
     if (findByName.length > 0) {
         $.post("/Owner/GetUserByName/" + findByName, function (data) {
             usersIdents = JSON.parse(data);
-            if (usersIdents.length == 1) {
-                userIdent = usersIdents[0];
-                userName = usersIdents[0].Name;
-                $("#info").append(userName);
-                $("#info").addClass("alert-info");
-                $("#modalAdd").prop("disabled", false);
-            } else {
-                var selectUser = document.getElementById("selectUser");
-                if (usersIdents.length > 5) {
-                    selectUser.size = 5;
-                } else {
-                    selectUser.size = usersIdents.length;
-                }
+            if (usersIdents.length > 0) {
+                $('#listUsers').removeClass("display-none");
+                var usersListDiv = document.getElementById("listUsers");
+                $("#listUsers").empty();
                 for (let i = 0; i < usersIdents.length; i++) {
-                    var selectOption = document.createElement("option");
-                    selectOption.text = usersIdents[i].Name;
-                    selectOption.value = usersIdents[i].Id;
-                    selectOption.classList.add("alert-success");
-                    selectOption.classList.add("my-1");
-                    selectUser.add(selectOption, selectUser[i]);
+                    var userInList = document.createElement("div");
+                    userInList.classList.add("padding-5");
+                    userInList.classList.add("pointer");
+                    userInList.classList.add("my-1");
+                    userInList.classList.add("alert-info");
+                    userInList.innerText = usersIdents[i].Name;
+                    userInList.setAttribute("onclick", "selectUser(" + i + ")");
+                    usersListDiv.appendChild(userInList);
                 }
-                $("#selectUser").removeClass("d-none");
-                userName = data.name;
-                $("#info").append(userName);
-                $("#info").addClass("alert-info");
-                $("#info").removeClass("alert-danger");
-                $("#modalAdd").prop("disabled", true);
             }
         }, "json")
             .fail(function () {
                 $("#info").append("Користувача не знайдено");
-                $("#info").addClass("alert-danger");
+                //$("#info").addClass("alert-danger");
+                $('#info').removeClass("display-none");
                 $("#modalAdd").prop("disabled", true);
             });
     } else {
@@ -92,32 +81,33 @@ function addTeacher() {
     $("#teacherName").empty();
     $("#phoneInput").val("");
     $("#nameInput").val("");
-    $("#info").empty();
+    clearUserName();
+    //$("#info").empty();
 }
 function clearUserName() {
     $("#info").empty();
+    $("#info").addClass('display-none');
+
+    $('#listUsers').empty();
+    $('#listUsers').addClass('display-none');
 }
 
-$(function () {
-    $("#selectUser").change(function () {
-        var selectedUserId = $(this).val();
-        for (let i = 0; i < usersIdents.length; i++) {
-            if (usersIdents[i].Id == selectedUserId) {
-                userIdent = new Object;
-                userIdent.Id = selectedUserId;
-                userIdent.Name = usersIdents[i].Name;
-                userName = usersIdents[i].Name;
-                break;
-            }
-        }
-        $("#info").empty();
-        $("#info").append(userName);
-        $("#info").addClass("alert-info");
-        $("#selectUser").addClass("d-none");
-        $("#modalAdd").prop("disabled", false);
-        addTeacher();
-    });
-});
+
+function selectUser(listUserNumber) {
+    if (listUserNumber < usersIdents.length) {
+        userIdent = new Object;
+        userIdent.Id = usersIdents[listUserNumber].Id;
+        userIdent.Name = usersIdents[listUserNumber].Name;
+        userName = usersIdents[listUserNumber].Name;
+    }
+    $("#info").empty();
+    $("#info").append(userName);
+    $("#info").addClass("alert-info");
+    $("#selectUser").addClass("d-none");
+    $("#modalAdd").prop("disabled", false);
+    addTeacher();
+
+};
 
 var getUserInfoUrl = '@Url.Action("GetUserById")';
 var cameras;

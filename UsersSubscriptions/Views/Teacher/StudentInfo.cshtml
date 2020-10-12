@@ -3,6 +3,8 @@
     Layout = "_Layout";
     DateTime curDate = DateTime.Now;
     string imageSRC = "/avatars/avatar-" + @Model.Student.Id + ".jpg";
+    string teacherId = ViewBag.teacherId??"";
+    bool schoolOwner = ViewBag.schoolOwner == null ? false : ViewBag.schoolOwner;
 }
 <script>
     function NoAvatarFunc() {
@@ -47,10 +49,26 @@ else
             {
                 <tr>
                     <td style="vertical-align:middle; font-weight:bold;">@subs.Course.Name </td>
-                    <td>
+                    @*<td>
                         @foreach (var user in subs.Course.CourseAppUsers)
                         {
                             <span>@user.AppUser.FullName</span><br />
+                        }
+                    </td>*@
+                    <td>
+                        <span>Сплачено: </span>
+                        @if (subs.Payments.Select(pay => pay.Price).Sum() == subs.Price)
+                        {
+                        <span class="text-success">@subs.Price</span> 
+                        } else
+                        {
+                            <span class="text-danger">@subs.Payments.Select(pay=>pay.Price).Sum() з @subs.Price</span>
+                        }
+                    </td>
+                    <td style="vertical-align:middle; font-weight:bold;">
+                        @if (schoolOwner || subs.Course.CourseAppUsers.Any(cap => cap.AppUserId.Equals(teacherId)))
+                        {
+                            <a asp-action="SubscriptionDetails" asp-route-Id="@subs.Id" class="far fa-edit"></a>
                         }
                     </td>
                 </tr>
