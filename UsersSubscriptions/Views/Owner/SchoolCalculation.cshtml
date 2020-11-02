@@ -74,7 +74,7 @@
                                 }
                                 @course.Name
                             </th>
-                            <td class="text-center">
+                            <td class="text-center" colspan="2">
                                 @course.Sum
                             </td>
                         </tr>
@@ -82,8 +82,18 @@
                 }
                 <tr>
                     <th class="text-right">Разом</th>
-                    <th class="text-center">@Model.SchoolCourses.Select(cour => cour.Sum).Sum()</th>
+                    <th class="text-center" colspan="2">
+                        @Model.SchoolCourses.Select(cour => cour.Sum).Sum()
+                    </th>
                 </tr>
+                @foreach (var paymentType in Model.SchoolCoursesByPaymentTypeSum)
+                {
+                    <tr>
+                        <td></td>
+                        <td>@paymentType.Key</td>
+                        <td>@paymentType.Value</td>
+                    </tr>
+                }
             </table>
         </div>
         <div class="tab-pane fade py-2" id="nav-course" role="tabpanel" aria-labelledby="nav-course-tab">
@@ -135,11 +145,11 @@
                         {
                             if (Model.SelectedTeacherId == teacher.Id)
                             {
-                            <option selected value="@teacher.Id">@teacher.FullName</option>
+                                <option selected value="@teacher.Id">@teacher.FullName</option>
                             }
                             else
                             {
-                            <option value="@teacher.Id">@teacher.FullName</option>
+                                <option value="@teacher.Id">@teacher.FullName</option>
                             }
                         }
                     }

@@ -476,12 +476,9 @@ namespace UsersSubscriptions.Models
             DateTime month, string selectedNavId, string selectedTeacherId)
         {
             if (string.IsNullOrEmpty(schoolId)) return new SchoolCalculationsViewModel();
-            if (month.Year < 2000)
-            {
-                month = DateTime.Now;
-            }
             IEnumerable<Course> courses = _context.Courses
                 .Include(cour => cour.School)
+                .Include(cour => cour.Subscriptions).ThenInclude(entry=>entry.PaymentType)
                 .Include(cour => cour.CourseAppUsers).ThenInclude(capu => capu.AppUser)
                 .Include(cour => cour.Subscriptions).ThenInclude(sub => sub.AppUser)
                 .Where(cour => cour.SchoolId == schoolId)
@@ -500,6 +497,15 @@ namespace UsersSubscriptions.Models
                      .Select(sub => sub.Price).Sum(),
                 }).ToList();
             }
+
+            var sumByPaymentType = new Dictionary<string, int>();
+            var subs = courses.SelectMany(entry => entry.Subscriptions)
+                .Where(sub => sub.Month.Month == month.Month && sub.Month.Year == month.Year).ToList();
+            foreach(var paymentType in subs.Select(entry => entry.PaymentType).Distinct())
+            {
+                sumByPaymentType.Add(paymentType.Name, subs.Where(entry => entry.PaymentTypeId == paymentType.Id).Sum(entry => entry.Price));
+            }
+
             List<Subscription> subscriptions = new List<Subscription>();
             if (!string.IsNullOrEmpty(courseId) && courses.FirstOrDefault(cour => cour.Id == courseId) != null)
             {
@@ -532,6 +538,7 @@ namespace UsersSubscriptions.Models
                 Month = month,
                 SelectedNavId = selectedNavId,
                 SchoolCourses = schoolCourses,
+                SchoolCoursesByPaymentTypeSum = sumByPaymentType,
                 CourseSubscriptions = subscriptions,
                 SchoolTeachers = schoolTeachers,
                 TeacherSubscriptions = teacherSubscriptions,

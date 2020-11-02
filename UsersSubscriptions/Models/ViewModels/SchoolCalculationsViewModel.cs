@@ -8,6 +8,7 @@ namespace UsersSubscriptions.Models.ViewModels
     public class SchoolCalculationsViewModel
     {
         public IEnumerable<SchoolCourse> SchoolCourses { get; set; }
+        public Dictionary<string,int> SchoolCoursesByPaymentTypeSum { get; set; }
         public IEnumerable<Subscription> CourseSubscriptions { get; set; }
         public IEnumerable<Subscription> TeacherSubscriptions { get; set; }
         public string SelectedCourseId { get; set; }
