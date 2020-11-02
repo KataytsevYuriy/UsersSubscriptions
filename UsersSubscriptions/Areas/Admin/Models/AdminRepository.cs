@@ -226,6 +226,7 @@ namespace UsersSubscriptions.Areas.Admin.Models
             {
                 return IdentityResult.Failed(new IdentityError { Description = "Школа з такою URL адресою вже існує" });
             }
+            school.Balance = 0;
             var state = await _context.Schools.AddAsync(school);
             if (state.State != EntityState.Added)
             {
@@ -264,6 +265,7 @@ namespace UsersSubscriptions.Areas.Admin.Models
             dbSchool.Name = school.Name;
             dbSchool.OwnerId = school.OwnerId;
             dbSchool.UrlName = school.UrlName;
+            dbSchool.Enable = school.Enable;
             var state = _context.Schools.Update(dbSchool);
             if (state.State != EntityState.Modified)
             {
@@ -335,9 +337,48 @@ namespace UsersSubscriptions.Areas.Admin.Models
             }
             if (result.Succeeded)
             {
-            await _context.SaveChangesAsync();
+                await _context.SaveChangesAsync();
             }
             return result;
+        }
+        
+        public School GetSchoolFinance(string schoolId)
+        {
+            School school= _context.Schools
+                .Include(sch=>sch.Courses)
+                .FirstOrDefault(sch => sch.Id == schoolId);
+            school.SchoolTransactions = _context.SchoolTransactions
+                .Where(st => st.SchoolId == schoolId)
+                .OrderByDescending(st => st.PayedDateTime)
+                .ToList();
+            return school;
+        }
+
+        public IdentityResult UpdateSchoolFinance(School school)
+        {
+            if (school == null) return IdentityResult.Failed(new IdentityError { Description = "Помилка форми" });
+            if (school == null || string.IsNullOrEmpty(school.Id)) return IdentityResult.Failed(new IdentityError { Description = "Помтлка форми" });
+            School dbSchool = _context.Schools.FirstOrDefault(sch => sch.Id == school.Id);
+            if (dbSchool == null) return IdentityResult.Failed(new IdentityError { Description = "Школа не знайдена" });
+            dbSchool.Price = school.Price;
+            dbSchool.AllowTestUntil = school.AllowTestUntil;
+            _context.SaveChanges();
+            return IdentityResult.Success;
+        }
+
+       public IdentityResult AddSchoolTransaction(SchoolTransaction transaction)
+        {
+            if (_context.SchoolTransactions.Add(transaction).State == EntityState.Added)
+            {
+                School school = _context.Schools.FirstOrDefault(sch => sch.Id == transaction.SchoolId);
+                if (school != null)
+                {
+                    school.Balance = transaction.NewBalance;
+                    _context.SaveChanges();
+                    return IdentityResult.Success;
+                }
+            }
+            return IdentityResult.Failed(new IdentityError { Description = "Сплата не зарахована" });
         }
 
         public async Task<IdentityResult> ChengeOwnerAsync(string newOwnerId, string schoolId)
@@ -378,6 +419,6 @@ namespace UsersSubscriptions.Areas.Admin.Models
             return IdentityResult.Success;
         }
 
-
+ 
     }
 }

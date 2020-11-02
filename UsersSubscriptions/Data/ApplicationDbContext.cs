@@ -22,6 +22,7 @@ namespace UsersSubscriptions.Data
         public DbSet<PaymentType> PaymentTypes { get; set; }
         public DbSet<CoursePaymentType> CoursePaymentTypes { get; set; }
         public DbSet<Payment> Payments { get; set; }
+        public DbSet<SchoolTransaction> SchoolTransactions { get; set; }
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);

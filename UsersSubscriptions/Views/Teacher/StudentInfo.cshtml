@@ -49,12 +49,6 @@ else
             {
                 <tr>
                     <td style="vertical-align:middle; font-weight:bold;">@subs.Course.Name </td>
-                    @*<td>
-                        @foreach (var user in subs.Course.CourseAppUsers)
-                        {
-                            <span>@user.AppUser.FullName</span><br />
-                        }
-                    </td>*@
                     <td>
                         <span>Сплачено: </span>
                         @if (subs.Payments.Select(pay => pay.Price).Sum() == subs.Price)

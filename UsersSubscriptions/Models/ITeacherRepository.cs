@@ -47,6 +47,8 @@ namespace UsersSubscriptions.Models
         IEnumerable<PaymentType> GetSchoolPaymentTyapes(string schoolId);
         bool IsItThisSchoolOwner(string schoolId, string ownerId);
         bool IsItThisSchoolTeacher(string schoolId, string teacherId);
+        bool IsSchoolAllowed(string schoolId);
+        IdentityResult PayForSchool(string schoolId, string description);
 
         //PaymentType
         IdentityResult UpdateCoursePaymentTypes(string schoolId, string courseId, List<string> pTypes);

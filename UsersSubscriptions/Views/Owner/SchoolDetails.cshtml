@@ -40,6 +40,21 @@
                     <input asp-for="UrlName" class="form-control" />
                 </li>
                 <li class="list-group-item">
+                    <label asp-for="Enable">Активна</label>
+                    <select name="Enable" class="form-control">
+                        @if (Model.Enable)
+                        {
+                            <option value="@true" selected>Так</option>
+                            <option value="@false">Ні</option>
+                        }
+                        else
+                        {
+                            <option value="@true">Так</option>
+                            <option value="@false" selected>Ні</option>
+                        }
+                    </select>
+                </li>
+                <li class="list-group-item">
                     <label asp-for="Owner">Власник школи </label><br />
                     <h5 id="ownerName"> @Model.Owner.FullName</h5>
                     <input asp-for="OwnerId" type="hidden" />

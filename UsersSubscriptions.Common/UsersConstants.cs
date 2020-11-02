@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Web;
 
 namespace UsersSubscriptions.Common
 {
@@ -20,5 +21,8 @@ namespace UsersSubscriptions.Common
         public static List<string> monthes = new List<string>{"Січень", "Лютий", "Березень", "Квітень", "Травень", "Червень",
 "Липень", "Серпень", "Вересень", "Жовтень", "Листопад",  "Грудень"};
         public const int startYear = 2019;
+
+        public const string redirectPayPageController = "Teacher";
+        public const string redirectPayPageAction = "PayForSchool";
     }
 }

@@ -20,9 +20,18 @@ namespace UsersSubscriptions.Models
         public AppUser Owner { get; set; }
         [StringLength(64)]
         public string OwnerId { get; set; }
+        public bool Enable { get; set; }
+
+        //Payment
+        public int Balance { get; set; }
+        public int Price { get; set; }
+        public bool IsPayed { get; set; }
+        public DateTime PayedMonth { get; set; }
+        public DateTime AllowTestUntil { get; set; }
 
         public IEnumerable<Course> Courses { get; set; }
         public IEnumerable<PaymentType> PaymentTypes { get; set; }
+        public IEnumerable<SchoolTransaction> SchoolTransactions { get; set; }
     }
     public class SchoolConfiguration : IEntityTypeConfiguration<School>
     {

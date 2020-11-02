@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using UsersSubscriptions.Models;
 using UsersSubscriptions.Models.ViewModels;
+using UsersSubscriptions.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using System.Security.Claims;
@@ -12,6 +13,7 @@ using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.Http;
 using System.IO;
 using Newtonsoft.Json;
+using System.Web;
 
 namespace UsersSubscriptions.Controllers
 {
@@ -40,6 +42,11 @@ namespace UsersSubscriptions.Controllers
                     return RedirectToAction("Index", "Home");
                 }
                 schoolId = schools.FirstOrDefault().Id;
+            }
+            CheckSchool checkSchool = new CheckSchool(teacherRepository,HttpContext.Session);
+            if (!checkSchool.IsSchoolAllowed(schoolId))
+            {
+               return RedirectToAction(Common.UsersConstants.redirectPayPageAction,Common.UsersConstants.redirectPayPageController, new { schoolId });
             }
             ViewBag.schoolId = schoolId;
             IEnumerable<Course> teacherCourses = teacherRepository.GetTeacherCourses(
@@ -141,21 +148,11 @@ namespace UsersSubscriptions.Controllers
                 TempData["ErrorMessage"] = "Ім'я повинно бути довше 5 символів";
                 return View(model);
             }
-            //if(string.IsNullOrEmpty(model.Student.PhoneNumber))
-            //{
-            //    TempData["ErrorMessage"] = "Додайте телефон";
-            //    return View(model);
-            //}
             if (string.IsNullOrEmpty(model.SelectedPaymentType))
             {
                 TempData["ErrorMessage"] = "Виберіть тип оплати";
                 return View(model);
             }
-            //if (string.IsNullOrEmpty(model.Student.Id) && (model.Student.PhoneNumber.Length < 17))
-            //{
-            //    TempData["ErrorMessage"] = "Введіть телефон повністю";
-            //    return View(model);
-            //}
             if (model.Month.Year < 2000) return RedirectToAction(nameof(AddOneTimeSubscription));
             if (model.SelectedCours == null || string.IsNullOrEmpty(model.SelectedCours.Id))
                 return RedirectToAction(nameof(AddOneTimeSubscription));
@@ -174,12 +171,20 @@ namespace UsersSubscriptions.Controllers
             else return RedirectToAction(nameof(AddOneTimeSubscription));
             subscription.Month = model.Month;
             subscription.CourseId = model.SelectedCours.Id;
-            subscription.PayedToId = HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
             subscription.PayedDatetime = DateTime.Now;
             subscription.MonthSubscription = false;
             subscription.CreatedDatetime = DateTime.Now;
-            subscription.Price = model.SelectedCours.Price;
-            subscription.PaymentTypeId = model.SelectedPaymentType;
+            subscription.Payments = new List<Payment>
+            {
+                new Payment
+                {
+                    DateTime=DateTime.Now,
+                    PaymentTypeId=model.SelectedPaymentType,
+                    Price=model.SelectedCours.Price,
+                    PayedToId=HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier),
+                },
+            };
+            subscription.Price = teacherCourses.FirstOrDefault(cour => cour.Id == model.SelectedCours.Id).OneTimePrice;
 
             IdentityResult result = await teacherRepository.CreateSubscriptionAsync(subscription);
             if (result.Succeeded)
@@ -325,6 +330,11 @@ namespace UsersSubscriptions.Controllers
                     return View(new List<Course>());
                 }
             }
+            CheckSchool checkSchool = new CheckSchool(teacherRepository, HttpContext.Session);
+            if (!checkSchool.IsSchoolAllowed(schoolId))
+            {
+                return RedirectToAction(Common.UsersConstants.redirectPayPageAction, Common.UsersConstants.redirectPayPageController, new { schoolId });
+            }
             ViewBag.schoolId = schoolId;
             IEnumerable<Course> courses = teacherRepository.GetTeacherCourses(
                 HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier), schoolId, false);
@@ -367,5 +377,10 @@ namespace UsersSubscriptions.Controllers
             return Json(false);
         }
 
+        public IActionResult PayForSchool(string schoolId)
+        {
+            School school = teacherRepository.GetSchool(schoolId);
+            return View(school);
+        }
     }
 }

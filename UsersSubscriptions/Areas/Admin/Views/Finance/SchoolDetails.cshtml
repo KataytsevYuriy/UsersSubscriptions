@@ -1,0 +1,90 @@
+﻿@model School
+@{
+    Layout = "_AdminLayout";
+    ViewData["Description"] = "Школа " + Model.Name;
+    if (!Model.Enable)
+    {
+        ViewData["DescriptionDanger"] = "Школа блокована";
+    }
+    else if (!Model.IsPayed)
+    {
+        ViewData["DescriptionDanger"] = "Школа не сплачена";
+    }
+}
+
+<form asp-action="SchoolDetails" method="post">
+    <input type="hidden" asp-for="Id" />
+    <ul class="list-group">
+        <li class="list-group-item">
+            <label asp-for="Balance">Баланс</label>
+            <input asp-for="Balance" disabled />
+        </li>
+        <li class="list-group-item">
+            <label asp-for="Price">Вартість</label>
+            <input asp-for="Price" />
+        </li>
+        <li class="list-group-item">
+            <label asp-for="AllowTestUntil">Дозволити тестування до </label>
+            <input asp-for="AllowTestUntil" />
+        </li>
+    </ul>
+    <button type="submit" class="btn btn-primary my-1">Зберегти </button>
+</form>
+<button class="btn btn-secondary m-1" type="button" data-toggle="collapse" data-target="#collapsePayment"
+        aria-expanded="false" aria-controls="collapsePayment">Додати платіж</button>
+<div class="collapse" id="collapsePayment">
+    <form asp-action="AddSchoolPayment" method="post">
+        <h5>Платіж</h5>
+        <input type="hidden" name="SchoolId" value="@Model.Id" />
+        <ul class="list-group">
+            <li class="list-group-item">
+                <label>Сума сплати</label>
+                <input name="Payed" type="number" />
+            </li>
+            <li class="list-group-item">
+                <label>Примітки</label>
+                <input name="Description" />
+            </li>
+        </ul>
+        <button type="submit" class="btn btn-outline-primary my-1">Сплатити</button>
+
+    </form>
+</div>
+<table class="table table-bordered table-striped">
+    <tbody class="pre-scrollable">
+        @if (Model.SchoolTransactions != null && Model.SchoolTransactions.Count() > 0)
+        {
+            @foreach (var transaction in Model.SchoolTransactions)
+            {
+                <tr>
+                    <td class="text-center" style="vertical-align:middle">
+                        @transaction.PayedDateTime.ToString("yyyy-MM-dd")
+                    </td>
+                    <td style="vertical-align:middle">
+                        
+                        @if (transaction.Payed > 0)
+                        {
+                            <span>Поповнено</span>
+                            <span>@transaction.Payed</span>
+                        }
+                        else
+                        {
+                            <span> Сплачено:</span>
+                            <span class="text-success">@(-transaction.Payed)</span>
+                        }
+                        <br>
+                        Доступно: @transaction.NewBalance
+                        <br />
+                        @transaction.Description
+                    </td>
+                </tr>
+            }
+        }
+        else
+        {
+            <tr>
+                <td><h3 class="text-center text-danger">Фінансові рухи відсутні</h3></td>
+            </tr>
+        }
+    </tbody>
+</table>

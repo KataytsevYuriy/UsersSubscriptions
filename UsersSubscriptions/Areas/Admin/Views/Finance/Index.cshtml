@@ -1,0 +1,59 @@
+﻿@model IEnumerable<School>
+@{
+    Layout = "_AdminLayout";
+    ViewData["Description"] = "Школи";
+}
+
+<table class="table table-bordered table-striped">
+    <tr><th class="text-center">Назва</th><th class="text-center">Баланс</th></tr>
+    @if (Model.Count() > 0)
+    {
+        @foreach (var school in Model)
+        {
+            <tr>
+                <td class="text-center" style="vertical-align:middle">
+                    <a asp-action="SchoolDetails" asp-route-schoolId="@school.Id">@school.Name</a>
+                    @if (!school.Enable)
+                    {
+                        <i class="fas fa-times float-right" title="Школа блокована" style="color:red"> </i>
+                    }
+                    else if (!school.IsPayed)
+                    {
+                        if (school.AllowTestUntil > DateTime.Now)
+                        {
+                            <i class="fas fas fa-info-circle float-right" title="Школа тестується" style="color:coral"> </i>
+                        }
+                        else
+                        {
+                            <i class="fas  fa-money-bill-alt float-right" title="Школа не сплачена" style="color:red"> </i>
+                        }
+                    }
+                    else
+                    {
+                        <i class="fas fa-check float-right" style="color:green"> </i>
+                    }
+                </td>
+                @if (school.Enable & school.IsPayed)
+                {
+                    <td class="text-center text-danger" style="vertical-align:middle">@school.Balance</td>
+                }
+                else if (school.Price == 0)
+                {
+                    <td class="text-center text-info" style="vertical-align:middle">@school.Balance</td>
+                }
+                else if (school.Balance > school.Price)
+                {
+                    <td class="text-center text-success" style="vertical-align:middle">@school.Balance</td>
+                }
+                else
+                {
+                    <td class="text-center text-warning" style="vertical-align:middle">@school.Balance</td>
+                }
+            </tr>
+        }
+    }
+    else
+    {
+        <tr><td colspan="2" class="text-center"><h3 class="text-danger">Школи відсутні</h3></td></tr>
+    }
+</table>

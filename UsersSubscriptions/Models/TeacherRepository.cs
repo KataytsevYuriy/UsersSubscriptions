@@ -49,7 +49,7 @@ namespace UsersSubscriptions.Models
         {
             List<School> curTeacherSchools = _context.Schools
                 .Include(sch => sch.Courses).ThenInclude(cour => cour.CourseAppUsers)
-                .Where(sch => sch.OwnerId==userId || sch.Courses.Any(cour => cour.CourseAppUsers.Any(cap => cap.AppUserId == userId)))
+                .Where(sch => sch.OwnerId == userId || sch.Courses.Any(cour => cour.CourseAppUsers.Any(cap => cap.AppUserId == userId)))
                 .ToList();
             return curTeacherSchools;
         }
@@ -218,7 +218,7 @@ namespace UsersSubscriptions.Models
                         //cour.CourseAppUsers.Any(dd => dd.AppUserId == teacherId)&& 
                         cour.SchoolId == schoolId
                     ).ToList();
-            if(!IsItThisSchoolOwner(schoolId, teacherId))
+            if (!IsItThisSchoolOwner(schoolId, teacherId))
             {
                 courses = courses.Where(cour => cour.CourseAppUsers.Any(cap => cap.AppUserId == teacherId)).ToList();
             }
@@ -442,7 +442,7 @@ namespace UsersSubscriptions.Models
             {
                 foreach (string removedPaymentId in dbPaymentsId)
                 {
-                    RemovePayment(removedPaymentId,true);
+                    RemovePayment(removedPaymentId, true);
                 }
             }
             return IdentityResult.Success;
@@ -570,7 +570,7 @@ namespace UsersSubscriptions.Models
                 .Include(cour => cour.School)
                 .Include(cour => cour.CourseAppUsers).ThenInclude(capu => capu.AppUser)
                 .Include(cour => cour.Subscriptions).ThenInclude(sub => sub.AppUser)
-                .Include(cour => cour.Subscriptions).ThenInclude(sub => sub.Payments).ThenInclude(pay=>pay.PaymentType)
+                .Include(cour => cour.Subscriptions).ThenInclude(sub => sub.Payments).ThenInclude(pay => pay.PaymentType)
                 .Where(cour => cour.SchoolId == schoolId)
                 .OrderBy(cour => cour.Name)
                 .ToList();
@@ -584,7 +584,7 @@ namespace UsersSubscriptions.Models
                     IsActive = course.IsActive,
                     Sum = course.Subscriptions
                      .Where(sub => sub.Month.Month == month.Month && sub.Month.Year == month.Year)
-                     .Select(sub => sub.Payments.Select(pay=>pay.Price).Sum()).Sum(),
+                     .Select(sub => sub.Payments.Select(pay => pay.Price).Sum()).Sum(),
                 }).ToList();
             }
             List<Subscription> subscriptions = new List<Subscription>();
@@ -676,11 +676,82 @@ namespace UsersSubscriptions.Models
             return course == null ? false : true;
         }
 
+        public bool IsSchoolAllowed(string schoolId)
+        {
+            School school = _context.Schools.FirstOrDefault(sch => sch.Id == schoolId);
+            if (school == null) return false;
+            if (school.IsPayed)
+            {
+                if (!IsDatePassed(school.PayedMonth, false)) return true;
+            }
+            else
+            {
+                if (!IsDatePassed(school.AllowTestUntil, true)) return true;
+            }
+            if (PayForSchool(schoolId, "").Succeeded) return true;
+            return false;
+        }
+
+        bool IsDatePassed(DateTime date, bool includeDays)
+        {
+            DateTime dateNow = DateTime.Now;
+            if (date.Year == dateNow.Year)
+            {
+                if (date.Month > dateNow.Month)
+                {
+                    return false;
+                }
+                else if (date.Month == dateNow.Month)
+                {
+                    if (includeDays)
+                    {
+                        if (date.Day >= dateNow.Day) return false;
+                    }
+                    else return false;
+                }
+            }
+            else if (date.Year > dateNow.Year) return false;
+            return true;
+        }
+
+        public IdentityResult PayForSchool(string schoolId, string description)
+        {
+            School school = _context.Schools.FirstOrDefault(sch => sch.Id == schoolId);
+            //if price == 0 don't create transaction but giv access to school
+            if (school.Price == 0) return IdentityResult.Success;
+            if (IsDatePassed(school.PayedMonth, false))
+            {
+                if (school.Balance >= school.Price)
+                {
+                    school.IsPayed = true;
+                    school.PayedMonth = DateTime.Now;
+                    if (string.IsNullOrEmpty(description)) description = "Автоматична сплата за місяць";
+                    SchoolTransaction schoolTransaction = new SchoolTransaction
+                    {
+                        SchoolId = schoolId,
+                        Payed = -school.Price,
+                        Description = description,
+                        PayedDateTime = DateTime.Now,
+                        OldBalance = school.Balance,
+                        NewBalance = school.Balance - school.Price,
+                    };
+                    school.Balance -= school.Price;
+                    if (_context.SchoolTransactions.Add(schoolTransaction).State == EntityState.Added)
+                    {
+                        _context.SaveChanges();
+                        return IdentityResult.Success;
+                    }
+                }
+            }
+            return IdentityResult.Failed();
+        }
+
+
+
         public IEnumerable<PaymentType> GetSchoolPaymentTyapes(string schoolId)
         {
             IEnumerable<PaymentType> paymentTypes = _context.PaymentTypes
                 .Where(pt => pt.SchoolId == schoolId).OrderBy(pt => pt.Priority).ToList();
-            //;
             return paymentTypes;
         }
 
@@ -799,9 +870,10 @@ namespace UsersSubscriptions.Models
             if (paymentToRemove != null)
             {
                 _context.Payments.Remove(paymentToRemove);
-                if(saveChanges) _context.SaveChanges();
+                if (saveChanges) _context.SaveChanges();
             }
         }
+
 
     }
 }

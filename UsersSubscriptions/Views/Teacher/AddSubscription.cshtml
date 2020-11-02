@@ -96,17 +96,12 @@ else
     <script>
         function ChangeCourse(a) {
             var val = a.options[a.selectedIndex].dataset.price;
-            $("#Price").val(val);
-            var hasPTypes = false;
+            $("#Payed").val(val);
             var pts = JSON.parse(a.options[a.selectedIndex].dataset.pt);
             $("#selectPaymentType").empty();
-            $.each(pts, function (index, value) {
+            $.each(pts, function (value) {
                 $("#selectPaymentType").append(new Option(value.Name, value.Id));
-                hasPTypes = true;
             });
-            if (hasPTypes == true) {
-
-            }
             $("#btnSubmit").prop('disabled', !hasPTypes);
         }
     </script>

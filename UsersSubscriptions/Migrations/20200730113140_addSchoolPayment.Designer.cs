@@ -3,19 +3,21 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using UsersSubscriptions.Data;
 
 namespace UsersSubscriptions.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20200730113140_addSchoolPayment")]
+    partial class addSchoolPayment
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "2.1.14-servicing-32113")
+                .HasAnnotation("ProductVersion", "2.1.11-servicing-32099")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
@@ -261,36 +263,6 @@ namespace UsersSubscriptions.Migrations
                     b.ToTable("CoursePaymentTypes");
                 });
 
-            modelBuilder.Entity("UsersSubscriptions.Models.Payment", b =>
-                {
-                    b.Property<string>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasMaxLength(64);
-
-                    b.Property<DateTime>("DateTime");
-
-                    b.Property<string>("PayedToId")
-                        .HasMaxLength(64);
-
-                    b.Property<string>("PaymentTypeId")
-                        .HasMaxLength(64);
-
-                    b.Property<int>("Price");
-
-                    b.Property<string>("SubscriptionId")
-                        .HasMaxLength(64);
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("PayedToId");
-
-                    b.HasIndex("PaymentTypeId");
-
-                    b.HasIndex("SubscriptionId");
-
-                    b.ToTable("Payments");
-                });
-
             modelBuilder.Entity("UsersSubscriptions.Models.PaymentType", b =>
                 {
                     b.Property<string>("Id")
@@ -494,21 +466,6 @@ namespace UsersSubscriptions.Migrations
                     b.HasOne("UsersSubscriptions.Models.PaymentType", "PaymentType")
                         .WithMany("CoursePaymentTypes")
                         .HasForeignKey("PaymentTypeId");
-                });
-
-            modelBuilder.Entity("UsersSubscriptions.Models.Payment", b =>
-                {
-                    b.HasOne("UsersSubscriptions.Models.AppUser", "PayedTo")
-                        .WithMany("Payments")
-                        .HasForeignKey("PayedToId");
-
-                    b.HasOne("UsersSubscriptions.Models.PaymentType", "PaymentType")
-                        .WithMany("Payments")
-                        .HasForeignKey("PaymentTypeId");
-
-                    b.HasOne("UsersSubscriptions.Models.Subscription", "Subscription")
-                        .WithMany("Payments")
-                        .HasForeignKey("SubscriptionId");
                 });
 
             modelBuilder.Entity("UsersSubscriptions.Models.PaymentType", b =>

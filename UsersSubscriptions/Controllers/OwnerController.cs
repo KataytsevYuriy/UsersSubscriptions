@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Identity;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Routing;
 using Newtonsoft.Json;
+using UsersSubscriptions.Services;
 
 namespace UsersSubscriptions.Controllers
 {
@@ -85,6 +86,15 @@ namespace UsersSubscriptions.Controllers
             {
                 return NotFound();
             }
+            CheckSchool checkSchool = new CheckSchool(teacherRepository, HttpContext.Session);
+            if (!checkSchool.IsSchoolAllowed(id))
+            {
+                return RedirectToAction(Common.UsersConstants.redirectPayPageAction, Common.UsersConstants.redirectPayPageController, new {schoolId=id });
+            }
+            if (!isItAdmin && !school.Enable)
+            {
+                return NotFound();
+            }
             ViewBag.isItAdmin = isItAdmin;
             return View(school);
         }
@@ -94,6 +104,10 @@ namespace UsersSubscriptions.Controllers
         {
             School school = teacherRepository.GetSchool(model.Id);
             if (school == null)
+            {
+                return NotFound();
+            }
+            if (!isItAdmin && !school.Enable)
             {
                 return NotFound();
             }
@@ -128,6 +142,15 @@ namespace UsersSubscriptions.Controllers
 
         public IActionResult CourseDetails(string id, string schoolId, bool isItAdmin)
         {
+            School school = teacherRepository.GetSchool(schoolId);
+            if (school == null)
+            {
+                return NotFound();
+            }
+            if (!isItAdmin && !school.Enable)
+            {
+                return NotFound();
+            }
             Course course = teacherRepository.GetCourse(id);
             if (course == null)
             {
@@ -163,7 +186,7 @@ namespace UsersSubscriptions.Controllers
             {
                 TempData["ErrorMessage"] = result.Errors.FirstOrDefault().Description;
             }
-            return RedirectToAction(nameof(CourseDetails), new {id=model.Id, schoolId = model.SchoolId, isItAdmin=model.IsItAdmin });
+            return RedirectToAction(nameof(CourseDetails), new { id = model.Id, schoolId = model.SchoolId, isItAdmin = model.IsItAdmin });
         }
 
 
@@ -264,6 +287,11 @@ namespace UsersSubscriptions.Controllers
             if (string.IsNullOrEmpty(id))
             {
                 return RedirectToAction(nameof(Index), new { redirect = "SchoolCalculation" });
+            }
+            CheckSchool checkSchool = new CheckSchool(teacherRepository, HttpContext.Session);
+            if (!checkSchool.IsSchoolAllowed(id))
+            {
+                return RedirectToAction(Common.UsersConstants.redirectPayPageAction, Common.UsersConstants.redirectPayPageController, new { schoolId = id });
             }
             SchoolCalculationsViewModel model = teacherRepository.GetSchoolDetail(id, "", DateTime.Now, "", "");
             if (model == null)
