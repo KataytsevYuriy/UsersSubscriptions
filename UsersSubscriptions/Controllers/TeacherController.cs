@@ -161,7 +161,10 @@ namespace UsersSubscriptions.Controllers
                 return RedirectToAction(nameof(AddOneTimeSubscription));
             if (!string.IsNullOrEmpty(model.Student.Id))
             {
+                var student = await teacherRepository.GetUserAsync(model.Student.Id);
                 subscription.AppUserId = model.Student.Id;
+                subscription.FullName = student.FullName;
+                subscription.Phone = student.PhoneNumber;
             }
             else if (!string.IsNullOrEmpty(model.Student.FullName))
             {
@@ -172,6 +175,7 @@ namespace UsersSubscriptions.Controllers
                 }
             }
             else return RedirectToAction(nameof(AddOneTimeSubscription));
+            subscription.Id = Guid.NewGuid().ToString();
             subscription.Month = model.Month;
             subscription.CourseId = model.SelectedCours.Id;
             subscription.PayedToId = HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -249,14 +253,7 @@ namespace UsersSubscriptions.Controllers
         public async Task<IActionResult> AddSubscription(AddSubscriptionViewModel model)
         {
             string teacherId = HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
-            Payment payment = new Payment
-            {
-                PayedToId = teacherId,
-                Price = model.Payed,
-                DateTime = DateTime.Now,
-                PaymentTypeId = model.SelectedPaymentType,
-            };
-            Subscription subscription = new Subscription
+            var subscription = new Subscription
             {
                 AppUserId = model.Student.Id,
                 CreatedDatetime = DateTime.Now,
@@ -265,15 +262,7 @@ namespace UsersSubscriptions.Controllers
                 PayedDatetime = DateTime.Now,
                 MonthSubscription = true,
                 Price = model.SelectedCours.Price,
-                Payments = new List<Payment> {
-                     new Payment
-                            {
-                                PayedToId = teacherId,
-                                Price = model.Payed,
-                                DateTime = DateTime.Now,
-                                PaymentTypeId = model.SelectedPaymentType,
-                            }
-                },
+                PaymentTypeId  = model.SelectedPaymentType
             };
             IdentityResult result = await teacherRepository.CreateSubscriptionAsync(subscription);
             if (result.Succeeded)

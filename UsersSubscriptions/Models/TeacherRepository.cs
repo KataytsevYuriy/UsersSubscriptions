@@ -406,6 +406,15 @@ namespace UsersSubscriptions.Models
             {
                 return IdentityResult.Failed(new IdentityError { Description = "Абонемент не доданий" });
             }
+            var newPayment = new Payment
+            {
+                DateTime = DateTime.Now,
+                PayedToId = subscription.PayedToId,
+                PaymentTypeId = subscription.PaymentTypeId,
+                Price = subscription.Price,
+                SubscriptionId = subscription.Id
+            };
+            _context.Payments.Add(newPayment);
             await _context.SaveChangesAsync();
 
             return IdentityResult.Success;
@@ -588,7 +597,7 @@ namespace UsersSubscriptions.Models
             var sumByPaymentType = new Dictionary<string, int>();
             var subs = courses.SelectMany(entry => entry.Subscriptions)
                 .Where(sub => sub.Month.Month == month.Month && sub.Month.Year == month.Year).ToList();
-            foreach(var paymentType in subs.Select(entry => entry.PaymentType).Distinct())
+            foreach(var paymentType in subs.Select(entry => entry.PaymentType).Where(entry=>entry!=null).Distinct())
             {
                 sumByPaymentType.Add(paymentType.Name, subs.Where(entry => entry.PaymentTypeId == paymentType.Id).Sum(entry => entry.Price));
             }

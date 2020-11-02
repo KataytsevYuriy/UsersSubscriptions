@@ -92,21 +92,21 @@ function clearUserName() {
     $('#listUsers').addClass('display-none');
 }
 
-
 function selectUser(listUserNumber) {
+    debugger;
     if (listUserNumber < usersIdents.length) {
         userIdent = new Object;
         userIdent.Id = usersIdents[listUserNumber].Id;
         userIdent.Name = usersIdents[listUserNumber].Name;
         userName = usersIdents[listUserNumber].Name;
     }
-    $("#info").empty();
+
+    $(".full-name").val(usersIdents[listUserNumber].Name);
     $("#info").append(userName);
     $("#info").addClass("alert-info");
     $("#selectUser").addClass("d-none");
     $("#modalAdd").prop("disabled", false);
     addTeacher();
-
 };
 
 var getUserInfoUrl = '@Url.Action("GetUserById")';
