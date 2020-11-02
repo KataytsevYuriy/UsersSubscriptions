@@ -85,14 +85,14 @@
                         @Model.SchoolCourses.Select(cour => cour.Sum).Sum()
                     </th>
                 </tr>
-                @foreach (var paymentType in Model.SchoolCoursesByPaymentTypeSum)
+                @*@foreach (var paymentType in Model.SchoolCoursesByPaymentTypeSum)
                 {
                     <tr>
                         <td></td>
                         <td>@paymentType.Key</td>
                         <td>@paymentType.Value</td>
                     </tr>
-                }
+                }*@
             </table>
         </div>
         <div class="tab-pane fade py-2" id="nav-course" role="tabpanel" aria-labelledby="nav-course-tab">
