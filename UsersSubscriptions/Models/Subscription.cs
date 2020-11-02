@@ -37,6 +37,7 @@ namespace UsersSubscriptions.Models
         public string PayedToId { get; set; }
         public AppUser PayedTo { get; set; }
         public DateTime PayedDatetime { get; set; }
+        public IEnumerable<Payment> Payments { get; set; }
         [StringLength(64)]
         public string PaymentTypeId { get; set; }
         public PaymentType PaymentType { get; set; }
@@ -49,4 +50,6 @@ namespace UsersSubscriptions.Models
             builder.HasOne(s => s.PayedTo).WithMany(s => s.Subscriptions);
         }
     }
+
+
 }

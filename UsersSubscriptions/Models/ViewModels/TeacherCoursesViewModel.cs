@@ -9,6 +9,7 @@ namespace UsersSubscriptions.Models.ViewModels
     public class TeacherCoursesViewModel
     {
         public IEnumerable<Student> Students { get; set; }
+        public IEnumerable<Subscription> Subscriptions { get; set; }
         public DateTime Month { get; set; }
         public Course CurrentCourse { get; set; }
     }
@@ -18,5 +19,6 @@ namespace UsersSubscriptions.Models.ViewModels
         public string Phone { get; set; }
         public int Price { get; set; }
         public string PaymentName { get; set; }
+        public Subscription Subscription { get; set; }
     }
 }

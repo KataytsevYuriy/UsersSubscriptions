@@ -1,9 +1,8 @@
 ﻿@model SchoolCalculationsViewModel
 @{
     Layout = "_Layout";
-    int startYear = 2019;
-    var monthes = new List<string>{"Січень", "Лютий", "Березень", "Квітень", "Травень", "Червень",
-"Липень", "Серпень", "Вересень", "Жовтень", "Листопад",  "Грудень"};
+    int startYear = Common.UsersConstants.startYear;
+    var monthes = Common.UsersConstants.monthes;
 }
 <form asp-action="SchoolCalculation" method="post" class="fm-date my-1">
     <input type="hidden" value="@Model.SchoolId" name="SchoolId" />
@@ -117,17 +116,27 @@
                 </select>
             </div>
             <div>
+                @{int  sum=0;}
                 <table class="table table-bordered table-striped">
                     @foreach (var subscription in Model.CourseSubscriptions)
                     {
-                        <tr>
-                            <td class="text-center">@(subscription.AppUser == null ? subscription.FullName : subscription.AppUser.FullName)</td>
-                            <td class="text-center">@subscription.Price</td>
-                        </tr>
+                    <tr>
+                        <td class="text-center">@(subscription.AppUser == null ? subscription.FullName : subscription.AppUser.FullName)</td>
+                        @{ int elem = subscription.Payments.Select(pay => pay.Price).Sum();
+                            sum += elem;}
+                        @if (elem == subscription.Price)
+                        {
+                            <td class="text-center">@elem</td>
+                        }
+                        else
+                        {
+                            <td class="text-center text-danger">@elem з @subscription.Price</td>
+                        }
+                    </tr>
                     }
                     <tr>
                         <th class="text-right">Разом</th>
-                        <td class="text-center">@Model.CourseSubscriptions.Select(sub => sub.Price).Sum()</td>
+                        <td class="text-center">@sum</td>
                     </tr>
                 </table>
             </div>
@@ -153,20 +162,31 @@
                             }
                         }
                     }
-                </select>
+                </select>   
             </div>
             <div>
+                @{ int sumTeacher = 0;}
                 <table class="table table-bordered table-striped">
                     @foreach (var subscription in Model.TeacherSubscriptions)
                     {
-                        <tr>
-                            <td class="text-center">@(subscription.AppUser==null? subscription.FullName:subscription.AppUser.FullName)</td>
-                            <td class="text-center">@subscription.Price</td>
-                        </tr>
+                        int elemTeacher = subscription.Payments.Select(pay => pay.Price).Sum();
+                            sumTeacher += elemTeacher;
+                    <tr>
+                        <td class="text-center">@(subscription.AppUser == null ? subscription.FullName : subscription.AppUser.FullName)</td>
+                        @if (elemTeacher == subscription.Price)
+                        {
+                            <td class="text-center">@elemTeacher</td>
+                        }
+                        else
+                        {
+                            <td class="text-center text-danger">@elemTeacher з @subscription.Price</td>
+                        }
+                    </tr>
+
                     }
                     <tr>
                         <th class="text-right">Разом</th>
-                        <td class="text-center">@Model.TeacherSubscriptions.Select(sub => sub.Price).Sum()</td>
+                        <td class="text-center">@sumTeacher</td>
                     </tr>
                 </table>
             </div>

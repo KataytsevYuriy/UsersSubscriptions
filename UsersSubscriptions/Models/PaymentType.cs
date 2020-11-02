@@ -19,6 +19,7 @@ namespace UsersSubscriptions.Models
 
         public IEnumerable<CoursePaymentType> CoursePaymentTypes { get; set; }
         public IEnumerable<Subscription> Subscriptions { get; set; }
+        public IEnumerable<Payment> Payments { get; set; }
     }
     public class PaymentTypeView
     {

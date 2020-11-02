@@ -21,9 +21,9 @@ namespace UsersSubscriptions.Data
             var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
             var userManager = serviceProvider.GetRequiredService<UserManager<AppUser>>();
             await CreateRolesAsync(roleManager);
-            //await CreateUsersAsync(userManager);
-            //await CreateSchoolAsync(_context, userManager);
-            //await CreateSubscriptionsAsync(_context, userManager);
+            await CreateUsersAsync(userManager);
+            await CreateSchoolAsync(_context, userManager);
+            // await CreateSubscriptionsAsync(_context, userManager);
         }
 
         public static async Task CreateRolesAsync(RoleManager<IdentityRole> _roleManager)
@@ -326,15 +326,27 @@ namespace UsersSubscriptions.Data
                     _context.Courses.Add(curCours);
                     _context.SaveChanges();
                     dbCourse = _context.Courses
-                     .FirstOrDefault(cour => cour.Name == curCours.Name && cour.SchoolId == curCours.SchoolId);
+                    .Include(cour => cour.CoursePaymentTypes)
+                    .FirstOrDefault(cour => cour.Name == curCours.Name && cour.SchoolId == curCours.SchoolId);
                     IList<CourseAppUser> courseAppUsers = teachers.Select(teach => new CourseAppUser
                     {
                         AppUserId = teach.Id,
                         CourseId = dbCourse.Id,
                     }).ToList();
                     dbCourse.CourseAppUsers = courseAppUsers;
+                    IList<PaymentType> paymentTypes = _context.PaymentTypes.Where(pt => pt.SchoolId == schoolId).ToList();
+                    IList<CoursePaymentType> coursePaymentTypes = paymentTypes.Select(pt => new CoursePaymentType
+                    {
+                        CourseId = dbCourse.Id,
+                        PaymentTypeId = pt.Id,
+                    }
+                       ).ToList();
+                    dbCourse.CoursePaymentTypes = coursePaymentTypes;
                     _context.Courses.Update(dbCourse);
                     _context.SaveChanges();
+                    dbCourse = _context.Courses
+                        .Include(cour => cour.CoursePaymentTypes)
+                        .FirstOrDefault(cour => cour.Id == dbCourse.Id);
                     await CreateSubscriptionsAsync(_context, _userManager, dbCourse);
                 }
             }
@@ -356,14 +368,26 @@ namespace UsersSubscriptions.Data
                 if (student != null)
                 {
                     students.Append(student);
+
+                    IList<Payment> payments = new List<Payment>();
+                    string paymentId = dbCourse.CoursePaymentTypes.FirstOrDefault().PaymentTypeId;
+                    Payment payment = new Payment
+                    {
+                        DateTime = DateTime.Now,
+                        PayedToId = teacherId,
+                        Price = dbCourse.Price,
+                        PaymentTypeId = paymentId,
+                    };
+                    payments.Add(payment);
                     Subscription subscription = new Subscription
                     {
                         AppUserId = student.Id,
                         Month = DateTime.Now,
+                        MonthSubscription=true,
                         CourseId = dbCourse.Id,
-                        PayedToId = teacherId,
+                        Price= dbCourse.Price,
                         PayedDatetime = DateTime.Now,
-                        Price = dbCourse.Price,
+                        Payments = payments,
                     };
                     _context.Subscriptions.Add(subscription);
                     if (studentName == "kataytseva.irina@gmail.com")
@@ -372,10 +396,11 @@ namespace UsersSubscriptions.Data
                         {
                             AppUserId = student.Id,
                             Month = DateTime.Now.AddMonths(1),
+                            MonthSubscription = true,
                             CourseId = dbCourse.Id,
-                            PayedToId = teacherId,
-                            PayedDatetime = DateTime.Now,
                             Price = dbCourse.Price,
+                            PayedDatetime = DateTime.Now,
+                            Payments = payments,
                         };
                         _context.Subscriptions.Add(prewSubscription);
                     }

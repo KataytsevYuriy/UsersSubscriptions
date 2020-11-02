@@ -37,12 +37,21 @@
                     <br />
                     @if (Model.AllPaymentTypes != null && Model.AllPaymentTypes.Count() > 0)
                     {
-                        <div class="form-group">
-                            <button class="mb-2 float-right btn btn-outline-secondary" type="button" data-toggle="modal"
-                                    data-target="#selectPaymentType">
-                                Варіанти сплати
-                            </button>
-                        </div>
+                        @foreach (PaymentType paymentType in Model.AllPaymentTypes)
+                        {
+                    <div class="form-group">
+                        @if (Model.ListPaymentTypes != null
+                       && Model.ListPaymentTypes.Contains(paymentType))
+                        {
+                            <input type="checkbox" value="@paymentType.Id" checked name="PTIds" />
+                        }
+                        else
+                        {
+                            <input type="checkbox" value="@paymentType.Id" name="PTIds" />
+                        }
+                        <label for="@paymentType.Id">@paymentType.Name</label>
+                    </div>
+                        }
                     }
                     else
                     {
@@ -98,11 +107,9 @@
 
 <partial name="_ConfirmDelete" />
 <partial name="_AddUserModal" />
-<partial name="_SelectPaymentTypeModal" />
 @section Scripts{
     <script src="~/js/jquery.mask.min.js"></script>
     <script src="~/js/addUserModal.js"></script>
-    <script src="~/js/SelectPTModal.js"></script>
     <script>
         function updateUser(userIdent) {
             if ($("#isCreatingNew").val()=="True") {

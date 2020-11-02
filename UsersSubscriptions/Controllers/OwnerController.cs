@@ -163,7 +163,7 @@ namespace UsersSubscriptions.Controllers
             {
                 TempData["ErrorMessage"] = result.Errors.FirstOrDefault().Description;
             }
-            return RedirectToAction(nameof(SchoolDetails), new { id = model.SchoolId });
+            return RedirectToAction(nameof(CourseDetails), new {id=model.Id, schoolId = model.SchoolId, isItAdmin=model.IsItAdmin });
         }
 
 

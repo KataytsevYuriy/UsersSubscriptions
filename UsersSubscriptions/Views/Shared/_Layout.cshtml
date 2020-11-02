@@ -30,13 +30,21 @@
 
                 <div class="navbar-collapse collapse" id="navbarNav">
                     <ul class=" navbar-nav">
+                        @{
+                            bool showTeacher = false;
+                            @if (User.IsInRole(Common.UsersConstants.schoolOwner))
+                            {
+                                if (ViewData["showOwnerMenu"] == null ? false : (bool)ViewData["showOwnerMenu"])
+                                { showTeacher = true; }
+                            }
+                            }
                         @if (User.IsInRole(Common.UsersConstants.user))
                         {
                             <li class="nav-item"><a class=" nav-link" asp-area="" asp-controller="Home" asp-action="Index">Кабінет учня</a></li>
                         }
-                        @if (User.IsInRole(Common.UsersConstants.teacher))
+                        @if (User.IsInRole(Common.UsersConstants.teacher) || showTeacher)
                         {
-                            if (ViewData["showTeacherMenu"] == null ? false : (bool)ViewData["showTeacherMenu"])
+                            if (ViewData["showTeacherMenu"] == null ? false : (bool)ViewData["showTeacherMenu"] || showTeacher)
                             {
                                 <li class="nav-item"><a class=" nav-link" asp-area="" asp-controller="Teacher" asp-action="Index">Перевірити відвідуваність</a></li>
                                 <li class="nav-item"><a class=" nav-link" asp-area="" asp-controller="Teacher" asp-action="TeacherCourses">Список курсів</a></li>

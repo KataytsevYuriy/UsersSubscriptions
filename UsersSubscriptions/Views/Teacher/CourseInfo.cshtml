@@ -1,11 +1,9 @@
 ﻿@model TeacherCoursesViewModel
 @{
     Layout = "_Layout";
-    //DateTime currentDate = DateTime.Now;
     int sum = 0;
-    int startYear = 2019;
-    var monthes = new List<string>{"Січень", "Лютий", "Березень", "Квітень", "Травень", "Червень",
-           "Липень", "Серпень", "Вересень", "Жовтень", "Листопад",  "Грудень"};
+    int startYear = Common.UsersConstants.startYear;
+    var monthes = Common.UsersConstants.monthes;
 }
 <h3 style="text-align:center;">@Model.CurrentCourse.Name</h3>
 <div>
@@ -53,20 +51,41 @@
     <tr>
         <th class="text-center">Ім'я</th>
         <th class="text-center">Телефон</th>
-        <th class="text-center">Метод оплати</th>
-        <th class="text-center">Сума</th>
+        <th class="text-center">Сплата</th>
     </tr>
-    @foreach (var stud in Model.Students)
+    @foreach (var sub in Model.Subscriptions)
     {
-        sum += stud.Price;
+        int payedSum;
+        if (sub.PaymentType == null) { payedSum = sub.Payments.Select(pay => pay.Price).Sum(); }
+        else { payedSum = sub.Price; }
+        sum += payedSum;
         <tr>
-            <td class="text-center" style="vertical-align:middle">@stud.StudentName.ToUpperInvariant()</td>
-            <td class="text-center" style="vertical-align:middle">@stud.Phone</td>
-            <td class="text-center" style="vertical-align:middle">@stud.PaymentName</td>
-            <td class="text-center" style="vertical-align:middle">@stud.Price</td>
+            <td class="text-center" style="vertical-align:middle">
+                @(sub.MonthSubscription ? sub.AppUser.FullName.ToUpperInvariant() : sub.FullName.ToUpperInvariant())
+            </td>
+            <td class="text-center" style="vertical-align:middle">
+                @(sub.MonthSubscription ? sub.AppUser.PhoneNumber : sub.Phone)
+            </td>
+            <td class="text-center" style="vertical-align:middle">
+                @if (sub.PaymentType == null)
+                {
+                    foreach (var paym in sub.Payments)
+                    {
+                        <span>@paym.PaymentType.Name</span> <span>@paym.Price</span><br />
+                    }
+                    if (payedSum != sub.Price)
+                    {
+                        <span class="text-danger"> Сплачено @payedSum з @sub.Price</span>
+                    }
+                }
+                else
+                {
+                     <span>@sub.PaymentType.Name</span> <span>@sub.Price</span>
+                }
+            </td>
         </tr>
     }
-    <tr><td colspan="3" class="text-right">Разом</td><td>@sum</td></tr>
+    <tr><td colspan="2" class="text-right">Разом</td><td class="text-center">@sum</td></tr>
 </table>
 @section Scripts{
     <script>
