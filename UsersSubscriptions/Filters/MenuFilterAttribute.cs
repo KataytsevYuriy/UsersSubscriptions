@@ -12,16 +12,20 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using UsersSubscriptions.Data;
 using UsersSubscriptions.Models;
+using UsersSubscriptions.DomainServices;
 
 namespace UsersSubscriptions.Filters
 {
     public class MenuFilterAttribute : ActionFilterAttribute
     {
-        private readonly ITeacherRepository repository;
+        private readonly ISchoolService _schoolService;
+        private readonly ITeacherService _teacherService;
         private IMemoryCache _cache;
-        public MenuFilterAttribute(ITeacherRepository repo, IMemoryCache icache)
+        public MenuFilterAttribute(ISchoolService schoolService, IMemoryCache icache,
+            ITeacherService teacherService)
         {
-            repository = repo;
+            _schoolService = schoolService;
+            _teacherService = teacherService;
             _cache = icache;
         }
 
@@ -50,7 +54,7 @@ namespace UsersSubscriptions.Filters
                 }
                 else
                 {
-                    school = repository.GetSchoolByUrl(subdomain);
+                    school = _schoolService.GetSchoolByUrl(subdomain);
                     if (!string.IsNullOrEmpty(userId))
                     {
                         if (school == null || string.IsNullOrEmpty(school.Id))
@@ -62,11 +66,11 @@ namespace UsersSubscriptions.Filters
                         {
                             if (context.HttpContext.User.IsInRole(Common.UsersConstants.schoolOwner))
                             {
-                                showOwnerMenu = repository.IsItThisSchoolOwner(school.Id, userId);
+                                showOwnerMenu = _teacherService.IsItThisSchoolOwner(school.Id, userId);
                             }
                             if (context.HttpContext.User.IsInRole(Common.UsersConstants.teacher))
                             {
-                                showTeacherMenu = repository.IsItThisSchoolTeacher(school.Id, userId);
+                                showTeacherMenu = _teacherService.IsItThisSchoolTeacher(school.Id, userId);
                             }
                         }
                         context.HttpContext.Session.SetString("subdomain", subdomain);

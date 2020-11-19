@@ -93,7 +93,6 @@ function clearUserName() {
 }
 
 function selectUser(listUserNumber) {
-    debugger;
     if (listUserNumber < usersIdents.length) {
         userIdent = new Object;
         userIdent.Id = usersIdents[listUserNumber].Id;

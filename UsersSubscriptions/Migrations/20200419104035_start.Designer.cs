@@ -266,7 +266,7 @@ namespace UsersSubscriptions.Migrations
 
                     b.Property<DateTime>("CreatedDatetime");
 
-                    b.Property<DateTime>("Month");
+                    b.Property<DateTime>("Period");
 
                     b.Property<DateTime>("PayedDatetime");
 

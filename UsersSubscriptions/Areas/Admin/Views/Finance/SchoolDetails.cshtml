@@ -12,7 +12,7 @@
     }
 }
 
-<form asp-action="SchoolDetails" method="post">
+<form asp-action="SchoolDetails" method="post" id="schoolDetailsForm">
     <input type="hidden" asp-for="Id" />
     <ul class="list-group">
         <li class="list-group-item">
@@ -30,8 +30,20 @@
     </ul>
     <button type="submit" class="btn btn-primary my-1">Зберегти </button>
 </form>
-<button class="btn btn-secondary m-1" type="button" data-toggle="collapse" data-target="#collapsePayment"
-        aria-expanded="false" aria-controls="collapsePayment">Додати платіж</button>
+<div>
+    @if (Model.SchoolTransactions != null && Model.SchoolTransactions.Count() > 0)
+    {
+        <button class="btn btn-outline-danger text-danger my-1 float-right" data-toggle="modal" data-target="#confirmDelete">
+            Видалити останню транзакцію
+        </button>
+
+    }
+    <button class="btn btn-secondary my-1" type="button" data-toggle="collapse" data-target="#collapsePayment"
+             aria-expanded="false" aria-controls="collapsePayment">
+        Додати платіж
+    </button>
+
+</div>
 <div class="collapse" id="collapsePayment">
     <form asp-action="AddSchoolPayment" method="post">
         <h5>Платіж</h5>
@@ -61,7 +73,7 @@
                         @transaction.PayedDateTime.ToString("yyyy-MM-dd")
                     </td>
                     <td style="vertical-align:middle">
-                        
+
                         @if (transaction.Payed > 0)
                         {
                             <span>Поповнено</span>
@@ -88,3 +100,22 @@
         }
     </tbody>
 </table>
+
+<partial name="_ConfirmDelete" />
+
+@section AdminScripts{
+    <script>
+        function SendFormRemoveSubscription() {
+            var form = $("#schoolDetailsForm");
+            form.attr('action', 'RemoveLastSchoolTransaction');
+            form.submit();
+        };
+    </script>
+    <script>
+        $(function () {
+            $("#deleteButton").click(function () {
+                SendFormRemoveSubscription();
+            });
+        });
+    </script>
+}

@@ -8,6 +8,7 @@ using UsersSubscriptions.Areas.Admin.Models.ViewModels;
 using UsersSubscriptions.Areas.Admin.Models;
 using Microsoft.AspNetCore.Authorization;
 using UsersSubscriptions.Common;
+using UsersSubscriptions.DomainServices;
 using static Microsoft.AspNetCore.Hosting.Internal.HostingApplication;
 
 namespace UsersSubscriptions.Areas.Admin.Controllers
@@ -16,12 +17,12 @@ namespace UsersSubscriptions.Areas.Admin.Controllers
     [Authorize(Roles = UsersConstants.admin)]
     public class SubscriptionController : Controller
     {
-        private IAdminDataRepository repository;
-        private ITeacherRepository teacherRepository;
-        public SubscriptionController(IAdminDataRepository repo, ITeacherRepository teacherRepo)
+        private ISubscriptionsService _subscriptionsService;
+        private ISchoolService _schoolService;
+        public SubscriptionController(ISchoolService schoolService, ISubscriptionsService subscriptionsService)
         {
-            repository = repo;
-            teacherRepository = teacherRepo;
+            _schoolService = schoolService;
+            _subscriptionsService = subscriptionsService;
         }
 
         public IActionResult Index(string selectedSchoolId, string selectedCourseId, string MonthStr, string searchName, bool showFilter)
@@ -31,8 +32,8 @@ namespace UsersSubscriptions.Areas.Admin.Controllers
             {
                 DateTime.TryParse(MonthStr, out dateTime);
             }
-            IEnumerable<School> schools = repository.GetAllSchools();
-            IEnumerable<Subscription> subscriptions = repository
+            IEnumerable<School> schools = _schoolService.GetAllSchools();
+            IEnumerable<Subscription> subscriptions = _subscriptionsService
                 .GetFilteredSubscriptions(selectedSchoolId, selectedCourseId, dateTime, searchName);
             SubscriptionsViewModel model = new SubscriptionsViewModel
             {
@@ -50,7 +51,7 @@ namespace UsersSubscriptions.Areas.Admin.Controllers
         [HttpPost]
         public IActionResult RemoveSubscription(SubscriptionsViewModel subscription)
         {
-            teacherRepository.RemoveSubscription(subscription.Id);
+            _subscriptionsService.RemoveSubscription(subscription.Id);
             DateTime dateTime = new DateTime();
             if (!string.IsNullOrEmpty(subscription.MonthStr))
             {

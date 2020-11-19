@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using UsersSubscriptions.Models;
+using UsersSubscriptions.DomainServices;
 using UsersSubscriptions.Areas.Admin.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Authorization;
@@ -15,15 +15,15 @@ namespace UsersSubscriptions.Areas.Admin.Controllers
     [Authorize(Roles = UsersConstants.admin)]
     public class RoleController : Controller
     {
-        private IAdminDataRepository repository;
-        public RoleController(IAdminDataRepository repo)
+        private IRoleService _roleService;
+        public RoleController(IRoleService roleService)
         {
-            repository = repo;
+            _roleService = roleService;
         }
 
         public IActionResult Index()
         {
-            return View(repository.GetAllRoles());
+            return View(_roleService.GetAllRoles());
         }
 
 
@@ -34,17 +34,17 @@ namespace UsersSubscriptions.Areas.Admin.Controllers
         {
             if (ModelState.IsValid && !string.IsNullOrEmpty(model.Name))
             {
-                await repository.CreateRoleAsync(model);
+                await _roleService.CreateRoleAsync(model);
             }
             return RedirectToAction(nameof(Index));
         }
 
         public async Task<IActionResult> RoleDetails(string id)
         {
-            IdentityRole role = await repository.GetRoleAsync(id);
+            IdentityRole role = await _roleService.GetRoleAsync(id);
             if (role != null)
             {
-                ViewBag.roleUsers = await repository.GetRoleUsersAsync(role.Name);
+                ViewBag.roleUsers = await _roleService.GetRoleUsersAsync(role.Name);
                 return View(role);
             }
             return RedirectToAction(nameof(Index));
@@ -55,7 +55,7 @@ namespace UsersSubscriptions.Areas.Admin.Controllers
         {
             if (ModelState.IsValid)
             {
-                await repository.UpdateRole(model);
+                await _roleService.UpdateRole(model);
             }
             return RedirectToAction(nameof(Index));
         }
@@ -63,7 +63,7 @@ namespace UsersSubscriptions.Areas.Admin.Controllers
         [HttpPost]
         public async Task<IActionResult> DeleteRole(IdentityRole model)
         {
-            await repository.DeleteRoleAsync(model.Id);
+            await _roleService.DeleteRoleAsync(model.Id);
             return RedirectToAction(nameof(Index));
         }
 

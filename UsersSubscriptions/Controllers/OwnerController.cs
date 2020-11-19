@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using UsersSubscriptions.Models;
 using UsersSubscriptions.Models.ViewModels;
+using UsersSubscriptions.DomainServices;
 using Microsoft.AspNetCore.Identity;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Routing;
@@ -19,11 +20,21 @@ namespace UsersSubscriptions.Controllers
     public class OwnerController : Controller
     {
         private readonly SignInManager<AppUser> _signInManager;
-        private ITeacherRepository teacherRepository;
-        public OwnerController(ITeacherRepository repo, SignInManager<AppUser> signInManager)
+        private readonly IUserService _userService;
+        private ICourseService _courseService;
+        private ITeacherService _teacherService;
+        private ISchoolService _schoolService;
+        private IPaymentService _paymentService;
+        public OwnerController(SignInManager<AppUser> signInManager, IUserService userService,
+                               ICourseService courseService, ITeacherService teacherService,
+                               ISchoolService schoolService, IPaymentService paymentService)
         {
-            teacherRepository = repo;
             _signInManager = signInManager;
+            _userService = userService;
+            _courseService = courseService;
+            _teacherService = teacherService;
+            _schoolService = schoolService;
+            _paymentService = paymentService;
         }
 
         public async Task<IActionResult> Index(string redirect)
@@ -38,7 +49,7 @@ namespace UsersSubscriptions.Controllers
                 await _signInManager.SignOutAsync();
                 return RedirectToAction("Index", "home");
             }
-            AppUser curOwner = teacherRepository.GetCurrentOwner(ownerId);
+            AppUser curOwner = _teacherService.GetCurrentOwner(ownerId);
             if (curOwner == null)
             {
                 await _signInManager.SignOutAsync();
@@ -81,13 +92,13 @@ namespace UsersSubscriptions.Controllers
                     return RedirectToAction(nameof(Index), new { redirect = "SchoolDetails" });
                 }
             }
-            School school = teacherRepository.GetSchool(id);
+            School school = _schoolService.GetSchool(id);
             if (school == null)
             {
                 return NotFound();
             }
-            CheckSchool checkSchool = new CheckSchool(teacherRepository, HttpContext.Session);
-            if (!checkSchool.IsSchoolAllowed(id))
+            CheckSchool checkSchool = new CheckSchool(_schoolService, HttpContext.Session);
+            if (!isItAdmin && !checkSchool.IsSchoolAllowed(id))
             {
                 return RedirectToAction(Common.UsersConstants.redirectPayPageAction, Common.UsersConstants.redirectPayPageController, new {schoolId=id });
             }
@@ -102,7 +113,7 @@ namespace UsersSubscriptions.Controllers
         [HttpPost]
         public IActionResult SchoolDetails(School model, bool isItAdmin)
         {
-            School school = teacherRepository.GetSchool(model.Id);
+            School school = _schoolService.GetSchool(model.Id);
             if (school == null)
             {
                 return NotFound();
@@ -116,13 +127,13 @@ namespace UsersSubscriptions.Controllers
             {
                 return StatusCode(403);
             }
-            IdentityResult result = teacherRepository.UpdateSchoolOptions(model);
+            IdentityResult result = _schoolService.UpdateSchoolOptions(model);
             if (!result.Succeeded)
             {
                 TempData["ErrorMessage"] = result.Errors.FirstOrDefault().Description;
                 return View(model);
             }
-            school = teacherRepository.GetSchool(model.Id);
+            school = _schoolService.GetSchool(model.Id);
             ViewBag.isItAdmin = isItAdmin;
             return View(school);
         }
@@ -136,13 +147,13 @@ namespace UsersSubscriptions.Controllers
                 SchoolId = schoolId,
                 IsItAdmin = isItAdmin,
                 IsCreatingNew = true,
-                AllPaymentTypes = teacherRepository.GetSchool(schoolId).PaymentTypes.ToList(),
+                AllPaymentTypes = _schoolService.GetSchool(schoolId).PaymentTypes.ToList(),
             });
         }
 
         public IActionResult CourseDetails(string id, string schoolId, bool isItAdmin)
         {
-            School school = teacherRepository.GetSchool(schoolId);
+            School school = _schoolService.GetSchool(schoolId);
             if (school == null)
             {
                 return NotFound();
@@ -151,7 +162,7 @@ namespace UsersSubscriptions.Controllers
             {
                 return NotFound();
             }
-            Course course = teacherRepository.GetCourse(id);
+            Course course = _courseService.GetCourse(id);
             if (course == null)
             {
                 return NotFound();
@@ -161,7 +172,7 @@ namespace UsersSubscriptions.Controllers
             {
                 return StatusCode(403);
             }
-            CourseViewModel model = teacherRepository.GetCourseViewModel(id);
+            CourseViewModel model = _courseService.GetCourseViewModel(id);
             model.IsItAdmin = isItAdmin;
             return View(model);
         }
@@ -172,11 +183,11 @@ namespace UsersSubscriptions.Controllers
             IdentityResult result = new IdentityResult();
             if (model.IsCreatingNew)
             {
-                result = await teacherRepository.CreateCourseAsync(model);
+                result = await _courseService.CreateCourseAsync(model);
             }
             else
             {
-                result = await teacherRepository.UpdateCourseAsync(model);
+                result = await _courseService.UpdateCourseAsync(model);
             }
             if (result.Succeeded)
             {
@@ -193,7 +204,7 @@ namespace UsersSubscriptions.Controllers
         [HttpPost]
         public async Task<IActionResult> DeleteCourse(CourseViewModel course)
         {
-            var result = await teacherRepository.RemoveCourseAsync(course.Id);
+            var result = await _courseService.RemoveCourseAsync(course.Id);
             if (result.Succeeded)
             {
                 TempData["SuccessMessage"] = "Курс видалений";
@@ -202,14 +213,14 @@ namespace UsersSubscriptions.Controllers
             {
                 TempData["ErrorMessage"] = result.Errors.FirstOrDefault().Description;
             }
-            return RedirectToAction(nameof(SchoolDetails), new { id = course.SchoolId });
+            return RedirectToAction(nameof(SchoolDetails), new { id = course.SchoolId, isItAdmin=course.IsItAdmin });
         }
 
         [HttpPost]
         [AllowAnonymous]
         public IActionResult GetUserByPhone(string id)
         {
-            AppUser user = teacherRepository.GetUserByPhone(id);
+            AppUser user = _userService.GetUserByPhone(id);
             if (user == null) { return NotFound(); }
             return Json(new { id = user.Id, name = user.FullName });
         }
@@ -218,7 +229,7 @@ namespace UsersSubscriptions.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> GetUserById(string id)
         {
-            AppUser user = await teacherRepository.GetUserAsync(id);
+            AppUser user = await _userService.GetUserAsync(id);
             if (user == null) { return NotFound(); }
             return Json(new { id = user.Id, name = user.FullName });
         }
@@ -227,7 +238,7 @@ namespace UsersSubscriptions.Controllers
         [AllowAnonymous]
         public IActionResult GetUserByName(string id)
         {
-            IEnumerable<AppUser> appUsers = teacherRepository.FindUserByName(id);
+            IEnumerable<AppUser> appUsers = _userService.FindUserByName(id);
             if (appUsers == null || appUsers.Count() == 0) { return NotFound(); }
             List<UserJsonResponseModel> responseModel = new List<UserJsonResponseModel>();
             foreach (AppUser user in appUsers)
@@ -250,16 +261,16 @@ namespace UsersSubscriptions.Controllers
             {
                 return BadRequest();
             }
-            if (await teacherRepository.GetUserAsync(id) == null)
+            if (await _userService.GetUserAsync(id) == null)
             {
                 return NotFound();
             }
-            if (teacherRepository.GetCourse(courseId) == null)
+            if (_courseService.GetCourse(courseId) == null)
             {
                 return NotFound();
             }
-            await teacherRepository.AddTeacherToCourse(id, courseId);
-            Course course = teacherRepository.GetCourse(courseId);
+            await _teacherService.AddTeacherToCourse(id, courseId);
+            Course course = _courseService.GetCourse(courseId);
             List<AppUser> teachers = course.CourseAppUsers.Select(capu => capu.AppUser).ToList();
             string res = "";
             foreach (AppUser teacher in teachers)
@@ -273,7 +284,7 @@ namespace UsersSubscriptions.Controllers
         [HttpPost]
         public JsonResult SetCoursePayTypes(string schoolId, string courseId, string[] pTypes)
         {
-            IdentityResult result = teacherRepository
+            IdentityResult result = _paymentService
                 .UpdateCoursePaymentTypes(schoolId, courseId, pTypes.ToList());
             if (result.Succeeded)
             {
@@ -288,12 +299,12 @@ namespace UsersSubscriptions.Controllers
             {
                 return RedirectToAction(nameof(Index), new { redirect = "SchoolCalculation" });
             }
-            CheckSchool checkSchool = new CheckSchool(teacherRepository, HttpContext.Session);
+            CheckSchool checkSchool = new CheckSchool(_schoolService, HttpContext.Session);
             if (!checkSchool.IsSchoolAllowed(id))
             {
                 return RedirectToAction(Common.UsersConstants.redirectPayPageAction, Common.UsersConstants.redirectPayPageController, new { schoolId = id });
             }
-            SchoolCalculationsViewModel model = teacherRepository.GetSchoolDetail(id, "", DateTime.Now, "", "");
+            SchoolCalculationsViewModel model = _schoolService.GetSchoolDetail(id, "", DateTime.Now, "", "");
             if (model == null)
             {
                 return RedirectToAction(nameof(Index), new { redirect = "SchoolCalculation" });
@@ -304,7 +315,7 @@ namespace UsersSubscriptions.Controllers
         [HttpPost]
         public IActionResult SchoolCalculation(SchoolCalculationsViewModel model)
         {
-            SchoolCalculationsViewModel result = teacherRepository
+            SchoolCalculationsViewModel result = _schoolService
                 .GetSchoolDetail(model.SchoolId, model.SelectedCourseId, model.Month, model.SelectedNavId, model.SelectedTeacherId);
             if (model == null)
             {

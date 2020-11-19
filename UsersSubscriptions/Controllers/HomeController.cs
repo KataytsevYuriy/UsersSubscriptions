@@ -13,6 +13,8 @@ using System.Security.Principal;
 using UsersSubscriptions.Services;
 using System.IO;
 using System.Drawing;
+using UsersSubscriptions.DomainServices;
+using System.Security.Claims;
 
 namespace UsersSubscriptions.Controllers
 {
@@ -20,15 +22,15 @@ namespace UsersSubscriptions.Controllers
     public class HomeController : Controller
     {
         private readonly SignInManager<AppUser> _signInManager;
-        private IUserRepository repository;
-        public HomeController(IUserRepository repo, SignInManager<AppUser> signInManager)
+        private IUserService _userService;
+        public HomeController(IUserService userService, SignInManager<AppUser> signInManager)
         {
-            repository = repo;
+            _userService = userService;
             _signInManager = signInManager;
         }
         public async Task<IActionResult> Index()
         {
-            AppUser currentUser = await repository.GetCurentUser(HttpContext);
+            AppUser currentUser = await _userService.GetUserAsync(HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier));
             if (currentUser != null)
             {
                 Qrcoder.CreateQrFile(currentUser.Id);

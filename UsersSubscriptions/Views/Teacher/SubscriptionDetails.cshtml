@@ -8,7 +8,7 @@
     <input type="hidden" asp-for="Id" />
     <input type="hidden" asp-for="AppUserId" />
     <input type="hidden" asp-for="CourseId" />
-    <input type="hidden" asp-for="Month" />
+    <input type="hidden" asp-for="Period" />
     <ul class="list-group">
         <li class="list-group-item my-1">
             <span> Учень:  @Model.AppUser.FullName</span>
@@ -19,11 +19,11 @@
         <li class="list-group-item  my-1">
             @if (Model.MonthSubscription)
             {
-                <span>Місяць: @Model.Month.ToString("MMMM:yyyy")</span>
+                <span>Місяць: @Model.Period.ToString("MMMM:yyyy")</span>
             }
             else
             {
-                <span>Дата: @Model.Month.ToString("dd:MMMM:yyyy")</span>
+                <span>Дата: @Model.Period.ToString("dd:MMMM:yyyy")</span>
             }
         </li>
         <li class="list-group-item my-1">
@@ -32,32 +32,6 @@
         <li class="list-group-item my-1">
             <span>Платежі</span><br />
             <ul class="list-group my-1">
-                @if (Model.PaymentType != null)
-                {
-                    <li class="list-group-item">
-                        <button class="btn" type="button" data-target="#collapse_@paymentNumber" data-toggle="collapse" aria-expanded="false" aria-controls="#collapse_@paymentNumber"><i class="fas fa-angle-double-down"></i></button>
-                        @Model.PaymentType.Name Сплачено @Model.Price
-                        <div id="collapse_@paymentNumber" class="collapse">
-                            <input class="form-control my-1" name="Payments[@paymentNumber].Price" value="@Model.Price" />
-                            <select class="form-control" name="Payments[@paymentNumber].PaymentTypeId">
-                                @foreach (PaymentType paymentType in Model.Course.CoursePaymentTypes
-.OrderBy(cpt => cpt.PaymentType.Priority)
-.Select(cpt => cpt.PaymentType))
-                                {
-                                    if (paymentType.Id == Model.PaymentTypeId)
-                                    {
-                                        <option value="@paymentType.Id" selected>@paymentType.Name</option>
-                                    }
-                                    else
-                                    {
-                                        <option value="@paymentType.Id">@paymentType.Name</option>
-                                    }
-                                }
-                            </select>
-                        </div>
-                    </li>
-                    paymentNumber++;
-                }
                 @if (Model.Payments != null && Model.Payments.Count() > 0)
                 {
                     @foreach (Payment payment in Model.Payments)
@@ -94,11 +68,12 @@
                     <div id="collapse_@paymentNumber" class="collapse">
                         <input class="form-control my-1" name="Payments[@paymentNumber].Price" value="" />
                         <select class="form-control" name="Payments[@paymentNumber].PaymentTypeId">
+                            @{bool firstPaymentType = true;}
                             @foreach (PaymentType paymentType in Model.Course.CoursePaymentTypes
 .OrderBy(cpt => cpt.PaymentType.Priority)
 .Select(cpt => cpt.PaymentType))
                             {
-                                if (paymentType.Id == Model.PaymentTypeId)
+                                if (firstPaymentType)
                                 {
                                     <option value="@paymentType.Id" selected>@paymentType.Name</option>
                                 }
@@ -106,6 +81,8 @@
                                 {
                                     <option value="@paymentType.Id">@paymentType.Name</option>
                                 }
+                                firstPaymentType = false;
+
                             }
                         </select>
                     </div>
@@ -114,87 +91,7 @@
 
             </ul>
         </li>
-        @*<li class="list-group-item  my-1">
-                        <span>Сплачено</span><br />
-                        <table class="table table-bordered table-striped" id="tablePayments">
-                            @if (Model.PaymentType != null)
-                            {
-                                <tr>
-                                    <td>
-                                        <input name="Payments[0].PayedToId" value="@Model.PayedToId" type="hidden" />
-                                        <input name="Payments[0].Price" value="@Model.Price" />
-                                    </td>
-                                    <td>
-                                        <select class="form-control" name="Payments[0].PaymentTypeId">
-                                            @foreach (PaymentType paymentType in Model.Course.CoursePaymentTypes
-            .OrderBy(cpt => cpt.PaymentType.Priority)
-            .Select(cpt => cpt.PaymentType))
-                                            {
-                                                if (paymentType.Id == Model.PaymentTypeId)
-                                                {
-                                                    <option value="@paymentType.Id" selected>@paymentType.Name</option>
-                                                }
-                                                else
-                                                {
-                                                    <option value="@paymentType.Id">@paymentType.Name</option>
-                                                }
-                                            }
-                                        </select>
-                                    </td>
-                                    <td></td>
-                                </tr>
-                                paymentNumber++;
-                            }
-                            @if (Model.Payments != null && Model.Payments.Count() > 0)
-                            {
-                                @foreach (Payment payment in Model.Payments)
-                                {
 
-                                    <tr>
-                                        <td>
-                                            <input type="hidden" name="Payments[@paymentNumber].Id" value="@payment.Id" />
-                                            <input name="Payments[@paymentNumber].Price" value="@payment.Price" />
-                                        </td>
-                                        <td>
-                                            <select class="form-control" name="Payments[@paymentNumber].PaymentTypeId">
-                                                @foreach (PaymentType paymentType in Model.Course.CoursePaymentTypes
-            .OrderBy(cpt => cpt.PaymentType.Priority)
-            .Select(cpt => cpt.PaymentType))
-                                                {
-                                                    if (paymentType.Id == payment.PaymentTypeId)
-                                                    {
-                                                        <option value="@paymentType.Id" selected>@paymentType.Name</option>
-                                                    }
-                                                    else
-                                                    {
-                                                        <option value="@paymentType.Id">@paymentType.Name</option>
-                                                    }
-                                                }
-                                            </select>
-                                        </td>
-                                        <td></td>
-                                    </tr>
-                                    paymentNumber++;
-                                }
-                            }
-                            <tr>
-                                <td>
-                                    <input name="Payments[@paymentNumber].Price" />
-                                </td>
-                                <td>
-                                    <select class="form-control" name="Payments[@paymentNumber].PaymentTypeId">
-                                        @foreach (PaymentType paymentType in Model.Course.CoursePaymentTypes
-            .OrderBy(cpt => cpt.PaymentType.Priority)
-            .Select(cpt => cpt.PaymentType))
-                                        {
-                                            <option value="@paymentType.Id">@paymentType.Name</option>
-                                        }
-                                    </select>
-                                </td>
-                                <td></td>
-                            </tr>
-                        </table>*@
-        @*</li>*@
     </ul>
     <button class="btn btn-outline-primary  my-1" type="submit">Зберегти</button>
     <button type="button" class="btn btn-outline-danger float-right mt-2" data-toggle="modal" data-target="#confirmDelete">Видалити</button>
@@ -202,16 +99,6 @@
 
 <partial name="_ConfirmDelete" />
 @section Scripts{
-    <script>
-        //$(function () {
-        //    var action = "/Owner/DeleteCourse"
-        //    $("#deleteButton").click(function () {
-        //        var form = document.getElementById("form");
-        //        form.action = action;
-        //        form.submit();
-        //    });
-        //})
-    </script>
     <script>
         $(function () {
             $("#deleteButton").click(function () {

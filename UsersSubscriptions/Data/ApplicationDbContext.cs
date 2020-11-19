@@ -26,7 +26,7 @@ namespace UsersSubscriptions.Data
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
-            builder.ApplyConfiguration(new SubscriptionConfiguration());
+            //builder.ApplyConfiguration(new SubscriptionConfiguration());
             builder.ApplyConfiguration(new SchoolConfiguration());
             builder.ApplyConfiguration(new AppUserConfiguration());
          }

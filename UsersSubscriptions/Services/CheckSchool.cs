@@ -5,18 +5,19 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using UsersSubscriptions.Models;
+using UsersSubscriptions.DomainServices;
 
 namespace UsersSubscriptions.Services
 {
     public class CheckSchool
     {
-        private ITeacherRepository repository;
+        private ISchoolService _schoolService;
         private readonly ISession session;
 
-        public CheckSchool(ITeacherRepository repo, ISession sessio)
+        public CheckSchool(ISchoolService schoolService,ISession sessio)
         {
-            repository = repo;
             session = sessio;
+            _schoolService = schoolService;
         }
 
         public bool IsSchoolAllowed(string schoolId)
@@ -33,7 +34,7 @@ namespace UsersSubscriptions.Services
         }
         private bool CheckSchoolPayInDB(string schoolId)
         {
-            School school = repository.GetSchool(schoolId);
+            School school = _schoolService.GetSchool(schoolId);
             if (school == null) return false;
             if (school.Enable == false) return false;
             if (school.AllowTestUntil != null && school.AllowTestUntil > DateTime.Now) return true;
@@ -50,7 +51,7 @@ namespace UsersSubscriptions.Services
 
         private bool PayForSchool(string schoolId)
         {
-            IdentityResult result = repository.PayForSchool(schoolId, "");
+            IdentityResult result = _schoolService.PayForSchool(schoolId, "");
             if (result.Succeeded) return true;
             return false;
         }

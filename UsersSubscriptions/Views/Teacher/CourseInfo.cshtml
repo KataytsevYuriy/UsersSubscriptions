@@ -56,8 +56,7 @@
     @foreach (var sub in Model.Subscriptions)
     {
         int payedSum;
-        if (sub.PaymentType == null) { payedSum = sub.Payments.Select(pay => pay.Price).Sum(); }
-        else { payedSum = sub.Price; }
+        payedSum = sub.Payments.Select(pay => pay.Price).Sum();
         sum += payedSum;
         <tr>
             <td class="text-center" style="vertical-align:middle">
@@ -67,20 +66,13 @@
                 @(sub.MonthSubscription ? sub.AppUser.PhoneNumber : sub.Phone)
             </td>
             <td class="text-center" style="vertical-align:middle">
-                @if (sub.PaymentType == null)
+                @foreach (var paym in sub.Payments)
                 {
-                    foreach (var paym in sub.Payments)
-                    {
-                        <span>@paym.PaymentType.Name</span> <span>@paym.Price</span><br />
-                    }
-                    if (payedSum != sub.Price)
-                    {
-                        <span class="text-danger"> Сплачено @payedSum з @sub.Price</span>
-                    }
+                    <span>@paym.PaymentType.Name</span> <span>@paym.Price</span><br />
                 }
-                else
+                @if (payedSum != sub.Price)
                 {
-                     <span>@sub.PaymentType.Name</span> <span>@sub.Price</span>
+                <span class="text-danger"> Сплачено @payedSum з @sub.Price</span>
                 }
             </td>
         </tr>

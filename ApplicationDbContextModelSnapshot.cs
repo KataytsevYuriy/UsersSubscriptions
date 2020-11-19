@@ -3,17 +3,15 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using UsersSubscriptions.Data;
 
 namespace UsersSubscriptions.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20200730113140_addSchoolPayment")]
-    partial class addSchoolPayment
+    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
     {
-        protected override void BuildTargetModel(ModelBuilder modelBuilder)
+        protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -290,22 +288,10 @@ namespace UsersSubscriptions.Migrations
                         .ValueGeneratedOnAdd()
                         .HasMaxLength(64);
 
-                    b.Property<DateTime>("AllowTestUntil");
-
-                    b.Property<int>("Balance");
-
-                    b.Property<bool>("Enable");
-
-                    b.Property<bool>("IsPayed");
-
                     b.Property<string>("Name");
 
                     b.Property<string>("OwnerId")
                         .HasMaxLength(64);
-
-                    b.Property<DateTime>("PayedMonth");
-
-                    b.Property<int>("Price");
 
                     b.Property<string>("UrlName")
                         .IsRequired()
@@ -319,31 +305,6 @@ namespace UsersSubscriptions.Migrations
                         .IsUnique();
 
                     b.ToTable("Schools");
-                });
-
-            modelBuilder.Entity("UsersSubscriptions.Models.SchoolTransaction", b =>
-                {
-                    b.Property<string>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasMaxLength(64);
-
-                    b.Property<string>("Description");
-
-                    b.Property<int>("NewBalance");
-
-                    b.Property<int>("OldBalance");
-
-                    b.Property<int>("Payed");
-
-                    b.Property<DateTime>("PayedDateTime");
-
-                    b.Property<string>("SchoolId");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("SchoolId");
-
-                    b.ToTable("SchoolTransactions");
                 });
 
             modelBuilder.Entity("UsersSubscriptions.Models.Subscription", b =>
@@ -365,8 +326,6 @@ namespace UsersSubscriptions.Migrations
                     b.Property<string>("FullName")
                         .HasMaxLength(50);
 
-                    b.Property<DateTime>("Month");
-
                     b.Property<bool>("MonthSubscription");
 
                     b.Property<DateTime>("PayedDatetime");
@@ -376,6 +335,8 @@ namespace UsersSubscriptions.Migrations
 
                     b.Property<string>("PaymentTypeId")
                         .HasMaxLength(64);
+
+                    b.Property<DateTime>("Period");
 
                     b.Property<string>("Phone");
 
@@ -480,13 +441,6 @@ namespace UsersSubscriptions.Migrations
                     b.HasOne("UsersSubscriptions.Models.AppUser", "Owner")
                         .WithMany("Schools")
                         .HasForeignKey("OwnerId");
-                });
-
-            modelBuilder.Entity("UsersSubscriptions.Models.SchoolTransaction", b =>
-                {
-                    b.HasOne("UsersSubscriptions.Models.School", "School")
-                        .WithMany("SchoolTransactions")
-                        .HasForeignKey("SchoolId");
                 });
 
             modelBuilder.Entity("UsersSubscriptions.Models.Subscription", b =>

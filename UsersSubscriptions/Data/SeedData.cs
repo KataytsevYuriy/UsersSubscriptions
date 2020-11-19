@@ -382,11 +382,10 @@ namespace UsersSubscriptions.Data
                     Subscription subscription = new Subscription
                     {
                         AppUserId = student.Id,
-                        Month = DateTime.Now,
+                        Period = DateTime.Now,
                         MonthSubscription=true,
                         CourseId = dbCourse.Id,
                         Price= dbCourse.Price,
-                        PayedDatetime = DateTime.Now,
                         Payments = payments,
                     };
                     _context.Subscriptions.Add(subscription);
@@ -395,11 +394,10 @@ namespace UsersSubscriptions.Data
                         Subscription prewSubscription = new Subscription
                         {
                             AppUserId = student.Id,
-                            Month = DateTime.Now.AddMonths(1),
+                            Period = DateTime.Now.AddMonths(1),
                             MonthSubscription = true,
                             CourseId = dbCourse.Id,
                             Price = dbCourse.Price,
-                            PayedDatetime = DateTime.Now,
                             Payments = payments,
                         };
                         _context.Subscriptions.Add(prewSubscription);

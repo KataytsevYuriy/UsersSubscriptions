@@ -112,7 +112,7 @@
                     <td class="text-center" style="vertical-align:middle">@(subs.AppUser == null ? subs.FullName : subs.AppUser.FullName) </td>
                     <td class="text-center" style="vertical-align:middle">
                         @subs.Course.School.Name <br />@subs.Course.Name <br />
-                        @(subs.AppUser == null ? subs.Month.ToString("dd:MMMM:yyyy") : subs.Month.ToString("MMMM:yyyy") )
+                        @(subs.AppUser == null ? subs.Period.ToString("dd:MMMM:yyyy") : subs.Period.ToString("MMMM:yyyy") )
                     </td>
                     <td class="text-center" style="vertical-align:middle">
                         @if (subs.Price == subs.Payments?.Select(pay => pay.Price).Sum())
@@ -137,14 +137,11 @@
 
                             }
                         }
-                        else if (subs.PayedTo == null)
-                        {
-                            <span class="text-danger">Не сполачено </span>
-                        }
                         else
                         {
-                            @subs.PayedTo?.FullName <br /> @subs.PayedDatetime.ToString("dd:MMMM:yyyy")
+                            <span class="text-danger">Не сплачено </span>
                         }
+
                     </td>
                     <td class="text-center" style="vertical-align:middle">
                         <button type="button" class="btn btn-outline-danger float-right mt-2" onclick="deleteButtonCkick('@subs.Id')">

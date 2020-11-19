@@ -14,7 +14,16 @@
     <Compile Remove="Migrations\20200616065610_test.cs" />
     <Compile Remove="Migrations\20200616070145_updatePaymentTypes.cs" />
     <Compile Remove="Migrations\20200618193842_coursePaymentType.cs" />
+    <Compile Remove="Migrations\20200730113140_addSchoolPayment.cs" />
     <Compile Remove="Migrations\20200918102559_addPaymentToSubscriptions.cs" />
+    <Compile Remove="Migrations\20201001065028_addPaymentToSubscription.cs" />
+    <Compile Remove="Migrations\20201106183753_addPaymentToSubscription.cs" />
+    <Compile Remove="Migrations\20201106201826_test.cs" />
+    <Compile Remove="Migrations\20201106202006_test.cs" />
+    <Compile Remove="Migrations\20201106203502_test.cs" />
+    <Compile Remove="Migrations\20201106205141_test1.cs" />
+    <Compile Remove="Migrations\20201106205504_test1.cs" />
+    <Compile Remove="Migrations\20201107061342_addSchoolPayment.cs" />
   </ItemGroup>
 
   <ItemGroup>

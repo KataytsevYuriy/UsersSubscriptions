@@ -16,5 +16,6 @@ namespace UsersSubscriptions.Models.ViewModels
         public IEnumerable<PaymentType> PaymentTypes { get; set; }
         public string SelectedPaymentType { get; set; }
         public int Payed { get; set; }
+        public string SelectedCourseId { get; set; }
     }
 }

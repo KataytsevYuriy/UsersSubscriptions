@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using UsersSubscriptions.Data;
 using UsersSubscriptions.Areas.Admin.Models;
 using UsersSubscriptions.Models;
+using UsersSubscriptions.DomainServices;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authorization;
@@ -19,25 +20,25 @@ namespace UsersSubscriptions.Areas.Admin.Controllers
     [Authorize(Roles = UsersConstants.admin)]
     public class UserController : Controller
     {
-        private IAdminDataRepository repository;
-        private ITeacherRepository repositoryTeacher;
-        public UserController(IAdminDataRepository repo, ITeacherRepository repoTeacher)
+        private readonly IUserService _userService;
+        private IRoleService _roleService;
+        public UserController(IRoleService roleService, IUserService userService)
         {
-            repository = repo;
-            repositoryTeacher = repoTeacher;
+            _roleService = roleService;
+            _userService = userService;
         }
         public ActionResult Index()
         {
-            return View(repository.GetAllUsers());
+            return View(_userService.GetAllUsers());
         }
 
         public async Task<ActionResult> UserDetails(string id)
         {
-            AppUser user = await repositoryTeacher.GetUserAsync(id);
+            AppUser user = await _userService.GetUserAsync(id);
             if (user != null)
             {
-                var userRoles = await repository.GetUserRolesAsync(user.Id);
-                var allRoles = repository.GetAllRoles();
+                var userRoles = await _roleService.GetUserRolesAsync(user.Id);
+                var allRoles = _roleService.GetAllRoles();
                 UserViewModel model = new UserViewModel()
                 {
                     Id = user.Id,
@@ -55,7 +56,7 @@ namespace UsersSubscriptions.Areas.Admin.Controllers
         [HttpPost]
         public async Task<IActionResult> UpdateUser(UserViewModel model)
         {
-            await repository.UpdateUserAsync(new AppUser
+            await _userService.UpdateUserAsync(new AppUser
             {
                 Id = model.Id,
                 FullName = model.FullName,
@@ -71,11 +72,11 @@ namespace UsersSubscriptions.Areas.Admin.Controllers
         public async Task<IActionResult> DeleteUser(AppUser model)
         {
             
-            IdentityResult result = await repository.DeleteUserAsync(model.Id);
+            IdentityResult result = await _userService.DeleteUserAsync(model.Id);
             if (result.Succeeded)
             {
                 TempData["SuccessMessage"] = "Корстувача видалено";
-                DeleteFile remove = new DeleteFile();
+                FileServices remove = new FileServices();
                 remove.Delete("wwwroot/qrr/file-" + model.Id + ".qrr");
                 remove.Delete("wwwroot/avatars/avatar-" + model.Id + ".jpg");
             } else

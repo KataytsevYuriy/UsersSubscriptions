@@ -3,6 +3,9 @@
     Layout = "_Layout";
     var curDate = DateTime.Now;
     Course selectedCourse = Model.TeacherCourses.FirstOrDefault();
+    if (!string.IsNullOrEmpty(Model.SelectedCourseId)) {
+        selectedCourse = Model.TeacherCourses.FirstOrDefault(cour => cour.Id == Model.SelectedCourseId);
+    }
 }
 
 <div class="text-info text-center"><h2>Абонемент для</h2></div>

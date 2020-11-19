@@ -328,7 +328,7 @@ namespace UsersSubscriptions.Migrations
                     b.Property<string>("FullName")
                         .HasMaxLength(50);
 
-                    b.Property<DateTime>("Month");
+                    b.Property<DateTime>("Period");
 
                     b.Property<bool>("MonthSubscription");
 

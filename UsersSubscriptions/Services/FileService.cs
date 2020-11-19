@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace UsersSubscriptions.Services
 {
-    public class DeleteFile
+    public class FileServices
     {
         public void Delete(string patch)
         {

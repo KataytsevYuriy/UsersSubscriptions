@@ -8,31 +8,32 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using UsersSubscriptions.Areas.Admin.Models;
 using UsersSubscriptions.Common;
+using UsersSubscriptions.DomainServices;
 using UsersSubscriptions.Models;
 
 namespace UsersSubscriptions.Areas.Admin.Controllers
 {
     [Area("Admin")]
-    [Authorize(Roles =UsersConstants.admin)]
+    [Authorize(Roles = UsersConstants.admin)]
     public class FinanceController : Controller
     {
-        private IAdminDataRepository repository;
-        private ITeacherRepository repositoryTeacher;
-        public FinanceController(IAdminDataRepository repo, ITeacherRepository repoTeacher)
+        private ISchoolService _schoolService;
+        private IPaymentService _paymentService;
+        public FinanceController(ISchoolService schoolService, IPaymentService paymentService)
         {
-            repository = repo;
-            repositoryTeacher = repoTeacher;
+            _schoolService = schoolService;
+            _paymentService = paymentService;
         }
 
         public IActionResult Index()
         {
-            return View(repository.GetAllSchools());
+            return View(_schoolService.GetAllSchools());
         }
 
         public IActionResult SchoolDetails(string schoolId)
         {
             if (string.IsNullOrEmpty(schoolId)) return BadRequest();
-            School school = repository.GetSchoolFinance(schoolId);
+            School school = _paymentService.GetSchoolFinance(schoolId);
             if (school == null) return NotFound();
             return View(school);
         }
@@ -41,17 +42,17 @@ namespace UsersSubscriptions.Areas.Admin.Controllers
         public IActionResult SchoolDetails(School school)
         {
             if (school == null) return NotFound();
-            IdentityResult result = repository.UpdateSchoolFinance(school);
+            IdentityResult result = _paymentService.UpdateSchoolFinance(school);
             if (result.Succeeded)
             {
                 TempData["SuccessMessage"] = "Школа оновлена";
-                school = repositoryTeacher.GetSchool(school.Id);
+                school = _schoolService.GetSchool(school.Id);
             }
             else
             {
                 TempData["ErrorMessage"] = result.Errors.FirstOrDefault().Description;
             }
-            return View(repository.GetSchoolFinance(school.Id));
+            return View(_paymentService.GetSchoolFinance(school.Id));
         }
 
         [HttpPost]
@@ -63,7 +64,7 @@ namespace UsersSubscriptions.Areas.Admin.Controllers
                 TempData["ErrorMessage"] = "Сума повинна бути відмінна від 0";
                 return RedirectToAction("SchoolDetails", new { schoolId = transaction.SchoolId });
             }
-            School school = repository.GetSchoolFinance(transaction.SchoolId);
+            School school = _paymentService.GetSchoolFinance(transaction.SchoolId);
             if (school == null) return NotFound();
             SchoolTransaction newTransaction = new SchoolTransaction
             {
@@ -74,17 +75,31 @@ namespace UsersSubscriptions.Areas.Admin.Controllers
                 PayedDateTime = DateTime.Now,
                 SchoolId = transaction.SchoolId,
             };
-            IdentityResult result = repository.AddSchoolTransaction(newTransaction);
+            IdentityResult result = _paymentService.AddSchoolTransaction(newTransaction);
             if (result.Succeeded)
             {
                 TempData["SuccessMessage"] = "Баланс школи успішно поповнено";
-                school = repositoryTeacher.GetSchool(school.Id);
+                school = _schoolService.GetSchool(school.Id);
             }
             else
             {
                 TempData["ErrorMessage"] = result.Errors.FirstOrDefault().Description;
             }
-            return RedirectToAction("SchoolDetails",new { schoolId = transaction.SchoolId });
+            return RedirectToAction("SchoolDetails", new { schoolId = transaction.SchoolId });
+        }
+
+        [HttpPost]
+        public IActionResult RemoveLastSchoolTransaction(School school)
+        {
+            IdentityResult result = _paymentService.RemoveLastSchoolTransaction(school.Id);
+            if (result.Succeeded)
+            {
+                TempData["SuccessMessage"] = "Транзакцію успішно видалено";
+            } else
+            {
+                TempData["ErrorMessage"] = result.Errors.FirstOrDefault().Description;
+            }
+            return RedirectToAction(nameof(SchoolDetails), new { schoolId = school.Id });
         }
     }
 }

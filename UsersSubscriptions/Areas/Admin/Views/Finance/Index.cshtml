@@ -33,11 +33,11 @@
                         <i class="fas fa-check float-right" style="color:green"> </i>
                     }
                 </td>
-                @if (school.Enable & school.IsPayed)
+                @*if (school.Enable & school.IsPayed)
                 {
                     <td class="text-center text-danger" style="vertical-align:middle">@school.Balance</td>
                 }
-                else if (school.Price == 0)
+                else*@ @if (school.Price == 0)
                 {
                     <td class="text-center text-info" style="vertical-align:middle">@school.Balance</td>
                 }

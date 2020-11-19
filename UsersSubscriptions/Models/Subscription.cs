@@ -13,9 +13,11 @@ namespace UsersSubscriptions.Models
         [StringLength(64)]
         public string Id { get; set; }
         [DisplayFormat(DataFormatString ="{0:dd'/'mm'/'yyyy}", ApplyFormatInEditMode =true)]
-        public DateTime Month { get; set; }
-        public string Comment { get; set; }
+        //public DateTime Month { get; set; }
 
+        //public string Comment { get; set; }
+
+        public DateTime Period { get; set; }
         [StringLength(64)]
         public string CourseId { get; set; }
         public Course Course { get; set; }
@@ -33,23 +35,23 @@ namespace UsersSubscriptions.Models
 
         public DateTime CreatedDatetime { get; set; }
 
-        [StringLength(64)]
-        public string PayedToId { get; set; }
-        public AppUser PayedTo { get; set; }
-        public DateTime PayedDatetime { get; set; }
+        //[StringLength(64)]
+        //public string PayedToId { get; set; }
+        //public AppUser PayedTo { get; set; }
+        //public DateTime PayedDatetime { get; set; }
         public IEnumerable<Payment> Payments { get; set; }
-        [StringLength(64)]
-        public string PaymentTypeId { get; set; }
-        public PaymentType PaymentType { get; set; }
+        //[StringLength(64)]
+        //public string PaymentTypeId { get; set; }
+        //public PaymentType PaymentType { get; set; }
     }
 
-    public class SubscriptionConfiguration : IEntityTypeConfiguration<Subscription>
-    {
-        public void Configure(EntityTypeBuilder<Subscription> builder)
-        {
-            builder.HasOne(s => s.PayedTo).WithMany(s => s.Subscriptions);
-        }
-    }
+    //public class SubscriptionConfiguration : IEntityTypeConfiguration<Subscription>
+    //{
+    //    public void Configure(EntityTypeBuilder<Subscription> builder)
+    //    {
+    //        //builder.HasOne(s => s.PayedTo).WithMany(s => s.Subscriptions);
+    //    }
+    //}
 
 
 }

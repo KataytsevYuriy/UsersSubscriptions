@@ -10,8 +10,8 @@ using UsersSubscriptions.Data;
 namespace UsersSubscriptions.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20201001065028_addPaymentToSubscription")]
-    partial class addPaymentToSubscription
+    [Migration("20201107062308_addSchoolPayment")]
+    partial class addSchoolPayment
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -320,10 +320,22 @@ namespace UsersSubscriptions.Migrations
                         .ValueGeneratedOnAdd()
                         .HasMaxLength(64);
 
+                    b.Property<DateTime>("AllowTestUntil");
+
+                    b.Property<int>("Balance");
+
+                    b.Property<bool>("Enable");
+
+                    b.Property<bool>("IsPayed");
+
                     b.Property<string>("Name");
 
                     b.Property<string>("OwnerId")
                         .HasMaxLength(64);
+
+                    b.Property<DateTime>("PayedMonth");
+
+                    b.Property<int>("Price");
 
                     b.Property<string>("UrlName")
                         .IsRequired()
@@ -337,6 +349,31 @@ namespace UsersSubscriptions.Migrations
                         .IsUnique();
 
                     b.ToTable("Schools");
+                });
+
+            modelBuilder.Entity("UsersSubscriptions.Models.SchoolTransaction", b =>
+                {
+                    b.Property<string>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(64);
+
+                    b.Property<string>("Description");
+
+                    b.Property<int>("NewBalance");
+
+                    b.Property<int>("OldBalance");
+
+                    b.Property<int>("Payed");
+
+                    b.Property<DateTime>("PayedDateTime");
+
+                    b.Property<string>("SchoolId");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SchoolId");
+
+                    b.ToTable("SchoolTransactions");
                 });
 
             modelBuilder.Entity("UsersSubscriptions.Models.Subscription", b =>
@@ -358,17 +395,11 @@ namespace UsersSubscriptions.Migrations
                     b.Property<string>("FullName")
                         .HasMaxLength(50);
 
-                    b.Property<DateTime>("Month");
-
                     b.Property<bool>("MonthSubscription");
 
-                    b.Property<DateTime>("PayedDatetime");
+                    b.Property<string>("PaymentTypeId");
 
-                    b.Property<string>("PayedToId")
-                        .HasMaxLength(64);
-
-                    b.Property<string>("PaymentTypeId")
-                        .HasMaxLength(64);
+                    b.Property<DateTime>("Period");
 
                     b.Property<string>("Phone");
 
@@ -379,8 +410,6 @@ namespace UsersSubscriptions.Migrations
                     b.HasIndex("AppUserId");
 
                     b.HasIndex("CourseId");
-
-                    b.HasIndex("PayedToId");
 
                     b.HasIndex("PaymentTypeId");
 
@@ -490,21 +519,24 @@ namespace UsersSubscriptions.Migrations
                         .HasForeignKey("OwnerId");
                 });
 
+            modelBuilder.Entity("UsersSubscriptions.Models.SchoolTransaction", b =>
+                {
+                    b.HasOne("UsersSubscriptions.Models.School", "School")
+                        .WithMany("SchoolTransactions")
+                        .HasForeignKey("SchoolId");
+                });
+
             modelBuilder.Entity("UsersSubscriptions.Models.Subscription", b =>
                 {
                     b.HasOne("UsersSubscriptions.Models.AppUser", "AppUser")
-                        .WithMany("SubscriptionPayedTo")
+                        .WithMany("Subscriptions")
                         .HasForeignKey("AppUserId");
 
                     b.HasOne("UsersSubscriptions.Models.Course", "Course")
                         .WithMany("Subscriptions")
                         .HasForeignKey("CourseId");
 
-                    b.HasOne("UsersSubscriptions.Models.AppUser", "PayedTo")
-                        .WithMany("Subscriptions")
-                        .HasForeignKey("PayedToId");
-
-                    b.HasOne("UsersSubscriptions.Models.PaymentType", "PaymentType")
+                    b.HasOne("UsersSubscriptions.Models.PaymentType")
                         .WithMany("Subscriptions")
                         .HasForeignKey("PaymentTypeId");
                 });

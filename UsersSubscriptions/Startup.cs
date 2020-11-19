@@ -15,6 +15,7 @@ using Microsoft.Extensions.DependencyInjection;
 using UsersSubscriptions.Models;
 using UsersSubscriptions.Areas.Admin.Models;
 using UsersSubscriptions.Filters;
+using UsersSubscriptions.DomainServices;
 
 namespace UsersSubscriptions
 {
@@ -40,9 +41,14 @@ namespace UsersSubscriptions
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(
                     Configuration.GetConnectionString("DefaultConnection")));
-            services.AddTransient<IAdminDataRepository, AdminRepository>();
-            services.AddTransient<IUserRepository, UserRepository>();
-            services.AddTransient<ITeacherRepository, TeacherRepository>();
+            services.AddTransient<IUserService, UserService>();
+            services.AddTransient<ICourseService, CourseService>();
+            services.AddTransient<ITeacherService, TeacherService>();
+            services.AddTransient<ISchoolService, SchoolService>();
+            services.AddTransient<ISchoolService, SchoolService>();
+            services.AddTransient<ISubscriptionsService, SubscriptionService>();
+            services.AddTransient<IPaymentService, PaymentService>();
+            services.AddTransient<IRoleService, RoleService>();
             services.AddIdentity<AppUser, IdentityRole>()
                 .AddRoleManager<RoleManager<IdentityRole>>()
                 .AddDefaultUI()

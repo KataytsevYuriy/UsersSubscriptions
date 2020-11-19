@@ -393,17 +393,11 @@ namespace UsersSubscriptions.Migrations
                     b.Property<string>("FullName")
                         .HasMaxLength(50);
 
-                    b.Property<DateTime>("Month");
-
                     b.Property<bool>("MonthSubscription");
 
-                    b.Property<DateTime>("PayedDatetime");
+                    b.Property<string>("PaymentTypeId");
 
-                    b.Property<string>("PayedToId")
-                        .HasMaxLength(64);
-
-                    b.Property<string>("PaymentTypeId")
-                        .HasMaxLength(64);
+                    b.Property<DateTime>("Period");
 
                     b.Property<string>("Phone");
 
@@ -414,8 +408,6 @@ namespace UsersSubscriptions.Migrations
                     b.HasIndex("AppUserId");
 
                     b.HasIndex("CourseId");
-
-                    b.HasIndex("PayedToId");
 
                     b.HasIndex("PaymentTypeId");
 
@@ -535,18 +527,14 @@ namespace UsersSubscriptions.Migrations
             modelBuilder.Entity("UsersSubscriptions.Models.Subscription", b =>
                 {
                     b.HasOne("UsersSubscriptions.Models.AppUser", "AppUser")
-                        .WithMany("SubscriptionPayedTo")
+                        .WithMany("Subscriptions")
                         .HasForeignKey("AppUserId");
 
                     b.HasOne("UsersSubscriptions.Models.Course", "Course")
                         .WithMany("Subscriptions")
                         .HasForeignKey("CourseId");
 
-                    b.HasOne("UsersSubscriptions.Models.AppUser", "PayedTo")
-                        .WithMany("Subscriptions")
-                        .HasForeignKey("PayedToId");
-
-                    b.HasOne("UsersSubscriptions.Models.PaymentType", "PaymentType")
+                    b.HasOne("UsersSubscriptions.Models.PaymentType")
                         .WithMany("Subscriptions")
                         .HasForeignKey("PaymentTypeId");
                 });

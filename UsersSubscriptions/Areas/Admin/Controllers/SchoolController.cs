@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using UsersSubscriptions.Areas.Admin.Models;
-using UsersSubscriptions.Areas.Admin.Models.ViewModels;
+using UsersSubscriptions.DomainServices;
 using UsersSubscriptions.Common;
 using UsersSubscriptions.Models;
 using UsersSubscriptions.Models.ViewModels;
@@ -17,17 +17,20 @@ namespace UsersSubscriptions.Areas.Admin.Controllers
     [Authorize(Roles = UsersConstants.admin)]
     public class SchoolController : Controller
     {
-        private IAdminDataRepository repository;
-        private ITeacherRepository repositoryTeacher;
-        public SchoolController(IAdminDataRepository repo, ITeacherRepository repoTeacher)
+        private  readonly ISchoolService _schoolService;
+        private readonly IUserService _userService;
+        private  IPaymentService _paymentService;
+        public SchoolController(ISchoolService schoolService, 
+            IUserService userService, IPaymentService paymentService)
         {
-            repository = repo;
-            repositoryTeacher = repoTeacher;
+            _schoolService = schoolService;
+            _userService = userService;
+            _paymentService = paymentService;
         }
 
         public IActionResult Index()
         {
-            return View(repository.GetAllSchools());
+            return View(_schoolService.GetAllSchools());
         }
 
         public IActionResult CreateSchool()
@@ -38,14 +41,14 @@ namespace UsersSubscriptions.Areas.Admin.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateSchool(School school)
         {
-            IdentityResult result = await repository.CreateSchoolAsync(school);
+            IdentityResult result = await _schoolService.CreateSchoolAsync(school);
             if (result.Succeeded)
             {
                 TempData["SuccessMessage"] = "Школа додана";
-                School dbSchool = repositoryTeacher.GetSchoolByUrl(school.UrlName);
+                School dbSchool = _schoolService.GetSchoolByUrl(school.UrlName);
                 if (dbSchool != null)
                 {
-                    repositoryTeacher.AddDefaultPaymentTypesToSchool(dbSchool.Id);
+                    _paymentService.AddDefaultPaymentTypesToSchool(dbSchool.Id);
                 }
                 return RedirectToRoute("default",
                     new { controller = "Owner", action = "SchoolDetails", id = dbSchool.Id, isItAdmin = true });
@@ -57,11 +60,11 @@ namespace UsersSubscriptions.Areas.Admin.Controllers
         [HttpPost]
         public async Task<IActionResult> SchoolDetails(School school)
         {
-            IdentityResult result = await repository.UpdateSchoolAsync(school);
+            IdentityResult result = await _schoolService.UpdateSchoolAsync(school);
             if (result.Succeeded)
             {
                 TempData["SuccessMessage"] = "Школа оновлена";
-                school = repositoryTeacher.GetSchool(school.Id);
+                school = _schoolService.GetSchool(school.Id);
             }
             else
             {
@@ -74,7 +77,7 @@ namespace UsersSubscriptions.Areas.Admin.Controllers
         [HttpPost]
         public async Task<IActionResult> RemoveSchool(School school)
         {
-            IdentityResult result = await repository.RemoveScoolAsync(school.Id);
+            IdentityResult result = await _schoolService.RemoveScoolAsync(school.Id);
             if (result.Succeeded)
             {
                 TempData["SuccessMessage"] = "Школа видалена";
@@ -93,15 +96,15 @@ namespace UsersSubscriptions.Areas.Admin.Controllers
             {
                 return BadRequest();
             }
-            if (await repositoryTeacher.GetUserAsync(id) == null)
+            if (await _userService.GetUserAsync(id) == null)
             {
                 return NotFound();
             }
-            if ( repositoryTeacher.GetSchool(schoolId) == null)
+            if ( _schoolService.GetSchool(schoolId) == null)
             {
                 return NotFound();
             }
-            IdentityResult result = await repository.ChengeOwnerAsync(id, schoolId);
+            IdentityResult result = await _schoolService.ChengeOwnerAsync(id, schoolId);
             if (!result.Succeeded)
             {
                 return Conflict();
