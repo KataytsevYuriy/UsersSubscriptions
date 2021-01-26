@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.Identity;
 using System;
 using System.Collections.Generic;
@@ -14,7 +15,7 @@ namespace UsersSubscriptions.Services
         private ISchoolService _schoolService;
         private readonly ISession session;
 
-        public CheckSchool(ISchoolService schoolService,ISession sessio)
+        public CheckSchool(ISchoolService schoolService, ISession sessio)
         {
             session = sessio;
             _schoolService = schoolService;
@@ -62,6 +63,24 @@ namespace UsersSubscriptions.Services
             if (date.Year == now.Year && date.Month >= now.Month) return false;
             if (date.Year > now.Year) return false;
             return true;
+        }
+
+        public string GetSchoolId_From_Context(string schoolUrl = "", string schoolId = "")
+        {
+            School school = new School();
+            if (string.IsNullOrEmpty(schoolId))
+            {
+                string url = session.GetString("schoolUrl");
+                string id = session.GetString("schoolId");
+                if (string.IsNullOrEmpty(schoolUrl)) return string.IsNullOrEmpty(id) ? "" : id;
+                if (!string.IsNullOrEmpty(id) && url.ToLower().Equals(schoolUrl.ToLower())) return id;
+                school = _schoolService.GetSchoolByUrl(schoolUrl);
+            }
+            else school = _schoolService.GetSchool(schoolId);
+            if (school == null) return "";
+            session.SetString("schoolUrl", school.UrlName);
+            session.SetString("schoolId", school.Id);
+            return school.Id;
         }
     }
 }

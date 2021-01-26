@@ -100,7 +100,7 @@ namespace UsersSubscriptions.Controllers
             CheckSchool checkSchool = new CheckSchool(_schoolService, HttpContext.Session);
             if (!isItAdmin && !checkSchool.IsSchoolAllowed(id))
             {
-                return RedirectToAction(Common.UsersConstants.redirectPayPageAction, Common.UsersConstants.redirectPayPageController, new {schoolId=id });
+                return RedirectToAction(Common.UsersConstants.redirectPayPageAction, Common.UsersConstants.redirectPayPageController, new { schoolId = id });
             }
             if (!isItAdmin && !school.Enable)
             {
@@ -184,6 +184,11 @@ namespace UsersSubscriptions.Controllers
             if (model.IsCreatingNew)
             {
                 result = await _courseService.CreateCourseAsync(model);
+                if (result.Succeeded)
+                {
+                    model.Id = _courseService.GetCorseIdByName(model.Name, model.SchoolId);
+                    if (string.IsNullOrEmpty(model.Id)) return NotFound();
+                }
             }
             else
             {
@@ -197,6 +202,7 @@ namespace UsersSubscriptions.Controllers
             {
                 TempData["ErrorMessage"] = result.Errors.FirstOrDefault().Description;
             }
+
             return RedirectToAction(nameof(CourseDetails), new { id = model.Id, schoolId = model.SchoolId, isItAdmin = model.IsItAdmin });
         }
 
@@ -213,7 +219,7 @@ namespace UsersSubscriptions.Controllers
             {
                 TempData["ErrorMessage"] = result.Errors.FirstOrDefault().Description;
             }
-            return RedirectToAction(nameof(SchoolDetails), new { id = course.SchoolId, isItAdmin=course.IsItAdmin });
+            return RedirectToAction(nameof(SchoolDetails), new { id = course.SchoolId, isItAdmin = course.IsItAdmin });
         }
 
         [HttpPost]

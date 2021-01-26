@@ -105,21 +105,23 @@ namespace UsersSubscriptions.Controllers
             return View(await SchoolFromContext());
         }
 
-        public async Task<IActionResult> AddOneTimeSubscription(string schoolId)
+        public IActionResult AddOneTimeSubscription(string schoolId)
         {
-            if (string.IsNullOrEmpty(schoolId))
-            {
-                IEnumerable<School> schools = await SchoolFromContext();
-                if (schools.Count() > 1)
-                {
-                    return RedirectToAction(nameof(SelectSchool), new { redirectValue = "AddOneTimeSubscription" });
-                }
-                if (schools.Count() == 0)
-                {
-                    return RedirectToAction("Index", "Home");
-                }
-                schoolId = schools.FirstOrDefault().Id;
-            }
+            CheckSchool checkSchool = new CheckSchool(_schoolService, HttpContext.Session);
+            schoolId = checkSchool.GetSchoolId_From_Context((HttpContext.GetRouteData().Values["subdomain"] ?? "").ToString());
+            //if (string.IsNullOrEmpty(schoolId))
+            //{
+            //    IEnumerable<School> schools = await SchoolFromContext();
+            //    if (schools.Count() > 1)
+            //    {
+            //        return RedirectToAction(nameof(SelectSchool), new { redirectValue = "AddOneTimeSubscription" });
+            //    }
+            //    if (schools.Count() == 0)
+            //    {
+            //        return RedirectToAction("Index", "Home");
+            //    }
+            //    schoolId = schools.FirstOrDefault().Id;
+            //}
             IEnumerable<Course> teacherCourses = _courseService.GetTeacherCourses(
                     HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier), schoolId, true);
             if (teacherCourses == null || teacherCourses.Where(cour => cour.AllowOneTimePrice == true).Count() == 0)

@@ -39,6 +39,14 @@ namespace UsersSubscriptions.DomainServices
                 .FirstOrDefault(cour => cour.Id == courseId); ;
         }
 
+
+        public string GetCorseIdByName(string courseName, string schoolId)
+        {
+            Course course = _context.Courses.FirstOrDefault(cour => cour.Name == courseName && cour.SchoolId == schoolId);
+            if (course == null) return "";
+            return course.Id;
+        }
+
         public CourseViewModel GetCourseViewModel(string id)
         {
             Course course = _context.Courses
@@ -253,6 +261,5 @@ namespace UsersSubscriptions.DomainServices
             return courses;
         }
 
- 
     }
 }

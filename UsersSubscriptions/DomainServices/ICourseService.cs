@@ -11,6 +11,7 @@ namespace UsersSubscriptions.DomainServices
     public interface ICourseService
     {
         Course GetCourse(string courseId);
+        string GetCorseIdByName(string courseName, string schoolId);
         CourseViewModel GetCourseViewModel(string id);
         CourseViewModel GetCourseViewModelByName(string name, string schoolId);
         Task<IdentityResult> CreateCourseAsync(CourseViewModel model);

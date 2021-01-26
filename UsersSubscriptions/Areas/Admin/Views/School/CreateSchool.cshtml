@@ -16,7 +16,7 @@
     <div class="form-group">
         <label asp-for="Enable">Активна</label>
         <select name="Enable" class="form-control">
-            @if (Model.Enable)
+            @if (Model==null || Model.Enable)
             {
                 <option value="@true" selected>Так</option>
                 <option value="@false">Ні</option>

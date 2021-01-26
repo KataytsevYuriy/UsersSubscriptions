@@ -24,6 +24,7 @@
     <Compile Remove="Migrations\20201106205141_test1.cs" />
     <Compile Remove="Migrations\20201106205504_test1.cs" />
     <Compile Remove="Migrations\20201107061342_addSchoolPayment.cs" />
+    <Compile Remove="Migrations\20201201192514_test.cs" />
   </ItemGroup>
 
   <ItemGroup>
