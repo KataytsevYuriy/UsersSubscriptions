@@ -73,7 +73,7 @@ namespace UsersSubscriptions.Services
                 string url = session.GetString("schoolUrl");
                 string id = session.GetString("schoolId");
                 if (string.IsNullOrEmpty(schoolUrl)) return string.IsNullOrEmpty(id) ? "" : id;
-                if (!string.IsNullOrEmpty(id) && url.ToLower().Equals(schoolUrl.ToLower())) return id;
+                if (url.ToLower().Equals(schoolUrl.ToLower())) return id;
                 school = _schoolService.GetSchoolByUrl(schoolUrl);
             }
             else school = _schoolService.GetSchool(schoolId);

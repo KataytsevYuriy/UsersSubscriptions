@@ -42,22 +42,12 @@ namespace UsersSubscriptions.Controllers
             _paymentService = paymentService;
         }
 
-        public async Task<IActionResult> Index(string schoolId)
+        public IActionResult Index(string schoolId)
         {
-            if (string.IsNullOrEmpty(schoolId))
-            {
-                IEnumerable<School> schools = await SchoolFromContext();
-                if (schools.Count() > 1)
-                {
-                    return RedirectToAction(nameof(SelectSchool), new { redirectValue = "Index" });
-                }
-                if (schools.Count() == 0)
-                {
-                    return RedirectToAction("Index", "Home");
-                }
-                schoolId = schools.FirstOrDefault().Id;
-            }
             CheckSchool checkSchool = new CheckSchool(_schoolService, HttpContext.Session);
+            string school_Id = checkSchool.GetSchoolId_From_Context((HttpContext.GetRouteData().Values["submomain"] ?? "").ToString());
+            if (!string.IsNullOrEmpty(school_Id)) schoolId = school_Id;
+            if (string.IsNullOrEmpty(schoolId)) return NotFound();
             if (!checkSchool.IsSchoolAllowed(schoolId))
             {
                 return RedirectToAction(Common.UsersConstants.redirectPayPageAction, Common.UsersConstants.redirectPayPageController, new { schoolId });
@@ -76,11 +66,6 @@ namespace UsersSubscriptions.Controllers
         private async Task<IEnumerable<School>> SchoolFromContext()
         {
             string teacherId = HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (teacherId == null || string.IsNullOrEmpty(teacherId))
-            {
-                await _signInManager.SignOutAsync();
-                return new List<School>();
-            }
             AppUser curTeacher = await _userService.GetUserAsync(teacherId);
             if (curTeacher == null)
             {
@@ -99,29 +84,26 @@ namespace UsersSubscriptions.Controllers
             return schools;
         }
 
-        public async Task<IActionResult> SelectSchool(string redirectValue)
+        public async Task<IActionResult> SelectSchool(string redirectValue, string schoolId = "")
         {
+            if (!string.IsNullOrEmpty(schoolId))
+            {
+                CheckSchool checkSchool = new CheckSchool(_schoolService, HttpContext.Session);
+                string id = checkSchool.GetSchoolId_From_Context((HttpContext.GetRouteData().Values["subdomain"] ?? "").ToString(), schoolId);
+                if (!string.IsNullOrEmpty(id)) return RedirectToAction(redirectValue);
+            }
             ViewBag.redirectValue = redirectValue;
-            return View(await SchoolFromContext());
+            IEnumerable<School> schools = new List<School>();
+            schools = await SchoolFromContext();
+            return View(schools);
         }
 
-        public IActionResult AddOneTimeSubscription(string schoolId)
+        public IActionResult AddOneTimeSubscription(string schoolId = "")
         {
             CheckSchool checkSchool = new CheckSchool(_schoolService, HttpContext.Session);
-            schoolId = checkSchool.GetSchoolId_From_Context((HttpContext.GetRouteData().Values["subdomain"] ?? "").ToString());
-            //if (string.IsNullOrEmpty(schoolId))
-            //{
-            //    IEnumerable<School> schools = await SchoolFromContext();
-            //    if (schools.Count() > 1)
-            //    {
-            //        return RedirectToAction(nameof(SelectSchool), new { redirectValue = "AddOneTimeSubscription" });
-            //    }
-            //    if (schools.Count() == 0)
-            //    {
-            //        return RedirectToAction("Index", "Home");
-            //    }
-            //    schoolId = schools.FirstOrDefault().Id;
-            //}
+            string id = checkSchool.GetSchoolId_From_Context((HttpContext.GetRouteData().Values["subdomain"] ?? "").ToString());
+            if (!string.IsNullOrEmpty(id)) schoolId = id;
+            if (string.IsNullOrEmpty(schoolId)) return NotFound();
             IEnumerable<Course> teacherCourses = _courseService.GetTeacherCourses(
                     HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier), schoolId, true);
             if (teacherCourses == null || teacherCourses.Where(cour => cour.AllowOneTimePrice == true).Count() == 0)
@@ -143,67 +125,64 @@ namespace UsersSubscriptions.Controllers
         [HttpPost]
         public async Task<IActionResult> AddOneTimeSubscription(AddSubscriptionViewModel model)
         {
-            IEnumerable<Course> teacherCourses = _courseService.GetTeacherCourses(
-                       HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier), model.SchoolId, true);
-            if (teacherCourses == null || teacherCourses.Where(cour => cour.AllowOneTimePrice == true).Count() == 0)
+            CheckSchool checkSchool = new CheckSchool(_schoolService, HttpContext.Session);
+            string schoolId = checkSchool.GetSchoolId_From_Context((HttpContext.GetRouteData().Values["subdomain"] ?? "").ToString()) ?? model.SchoolId;
+            if (string.IsNullOrEmpty(schoolId))
+                if (string.IsNullOrEmpty(schoolId = model.SchoolId)) return NotFound();
+            Course course = _courseService.GetCourse(model.SelectedCours.Id);
+            if (course == null) return NotFound();
+            if (!course.AllowOneTimePrice)
             {
-                TempData["ErrorMessage"] = "У вас немає активних курсів з разовими абонементми";
-                return RedirectToAction(nameof(Index), new { model.SchoolId });
+                TempData["ErrorMessage"] = "У цього курса відсутні разові абонементи";
+                return RedirectToAction(nameof(AddOneTimeSubscription), new { schoolId });
             }
-            model.TeacherCourses = teacherCourses;
-            Subscription subscription = new Subscription();
-            if (model == null) return RedirectToAction(nameof(AddOneTimeSubscription));
-            if (model.Student == null) return RedirectToAction(nameof(AddOneTimeSubscription));
+            if (course.CourseAppUsers.FirstOrDefault(cap =>
+             cap.AppUserId == HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier)) == null) return Forbid();
             if (string.IsNullOrEmpty(model.Student.FullName) && string.IsNullOrEmpty(model.Student.Id))
             {
                 TempData["ErrorMessage"] = "Потрібно вибрати учня ";
-                return View(model);
+                return RedirectToAction(nameof(AddOneTimeSubscription), new { schoolId });
             }
             if (string.IsNullOrEmpty(model.Student.Id) && (model.Student.FullName.Length < 5))
             {
                 TempData["ErrorMessage"] = "Ім'я повинно бути довше 5 символів";
-                return View(model);
+                return RedirectToAction(nameof(AddOneTimeSubscription), new { schoolId });
             }
             if (string.IsNullOrEmpty(model.SelectedPaymentType))
             {
                 TempData["ErrorMessage"] = "Виберіть тип оплати";
-                return View(model);
+                return RedirectToAction(nameof(AddOneTimeSubscription), new { schoolId });
             }
-            if (model.Month.Year < 2000) return RedirectToAction(nameof(AddOneTimeSubscription));
-            if (model.SelectedCours == null || string.IsNullOrEmpty(model.SelectedCours.Id))
-                return RedirectToAction(nameof(AddOneTimeSubscription));
-            if (!string.IsNullOrEmpty(model.Student.Id))
+            DateTime now = DateTime.Now;
+            if (model.Month.Date < DateTime.Now.Date)
             {
-                var student = await _userService.GetUserAsync(model.Student.Id);
-                subscription.AppUserId = model.Student.Id;
-                subscription.FullName = student.FullName;
-                subscription.Phone = student.PhoneNumber;
+                TempData["ErrorMessage"] = "Виберіть коректну дату";
+                return RedirectToAction(nameof(AddOneTimeSubscription), new { schoolId });
             }
-            else if (!string.IsNullOrEmpty(model.Student.FullName))
+            IEnumerable<Course> teacherCourses = _courseService.GetTeacherCourses(
+                       HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier), model.SchoolId, true);
+            Subscription subscription = new Subscription
             {
-                subscription.FullName = model.Student.FullName;
-                if (!string.IsNullOrEmpty(model.Student.PhoneNumber))
+                Id = Guid.NewGuid().ToString(),
+                Period = model.Month,
+                CourseId = model.SelectedCours.Id,
+                MonthSubscription = false,
+                CreatedDatetime = DateTime.Now,
+                AppUserId=model.Student.Id,
+                FullName=model.Student.FullName,
+                Phone=model.Student.PhoneNumber,
+                Payments = new List<Payment>
                 {
-                    subscription.Phone = model.Student.PhoneNumber;
-                }
-            }
-            else return RedirectToAction(nameof(AddOneTimeSubscription));
-            subscription.Id = Guid.NewGuid().ToString();
-            subscription.Period = model.Month;
-            subscription.CourseId = model.SelectedCours.Id;
-            subscription.MonthSubscription = false;
-            subscription.CreatedDatetime = DateTime.Now;
-            subscription.Payments = new List<Payment>
-            {
-                new Payment
-                {
-                    DateTime=DateTime.Now,
-                    PaymentTypeId=model.SelectedPaymentType,
-                    Price=model.SelectedCours.Price,
-                    PayedToId=HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier),
+                    new Payment
+                    {
+                        DateTime=DateTime.Now,
+                        PaymentTypeId=model.SelectedPaymentType,
+                        Price=model.SelectedCours.Price,
+                        PayedToId=HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier),
+                    },
                 },
+                Price = teacherCourses.FirstOrDefault(cour => cour.Id == model.SelectedCours.Id).OneTimePrice,
             };
-            subscription.Price = teacherCourses.FirstOrDefault(cour => cour.Id == model.SelectedCours.Id).OneTimePrice;
 
             IdentityResult result = await _subscriptionsService.CreateSubscriptionAsync(subscription);
             if (result.Succeeded)
@@ -229,7 +208,7 @@ namespace UsersSubscriptions.Controllers
             if (student == null)
             {
                 TempData["ErrorMessage"] = "Учня не знайдено";
-                return RedirectToAction(nameof(Index));
+                return NotFound();
             }
             if (Month.Year < 2000) Month = curDate;
             IEnumerable<Subscription> userSubscriptions = _subscriptionsService.GetUserSubscriptions(student.Id, schoolId, Month);
@@ -317,30 +296,15 @@ namespace UsersSubscriptions.Controllers
             return RedirectToAction(nameof(SubscriptionDetails), new { id = subscription.Id });
         }
 
-        public async Task<IActionResult> TeacherCourses(string schoolId)
+        public IActionResult TeacherCourses(string schoolId)
         {
-            if (string.IsNullOrEmpty(schoolId))
-            {
-                IEnumerable<School> schools = await SchoolFromContext();
-                if (schools.Count() > 1)
-                {
-                    return RedirectToAction(nameof(SelectSchool), new { redirectValue = "TeacherCourses" });
-                }
-                else if (schools.Count() == 1)
-                {
-                    schoolId = schools.FirstOrDefault().Id;
-                }
-                else
-                {
-                    return View(new List<Course>());
-                }
-            }
             CheckSchool checkSchool = new CheckSchool(_schoolService, HttpContext.Session);
+            schoolId = checkSchool.GetSchoolId_From_Context((HttpContext.GetRouteData().Values["subdomain"] ?? "").ToString());
+            if (string.IsNullOrEmpty(schoolId)) return NotFound();
             if (!checkSchool.IsSchoolAllowed(schoolId))
             {
                 return RedirectToAction(Common.UsersConstants.redirectPayPageAction, Common.UsersConstants.redirectPayPageController, new { schoolId });
             }
-            ViewBag.schoolId = schoolId;
             IEnumerable<Course> courses = _courseService.GetTeacherCourses(
                 HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier), schoolId, false);
             return View(courses);
@@ -353,7 +317,7 @@ namespace UsersSubscriptions.Controllers
             return RedirectToAction("StudentInfo", new { studentId = subscription.AppUserId, course.SchoolId, subscription.Period });
         }
 
-        public IActionResult CourseInfo(string Id, string schoolId, DateTime month)
+        public IActionResult CourseInfo(string Id, DateTime month)
         {
             if (month.Year < 2000) { month = DateTime.Now; }
             IEnumerable<Subscription> subscriptions = _schoolService.GetTeacherMonthSubscriptions(Id, month);
@@ -386,5 +350,14 @@ namespace UsersSubscriptions.Controllers
             School school = _schoolService.GetSchool(schoolId);
             return View(school);
         }
+
+        private string GetSchoolId()
+        {
+            string subdomain = (HttpContext.GetRouteData().Values["subdomain"] ?? "").ToString();
+            CheckSchool checkSchool = new CheckSchool(_schoolService, HttpContext.Session);
+            return checkSchool.GetSchoolId_From_Context(subdomain);
+
+        }
+
     }
 }

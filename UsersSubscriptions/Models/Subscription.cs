@@ -13,9 +13,6 @@ namespace UsersSubscriptions.Models
         [StringLength(64)]
         public string Id { get; set; }
         [DisplayFormat(DataFormatString ="{0:dd'/'mm'/'yyyy}", ApplyFormatInEditMode =true)]
-        //public DateTime Month { get; set; }
-
-        //public string Comment { get; set; }
 
         public DateTime Period { get; set; }
         [StringLength(64)]

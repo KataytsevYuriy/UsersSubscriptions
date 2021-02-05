@@ -60,7 +60,8 @@
         sum += payedSum;
         <tr>
             <td class="text-center" style="vertical-align:middle">
-                @(sub.MonthSubscription ? sub.AppUser.FullName.ToUpperInvariant() : sub.FullName.ToUpperInvariant())
+                @((sub.FullName ?? sub.AppUser?.FullName??"").ToUpperInvariant())
+                @*sub.MonthSubscription ? sub.AppUser.FullName.ToUpperInvariant() : sub.FullName.ToUpperInvariant())*@
             </td>
             <td class="text-center" style="vertical-align:middle">
                 @(sub.MonthSubscription ? sub.AppUser.PhoneNumber : sub.Phone)
@@ -72,7 +73,11 @@
                 }
                 @if (payedSum != sub.Price)
                 {
-                <span class="text-danger"> Сплачено @payedSum з @sub.Price</span>
+                    <span class="text-danger"> Сплачено @payedSum з @sub.Price</span> <br />
+                }
+                @if (!sub.MonthSubscription)
+                {
+                    <span class="text-danger">Разовий</span>
                 }
             </td>
         </tr>
