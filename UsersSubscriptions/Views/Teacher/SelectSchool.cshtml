@@ -4,12 +4,19 @@
 }
 
 <div class="text-center"><h3>Виберіть школу</h3></div>
-<ul class="list-group">
-     @foreach (var school in Model)
-    {
-        <li class="list-group-item text-center">
-            <a asp-action="SelectSchool" asp-route-schoolId="@school.Id" asp-route-redirectValue="@ViewBag.redirectValue">@school.Name</a>
-        </li>
-    }
+@if (Model.Count() > 0)
+{
+    <ul class="list-group">
 
-</ul>
+        @foreach (var school in Model)
+        {
+            <li class="list-group-item text-center">
+                <a asp-action="SelectSchool" asp-route-schoolId="@school.Id" asp-route-redirectValue="@ViewBag.redirectValue">@school.Name</a>
+            </li>
+        }
+    </ul>
+}
+else
+{
+    <div class="text-center"><h3 class="text-danger">Активні школи відсутні</h3></div>
+}

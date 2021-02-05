@@ -47,7 +47,7 @@ namespace UsersSubscriptions.Controllers
             CheckSchool checkSchool = new CheckSchool(_schoolService, HttpContext.Session);
             string school_Id = checkSchool.GetSchoolId_From_Context((HttpContext.GetRouteData().Values["submomain"] ?? "").ToString());
             if (!string.IsNullOrEmpty(school_Id)) schoolId = school_Id;
-            if (string.IsNullOrEmpty(schoolId)) return NotFound();
+            if (string.IsNullOrEmpty(schoolId)) return RedirectToAction(nameof(SelectSchool), new { redirectValue = "Index" });
             if (!checkSchool.IsSchoolAllowed(schoolId))
             {
                 return RedirectToAction(Common.UsersConstants.redirectPayPageAction, Common.UsersConstants.redirectPayPageController, new { schoolId });
@@ -67,20 +67,9 @@ namespace UsersSubscriptions.Controllers
         {
             string teacherId = HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
             AppUser curTeacher = await _userService.GetUserAsync(teacherId);
-            if (curTeacher == null)
-            {
-                await _signInManager.SignOutAsync();
-                return new List<School>();
-            }
+            if (curTeacher == null) throw new Exception("Користувача не знайдено");
             IEnumerable<School> schools = _teacherSecvice.GetCurrentTeacherSchools(teacherId);
-            if (schools.Count() == 0) return new List<School>();
-            string subdomain = (HttpContext.GetRouteData().Values["subdomain"] ?? "").ToString();
-            if (!string.IsNullOrEmpty(subdomain))
-            {
-                List<School> school = schools.Where(sch => sch.UrlName.ToLower().Equals(subdomain.ToLower())).ToList();
-                if (school.Count() == 0) return new List<School>();
-                return school;
-            }
+            /*if (schools.Count() > 0) */schools = schools.Where(sch => sch.Enable == true);
             return schools;
         }
 
@@ -94,7 +83,15 @@ namespace UsersSubscriptions.Controllers
             }
             ViewBag.redirectValue = redirectValue;
             IEnumerable<School> schools = new List<School>();
-            schools = await SchoolFromContext();
+            try
+            {
+                schools = await SchoolFromContext();
+            }
+            catch (Exception ex)
+            {
+                ErrorViewModel errorModel = new ErrorViewModel { Message = ex.Message };
+                return View("../Shared/Error", errorModel);
+            }
             return View(schools);
         }
 
@@ -168,9 +165,9 @@ namespace UsersSubscriptions.Controllers
                 CourseId = model.SelectedCours.Id,
                 MonthSubscription = false,
                 CreatedDatetime = DateTime.Now,
-                AppUserId=model.Student.Id,
-                FullName=model.Student.FullName,
-                Phone=model.Student.PhoneNumber,
+                AppUserId = model.Student.Id,
+                FullName = model.Student.FullName,
+                Phone = model.Student.PhoneNumber,
                 Payments = new List<Payment>
                 {
                     new Payment
@@ -298,9 +295,12 @@ namespace UsersSubscriptions.Controllers
 
         public IActionResult TeacherCourses(string schoolId)
         {
+            string school_Id = GetSchoolId();
+            if (string.IsNullOrEmpty(school_Id))
+            {
+                RedirectToAction(nameof(SelectSchool), new { redirectValue = "TeacherCourses" });
+            }
             CheckSchool checkSchool = new CheckSchool(_schoolService, HttpContext.Session);
-            schoolId = checkSchool.GetSchoolId_From_Context((HttpContext.GetRouteData().Values["subdomain"] ?? "").ToString());
-            if (string.IsNullOrEmpty(schoolId)) return NotFound();
             if (!checkSchool.IsSchoolAllowed(schoolId))
             {
                 return RedirectToAction(Common.UsersConstants.redirectPayPageAction, Common.UsersConstants.redirectPayPageController, new { schoolId });
